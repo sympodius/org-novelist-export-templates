@@ -8,9 +8,9 @@
 ;; URL: https://johnurquhartferguson.info
 ;; Keywords: fiction, writing, outlines
 ;; Prefix: org-novelist
-;; Package-Requires: ((org "9.6"))
+;; Package-Requires: ((org "9.5.5"))
 
-;; Version 0.0.1
+;; Version 0.0.2
 
 ;; This file is not part of GNU Emacs.
 ;;
@@ -123,6 +123,21 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (when current-file
           (delete-file current-file))))))
 
+(defun ooetmeg--fold-show-all ()
+  "Run the deprecated org-show-all when Org version is less than 9.6.
+Otherwise, run org-fold-show-all."
+  (if (and (>= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+           (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6))
+      (org-fold-show-all)
+    (org-show-all)))
+
+(defun ooetmeg--delete-line ()
+  "If Emacs version is less than 29, delete line the old fashioned way."
+  (let ((inhibit-field-text-motion t))
+    (if (>= (string-to-number (nth 0 (split-string (string-trim-left (emacs-version) "GNU Emacs ") "\\."))) 29)
+        (delete-line)
+      (delete-region (line-beginning-position) (line-beginning-position 2)))))
+
 
 ;;;; Required Entry Point Function for Org Novelist Export
 
@@ -204,18 +219,18 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 	  (insert "\n")
 	  (goto-char (point-min))
 	  (org-mode)
-	  (org-fold-show-all)
+	  (ooetmeg--fold-show-all)
 	  (while (not (org-next-visible-heading 1))
 	    ;; check matter type and replace appropriately, convert heading level to same output level. If not matter type, assume front matter
 	    (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
 		   (setq curr-heading (nth 4 (org-heading-components)))
 		   (setq curr-level (number-to-string (org-current-level)))
 		   (beginning-of-line)
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (setq beg (point))
 		   (re-search-forward ":END:" nil t)
 		   (delete-region beg (point))
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (insert (concat "#+BEGIN_EXPORT odt\n"
 				   "<text:h text:style-name=\"Heading_20_1_20_First\" text:outline-level=\""
 				   curr-level "\" text:is-list-header=\"false\">\n"
@@ -228,11 +243,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 		   (setq curr-level (number-to-string (org-current-level)))
 		   (setq chap-num (+ chap-num 1))
 		   (beginning-of-line)
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (setq beg (point))
 		   (re-search-forward ":END:" nil t)
 		   (delete-region beg (point))
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (insert (concat "#+BEGIN_EXPORT odt\n"
 				   "<text:h text:style-name=\"Heading_20_1\" text:outline-level=\""
 				   curr-level "\" text:is-list-header=\"false\">\n"
@@ -245,11 +260,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 		   (setq curr-heading (nth 4 (org-heading-components)))
 		   (setq curr-level (number-to-string (org-current-level)))
 		   (beginning-of-line)
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (setq beg (point))
 		   (re-search-forward ":END:" nil t)
 		   (delete-region beg (point))
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (insert (concat "#+BEGIN_EXPORT odt\n"
 				   "<text:h text:style-name=\"Heading_20_1_20_First\" text:outline-level=\""
 				   curr-level "\" text:is-list-header=\"false\">\n"
@@ -261,11 +276,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 		   (setq curr-heading (nth 4 (org-heading-components)))
 		   (setq curr-level (number-to-string (org-current-level)))
 		   (beginning-of-line)
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (setq beg (point))
 		   (re-search-forward ":END:" nil t)
 		   (delete-region beg (point))
-		   (delete-line)
+		   (ooetmeg--delete-line)
 		   (insert (concat "#+BEGIN_EXPORT odt\n"
 				   "<text:h text:style-name=\"Heading_20_1_20_First\" text:outline-level=\""
 				   curr-level "\" text:is-list-header=\"false\">\n"
@@ -274,7 +289,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 				   "<text:bookmark-end text:name=\"OrgXref.org622dc31\"/></text:h>\n"
 				   "#+END_EXPORT\n")))))
 	  (goto-char (point-min))
-	  (delete-line)
+	  (ooetmeg--delete-line)
 	  (ooetmeg--string-to-file (buffer-string) temp-org))
 	(find-file temp-org)
 	(org-odt-export-to-odt)
@@ -293,5 +308,5 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 ;;; org-odt-export-to-manuscript-en-us.el ends here
 
 ;; Local Variables:
-;; read-symbol-shorthands: (("ooetmeg-" . "org-odt-export-to-manuscript-en-us"))
+;; read-symbol-shorthands: (("ooetmeg-" . "org-odt-export-to-manuscript-en-us-"))
 ;; End:
