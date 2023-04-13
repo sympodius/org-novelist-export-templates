@@ -8,9 +8,9 @@
 ;; URL: https://johnurquhartferguson.info
 ;; Keywords: fiction, writing, outlines
 ;; Prefix: org-novelist
-;; Package-Requires: ((org "9.5.5"))
+;; Package-Requires: ((emacs "28.1") (org "9.5.5"))
 
-;; Version 0.0.2
+;; Version 0.0.3
 
 ;; This file is not part of GNU Emacs.
 ;;
@@ -44,9 +44,6 @@
 ;; following of links, programmatic updating of crossreferences, and
 ;; ability to programatically export to other formats.
 ;;
-;; This was included with  the first public release of Org Novelist:
-;; Version 0.0.1 (Haddonfield)
-;;
 ;; Installation, Activation, and Documentation
 ;; -------------------------------------------
 ;; See the corresponding section of the website at
@@ -65,10 +62,10 @@
 (defun org-novelist--export-template (org-input-file output-file)
   "Given an ORG-INPUT-FILE from Org Novelist, export to OUTPUT-FILE."
   (let ((org-export-with-toc-orig nil)
-	(org-export-with-title-orig nil)
-	(org-export-with-author-orig nil)
-	(org-export-with-email-orig nil)
-	(org-export-with-date-orig nil))
+        (org-export-with-title-orig nil)
+        (org-export-with-author-orig nil)
+        (org-export-with-email-orig nil)
+        (org-export-with-date-orig nil))
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
     (when (boundp 'org-export-with-title)
