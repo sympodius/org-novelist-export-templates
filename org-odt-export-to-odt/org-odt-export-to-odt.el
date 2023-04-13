@@ -8,9 +8,9 @@
 ;; URL: https://johnurquhartferguson.info
 ;; Keywords: fiction, writing, outlines
 ;; Prefix: org-novelist
-;; Package-Requires: ((org "9.5.5"))
+;; Package-Requires: ((emacs "28.1") (org "9.5.5"))
 
-;; Version 0.0.2
+;; Version 0.0.3
 
 ;; This file is not part of GNU Emacs.
 ;;
@@ -44,9 +44,6 @@
 ;; following of links, programmatic updating of crossreferences, and
 ;; ability to programatically export to other formats.
 ;;
-;; This was included with  the first public release of Org Novelist:
-;; Version 0.0.1 (Haddonfield)
-;;
 ;; Installation, Activation, and Documentation
 ;; -------------------------------------------
 ;; See the corresponding section of the website at
@@ -65,11 +62,12 @@
 (defun org-novelist--export-template (org-input-file output-file)
   "Given an ORG-INPUT-FILE from Org Novelist, export to OUTPUT-FILE."
   (let ((org-export-with-toc-orig nil)
-	(org-export-with-title-orig nil)
-	(org-export-with-author-orig nil)
-	(org-export-with-email-orig nil)
-	(org-export-with-date-orig nil)
-	(org-odt-styles-file-orig nil))
+        (org-export-with-title-orig nil)
+        (org-export-with-author-orig nil)
+        (org-export-with-email-orig nil)
+        (org-export-with-date-orig nil)
+        (org-odt-styles-file-orig nil)
+        (undo-tree-auto-save-history-orig nil))
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
     (when (boundp 'org-export-with-title)
@@ -82,12 +80,15 @@
       (setq org-export-with-date-orig org-export-with-date))
     (when (boundp 'org-odt-styles-file)
       (setq org-odt-styles-file-orig org-odt-styles-file))
+    (when (boundp 'undo-tree-auto-save-history)
+      (setq undo-tree-auto-save-history-orig undo-tree-auto-save-history))
     (setq org-export-with-toc t)
     (setq org-export-with-title t)
     (setq org-export-with-author t)
     (setq org-export-with-email t)
     (setq org-export-with-date t)
     (setq org-odt-styles-file nil)
+    (setq undo-tree-auto-save-history nil)
     (find-file org-input-file)
     (org-odt-export-to-odt)
     (setq org-odt-styles-file org-odt-styles-file-orig)
@@ -97,7 +98,8 @@
     (setq org-export-with-email org-export-with-email-orig)
     (setq org-export-with-date org-export-with-date-orig)
     (make-directory (file-name-directory output-file) t)
-    (rename-file (concat (file-name-sans-extension org-input-file) ".odt") output-file t)))
+    (rename-file (concat (file-name-sans-extension org-input-file) ".odt") output-file t)
+    (setq undo-tree-auto-save-history undo-tree-auto-save-history-orig)))
 
 (provide 'org-odt-export-to-odt)
 ;;; org-odt-export-to-odt.el ends here
