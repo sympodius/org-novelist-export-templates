@@ -68,10 +68,11 @@
 (defvar oletptceu--sansfont "Josefin Sans" "Main text font, must be installed on system already.")
 (defvar oletptceu--monofont "DejaVu Sans Mono" "Main text font, must be installed on system already.")
 (defvar oletptceu--signaturefont "Alegreya SC" "Main text font, must be installed on system already.")
-(defvar oletptceu--title-page-graphic (concat (file-name-directory (symbol-file 'org-latex-export-to-pdf-tradeback-cubes-en-us)) "cubes.png") "Location of image file to use in title page.")
+(defvar oletptceu--title-page-graphic "/home/sympodius/Git/sympodius/org-novelist-export-templates/org-latex-export-to-pdf-tradeback-cubes-en-us/cubes.png" "Location of image file to use in title page.")
 (defvar oletptceu--isbn "" "ISBN number of book, if there is one.")
 (defvar oletptceu--edition "Early Draft Edition" "Text describing this edition.")
-(defvar oletptceu--sigil-graphic (concat (file-name-directory (symbol-file 'org-latex-export-to-pdf-tradeback-cubes-en-us)) "juf-sigil.pdf") "Location of image file to use as sigil in legal page.")
+(defvar oletptceu--rights "Creative Commons Attribution-Non-Commercial-ShareAlike 4.0 International License" "Copyright statement or license.")
+(defvar oletptceu--sigil-graphic "/home/sympodius/Git/sympodius/org-novelist-export-templates/org-latex-export-to-pdf-tradeback-cubes-en-us/juf-sigil.pdf" "Location of image file to use as sigil in legal page.")
 
 
 
@@ -84,12 +85,22 @@
 ;;;; Helper Functions
 
 (defun oletptceu--fold-show-all ()
-  "Run the deprecated org-show-all when Org version is less than 9.6.
-Otherwise, run org-fold-show-all."
+  "Run the deprecated `org-show-all' when Org version is less than 9.6.
+Otherwise, run `org-fold-show-all'."
   (if (and (>= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
            (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6))
       (org-fold-show-all)
     (org-show-all)))
+
+(defun oletptceu--format-time-string (format-string &optional time-zone)
+  "Run the deprecated `org-format-time-string' when Org version is less than 9.6.
+Otherwise, run `format-time-string'.
+FORMAT-STRING is the output format.
+TIME-ZONE is the given time. If omitted or nil, use local time."
+  (if (and (>= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+           (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6))
+      (format-time-string format-string time-zone)
+    (org-format-time-string format-string time-zone)))
 
 (defun oletptceu--set-file-property-value (property value &optional file no-overwrite)
   "Given a FILE and VALUE, change PROPERTY value of that file.
@@ -188,6 +199,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (org-export-with-author-orig nil)
         (org-export-with-email-orig nil)
         (org-export-with-date-orig nil)
+        (undo-tree-auto-save-history-orig nil)
         curr-heading
         curr-level
         beg)
@@ -201,6 +213,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
       (setq org-export-with-email-orig org-export-with-email))
     (when (boundp 'org-export-with-date)
       (setq org-export-with-date-orig org-export-with-date))
+    (when (boundp 'undo-tree-auto-save-history)
+      (setq undo-tree-auto-save-history-orig undo-tree-auto-save-history))
     (setq org-export-with-toc nil)
     (setq org-export-with-title nil)
     (setq org-export-with-author nil)
@@ -212,6 +226,28 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (insert-file-contents org-input-file)
           (org-mode)
           (oletptceu--fold-show-all)
+          ;; Set fallback fonts if user selections not found.
+          (cond
+           ((find-font (font-spec :name oletptceu--mainfont))
+            (setq oletptceu--mainfont oletptceu--mainfont))
+           (t
+            (setq oletptceu--mainfont "cmr")))
+          (cond
+           ((find-font (font-spec :name oletptceu--sansfont))
+            (setq oletptceu--sansfont oletptceu--sansfont))
+           (t
+            (setq oletptceu--sansfont "cmss")))
+          (cond
+           ((find-font (font-spec :name oletptceu--monofont))
+            (setq oletptceu--monofont oletptceu--monofont))
+           (t
+            (setq oletptceu--monofont "cmtt")))
+          (cond
+           ((find-font (font-spec :name oletptceu--signaturefont))
+            (setq oletptceu--signaturefont oletptceu--signaturefont))
+           (t
+            (setq oletptceu--signaturefont "cmss")))
+          ;; Setup LaTeX document options.
           (oletptceu--set-file-property-value "LATEX_COMPILER" "xelatex")
           (oletptceu--set-file-property-value "LATEX_CLASS" "book")
           (oletptceu--set-file-property-value "LATEX_CLASS_OPTIONS" "[11pt,twoside,a5paper,titlepage,openright]")
@@ -241,10 +277,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\paperheight 22.86cm" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\renewcommand{\\thefootnote}{$^[$\\arabic{footnote}$^]$}" nil t)
           (oletptceu--set-file-property-value "ATTR_LATEX" ":width \\linewidth :thickness 0.25mm")
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\newfontfamily\\signaturefont[Scale=" (number-to-string oletptceu--typeface-size) "]{" oletptceu--signaturefont "}") nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmonofont[Scale=MatchLowercase]{" oletptceu--monofont "}") nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setsansfont[Scale=MatchLowercase]{" oletptceu--sansfont "}") nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmainfont[Scale=" (number-to-string oletptceu--typeface-size) "]{" oletptceu--mainfont "}") nil t)
+          (when (find-font (font-spec :name oletptceu--signaturefont))
+            (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\newfontfamily\\signaturefont[Scale=" (number-to-string oletptceu--typeface-size) "]{" oletptceu--signaturefont "}") nil t))
+          (when (find-font (font-spec :name oletptceu--monofont))
+            (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmonofont[Scale=MatchLowercase]{" oletptceu--monofont "}") nil t))
+          (when (find-font (font-spec :name oletptceu--sansfont))
+            (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setsansfont[Scale=MatchLowercase]{" oletptceu--sansfont "}") nil t))
+          (when (find-font (font-spec :name oletptceu--mainfont))
+            (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmainfont[Scale=" (number-to-string oletptceu--typeface-size) "]{" oletptceu--mainfont "}") nil t))
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\usepackage{fontspec} " nil t)
           (goto-char (point-min))
           (when (org-goto-first-child)
@@ -255,13 +295,18 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
             (insert "#+BEGIN_EXPORT latex\n"
                     "\\frontmatter{}\n"
                     "\\begin{titlepage}\n"
-                    "\\begin{center}\n"
-                    "\\includegraphics[scale=0.5]{" oletptceu--title-page-graphic "}\\\\[3cm]\n"
-                    "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
+                    "\\begin{center}\n")
+            (if (file-readable-p oletptceu--title-page-graphic)
+                (insert "\\includegraphics[scale=0.175]{" oletptceu--title-page-graphic "}\\\\[3cm]\n")
+              (insert "~\\\\[8.5cm]\n"
+                      "\n"))
+            (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
                     "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value org-input-file "TITLE") "}\\\\[0.2cm]\n"
-                    "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"
-                    "{\\signaturefont {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}}\\\\[0.25cm]\n"
-                    "\\vfill\n"
+                    "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n")
+            (if (find-font (font-spec :name oletptceu--signaturefont))
+                (insert "{\\signaturefont {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}}\\\\[0.25cm]\n")
+              (insert "\\textsc {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\\\\[0.25cm]\n"))
+            (insert "\\vfill\n"
                     "\\end{center}\n"
                     "\\end{titlepage}\n"
                     "#+END_EXPORT\n")
@@ -270,39 +315,61 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                     "\\thispagestyle{empty}\n"
                     "\\legalParindent\n"
                     "\\legalParskip\n"
-                    (oletptceu--get-file-property-value org-input-file "TITLE") "\n\n"
-                    "Author: {\\signaturefont " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\n\n"
-                    "Cover: \\textit{Cube Family} by Martin Anderson (2012--?)\\\\Made with Blender 3D --- \\url{https://www.blender.org}\n\n"
-                    "\\vspace{1cm}\n\n"
+                    (oletptceu--get-file-property-value org-input-file "TITLE") "\n"
+                    "\n")
+            (if (find-font (font-spec :name oletptceu--signaturefont))
+                (insert "Author: {\\signaturefont " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\n"
+                        "\n")
+              (insert "Author: \\textsc{" (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\n"
+                      "\n"))
+            (insert "Cover: \\textit{Cube Family} by Martin Anderson (2012--?)\\\\Made with Blender 3D --- \\url{https://www.blender.org}\n"
+                    "\n"
+                    "\\vspace{1cm}\n"
+                    "\n"
                     "This book, including the cover art, is copyright \\copyright~"
-                    (org-format-time-string
+                    (oletptceu--format-time-string
                      "%Y"
                      (org-time-from-absolute
                       (org-time-string-to-absolute
                        (oletptceu--get-file-property-value org-input-file "DATE"))))  " "
-                    (oletptceu--get-file-property-value org-input-file "AUTHOR") ".\n\n"
-                    "The electronic forms of this book, including the cover art, are licensed under the Creative Commons Attribution-Non-Commerc\\-ial-Share\\\\ Alike 4.0 International License. To view a copy of this license, visit:\n\n"
-                    "\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}\n\n"
-                    "Or, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n\n"
-                    "The author assumes no liability for errors or omissions in this book, or for damages or loss of revenue resulting from the use of the information contained herein. The characters and incidents portrayed in this book are fictional. Any similarities to real persons, living, dead or yet to exist, is entirely coincidental.\n\n")
+                    (oletptceu--get-file-property-value org-input-file "AUTHOR") ".\n"
+                    "\n")
+            (if (or (string= oletptceu--rights "Creative Commons Attribution-Non-Commercial-ShareAlike 4.0 International License") (string= opeteceu--rights "by-nc-sa"))
+                (insert "The electronic forms of this book, including the cover art, are licensed under the Creative Commons Attribution-Non-Commerc\\-ial-Share\\\\ Alike 4.0 International License. To view a copy of this license, visit:\n"
+                        "\n"
+                        "\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}\n"
+                        "\n"
+                        "Or, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n")
+              (insert oletptceu--rights "\n"))
+            (insert "\n"
+                    "The author assumes no liability for errors or omissions in this book, or for damages or loss of revenue resulting from the use of the information contained herein. The characters and incidents portrayed in this book are fictional. Any similarities to real persons, living, dead or yet to exist, is entirely coincidental.\n"
+                    "\n")
             (unless (string= (oletptceu--get-file-property-value org-input-file "EMAIL") "")
               (insert "You can contact the author via e-mail:\n\n"
                       "\\href{mailto:" (oletptceu--get-file-property-value org-input-file "EMAIL")
-                      "}{" (oletptceu--get-file-property-value org-input-file "EMAIL") "}\n\n"
-                      "\\vspace{1cm}\n\n"))
+                      "}{" (oletptceu--get-file-property-value org-input-file "EMAIL") "}\n"
+                      "\n"
+                      "\\vspace{1cm}\n"
+                      "\n"))
             (unless (string= oletptceu--isbn "")
-              (insert "ISBN " oletptceu--isbn "\n\n"))
+              (insert "ISBN " oletptceu--isbn "\n"
+                      "\n"))
             (insert oletptceu--edition ": "
-                    (org-format-time-string
+                    (oletptceu--format-time-string
                      "%B %Y"
                      (org-time-from-absolute
                       (org-time-string-to-absolute
-                       (oletptceu--get-file-property-value org-input-file "DATE")))) "\n\n"
-                    "\\vspace{1cm}\n\n"
-                    "\\begin{center}\n"
-                    "\\includegraphics[scale=0.5]{" oletptceu--sigil-graphic "}\n\n"
-                    "\\end{center}\n\n"
-                    "\\docParindent\n"
+                       (oletptceu--get-file-property-value org-input-file "DATE")))) "\n"
+                    "\n")
+            (when (file-readable-p oletptceu--sigil-graphic)
+              (insert "\\vspace{1cm}\n"
+                      "\n"
+                      "\\begin{center}\n"
+                      "\\includegraphics[scale=0.5]{" oletptceu--sigil-graphic "}\n"
+                      "\n"
+                      "\\end{center}\n"
+                      "\n"))
+            (insert "\\docParindent\n"
                     "\\docParskip\n"
                     "#+END_EXPORT\n"))
           (goto-char (point-min))
@@ -320,6 +387,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (re-search-forward ":END:" nil t)
                    (delete-region beg (point))
                    (oletptceu--delete-line)
+                   (insert "#+BEGIN_EXPORT latex\n")
                    (cond ((= 1 curr-level)
                           (insert "\\chapter*{" curr-heading "}\n"
                                   "\\addcontentsline{toc}{chapter}{" curr-heading "}\n"))
@@ -337,7 +405,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (insert "\\label{" curr-heading "}\n"
                            "\\pagestyle{plain}\n"
                            "\\legalParindent\n"
-                           "\\legalParskip\n"))
+                           "\\legalParskip\n"
+                           "#+END_EXPORT\n"))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
@@ -348,6 +417,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (re-search-forward ":END:" nil t)
                    (delete-region beg (point))
                    (oletptceu--delete-line)
+                   (insert "#+BEGIN_EXPORT latex\n")
                    (unless oletptceu--mm-found
                      (insert "\\tocParindent\n"
                              "\\tocParskip\n"
@@ -372,7 +442,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (insert "\\label{" curr-heading "}\n"
                            "\\pagestyle{headings}\n"
                            "\\docParindent\n"
-                           "\\docParskip\n"))
+                           "\\docParskip\n"
+                           "#+END_EXPORT\n"))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
@@ -383,6 +454,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (re-search-forward ":END:" nil t)
                    (delete-region beg (point))
                    (oletptceu--delete-line)
+                   (insert "#+BEGIN_EXPORT latex\n")
                    (unless oletptceu--bm-found
                      (insert "\\newpage\n"
                              "\\thispagestyle{empty}\n"
@@ -405,7 +477,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (insert "\\label{" curr-heading "}\n"
                            "\\pagestyle{plain}\n"
                            "\\legalParindent\n"
-                           "\\legalParskip\n"))
+                           "\\legalParskip\n"
+                           "#+END_EXPORT\n"))
                   (t
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
@@ -416,6 +489,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (re-search-forward ":END:" nil t)
                    (delete-region beg (point))
                    (oletptceu--delete-line)
+                   (insert "#+BEGIN_EXPORT latex\n")
                    (unless oletptceu--fm-found
                      (insert "\\frontmatter{}\n")
                      (setq oletptceu--fm-found t))
@@ -436,21 +510,27 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (insert "\\label{" curr-heading "}\n"
                            "\\pagestyle{plain}\n"
                            "\\legalParindent\n"
-                           "\\legalParskip\n"))))
+                           "\\legalParskip\n"
+                           "#+END_EXPORT\n"))))
           (goto-char (point-min))
           (oletptceu--delete-line)
-          (oletptceu--string-to-file (buffer-string) temp-org))))
+          (oletptceu--string-to-file (buffer-string) temp-org))))  ; Write new Org file to be fed to exporter
+    (setq undo-tree-auto-save-history nil)  ; Try to prevent undo-tree making back-ups for autogenerated files
     (find-file temp-org)
-    (org-latex-export-to-pdf)
+    (org-latex-export-to-pdf)  ; Use Org mode's built-in LaTeX -> PDF exporter to generate PDF from the new Org file
     (oletptceu--delete-current-file t)
     (setq org-export-with-toc org-export-with-toc-orig)
     (setq org-export-with-title org-export-with-title-orig)
     (setq org-export-with-author org-export-with-author-orig)
     (setq org-export-with-email org-export-with-email-orig)
     (setq org-export-with-date org-export-with-date-orig)
+    (make-directory (file-name-directory output-file) t)
+    (rename-file (concat (file-name-sans-extension temp-org) ".pdf") output-file t)
+    (rename-file (concat (file-name-sans-extension temp-org) ".tex") (concat (file-name-sans-extension output-file) ".tex") t)
     (setq oletptceu--fm-found nil)
     (setq oletptceu--mm-found nil)
-    (setq oletptceu--bm-found nil)))
+    (setq oletptceu--bm-found nil)
+    (setq undo-tree-auto-save-history undo-tree-auto-save-history-orig)))
 
 (provide 'org-latex-export-to-pdf-tradeback-cubes-en-us)
 ;;; org-latex-export-to-pdf-tradeback-cubes-en-us.el ends here
