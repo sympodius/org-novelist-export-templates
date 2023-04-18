@@ -292,10 +292,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                 (while title-lines
                   (setq title-graphic-arg (concat title-graphic-arg "-draw \"text 0," (number-to-string curr-title-pos) " \'" (car title-lines) "\'\" "))
                   (setq curr-title-pos (+ curr-title-pos 160))
-                  (message title-graphic-arg)
-                  (setq title-lines (cdr title-lines))))
+                  (setq title-lines (cdr title-lines)))
+                (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100," (number-to-string (+ 1280 curr-title-pos)) " 1500," (number-to-string (+ 1280 curr-title-pos)) "\" " title-graphic-arg )))
             (progn
-              (setq title-graphic-arg (concat "-draw \"text 0,0 \'" (opeteceu--get-file-property-value org-input-file "TITLE") "\'\" "))))
+              (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100,1440 1500,1440\" -draw \"text 0,0 \'" (opeteceu--get-file-property-value org-input-file "TITLE") "\'\" "))))
           ;; If Imagemagick is available, generate cover.
           (when (and (executable-find "magick") (file-readable-p opeteceu--cover-graphic))
             (shell-command (concat "magick -size 1600x2560 xc:white -fill black -stroke black -font \"Josefin-Sans\" -pointsize 126 -gravity center " title-graphic-arg  " -font \"Alegreya-SC\" -pointsize 72 -draw \"text 0,800 \'" (opeteceu--get-file-property-value org-input-file "AUTHOR") "\'\"" cover-graphic-arg " \"" (file-name-directory temp-org) "cover.png\""))
