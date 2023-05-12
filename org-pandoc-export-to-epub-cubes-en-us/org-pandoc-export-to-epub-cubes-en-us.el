@@ -163,22 +163,56 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
   "Given an ORG-INPUT-FILE from Org Novelist, export to OUTPUT-FILE."
   (let ((temp-org (concat (file-name-sans-extension output-file) ".org"))
         (org-export-with-toc-orig nil)
+        (org-export-with-date-orig nil)
+        (org-export-with-tags-orig nil)
+        (org-export-with-email-orig nil)
+        (org-export-with-latex-orig nil)
+        (org-export-with-tasks-orig nil)
         (org-export-with-title-orig nil)
         (org-export-with-author-orig nil)
-        (org-export-with-email-orig nil)
-        (org-export-with-date-orig nil)
+        (org-export-with-clocks-orig nil)
+        (org-export-with-tables-orig nil)
+        (org-export-with-creator-orig nil)
+        (org-export-with-drawers-orig nil)
+        (org-export-with-entities-orig nil)
+        (org-export-with-planning-orig nil)
+        (org-export-with-priority-orig nil)
+        (org-export-with-emphasize-orig nil)
+        (org-export-with-footnotes-orig nil)
+        (org-export-with-properties-orig nil)
+        (org-export-with-timestamps-orig nil)
+        (org-export-with-fixed-width-orig nil)
+        (org-export-with-inlinetasks-orig nil)
+        (org-export-with-broken-links-orig nil)
+        (org-export-with-smart-quotes-orig nil)
+        (org-export-with-todo-keywords-orig nil)
+        (org-export-with-archived-trees-orig nil)
+        (org-export-with-section-numbers-orig nil)
+        (org-export-with-special-strings-orig nil)
+        (org-export-with-sub-superscripts-orig nil)
+        (org-use-sub-superscripts-orig nil)
+        (org-export-with-statistics-cookies-orig nil)
         (undo-tree-auto-save-history-orig nil)
         curr-heading
         curr-level
         (chap-num 0)
         beg
+        (toc-head-string "")
+        (no-header nil)
+        (no-header-name nil)
+        (no-header-preamble nil)
+        (no-toc-entry nil)
         cover-graphic-arg
         (title-graphic-arg "")
         title-words
         (title-lines '())
+        (author-graphic-arg "")
+        author-words
+        (author-lines '())
         (curr-line "")
         curr-word
         (curr-title-pos 0)
+        (curr-author-pos 800)
         ;; The CSS sylesheet for the ePub.
         (cubes-stylesheet
          (concat
@@ -237,23 +271,99 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           "hr::after {\n"
           "  content: '';\n"
           "}\n")))
+    ;;  Store original user-set Org export settings.
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
+    (when (boundp 'org-export-with-date)
+      (setq org-export-with-date-orig org-export-with-date))
+    (when (boundp 'org-export-with-tags)
+      (setq org-export-with-tags-orig org-export-with-tags))
+    (when (boundp 'org-export-with-email)
+      (setq org-export-with-email-orig org-export-with-email))
+    (when (boundp 'org-export-with-latex)
+      (setq org-export-with-latex-orig org-export-with-latex))
+    (when (boundp 'org-export-with-tasks)
+      (setq org-export-with-tasks-orig org-export-with-tasks))
     (when (boundp 'org-export-with-title)
       (setq org-export-with-title-orig org-export-with-title))
     (when (boundp 'org-export-with-author)
       (setq org-export-with-author-orig org-export-with-author))
-    (when (boundp 'org-export-with-email)
-      (setq org-export-with-email-orig org-export-with-email))
-    (when (boundp 'org-export-with-date)
-      (setq org-export-with-date-orig org-export-with-date))
+    (when (boundp 'org-export-with-clocks)
+      (setq org-export-with-clocks-orig org-export-with-clocks))
+    (when (boundp 'org-export-with-tables)
+      (setq org-export-with-tables-orig org-export-with-tables))
+    (when (boundp 'org-export-with-creator)
+      (setq org-export-with-creator-orig org-export-with-creator))
+    (when (boundp 'org-export-with-drawers)
+      (setq org-export-with-drawers-orig org-export-with-drawers))
+    (when (boundp 'org-export-with-entities)
+      (setq org-export-with-entities-orig org-export-with-entities))
+    (when (boundp 'org-export-with-planning)
+      (setq org-export-with-planning-orig org-export-with-planning))
+    (when (boundp 'org-export-with-priority)
+      (setq org-export-with-priority-orig org-export-with-priority))
+    (when (boundp 'org-export-with-emphasize)
+      (setq org-export-with-emphasize-orig org-export-with-emphasize))
+    (when (boundp 'org-export-with-footnotes)
+      (setq org-export-with-footnotes-orig org-export-with-footnotes))
+    (when (boundp 'org-export-with-properties)
+      (setq org-export-with-properties-orig org-export-with-properties))
+    (when (boundp 'org-export-with-timestamps)
+      (setq org-export-with-timestamps-orig org-export-with-timestamps))
+    (when (boundp 'org-export-with-fixed-width)
+      (setq org-export-with-fixed-width-orig org-export-with-fixed-width))
+    (when (boundp 'org-export-with-inlinetasks)
+      (setq org-export-with-inlinetasks-orig org-export-with-inlinetasks))
+    (when (boundp 'org-export-with-broken-links)
+      (setq org-export-with-broken-links-orig org-export-with-broken-links))
+    (when (boundp 'org-export-with-smart-quotes)
+      (setq org-export-with-smart-quotes-orig org-export-with-smart-quotes))
+    (when (boundp 'org-export-with-todo-keywords)
+      (setq org-export-with-todo-keywords-orig org-export-with-todo-keywords))
+    (when (boundp 'org-export-with-archived-trees)
+      (setq org-export-with-archived-trees-orig org-export-with-archived-trees))
+    (when (boundp 'org-export-with-section-numbers)
+      (setq org-export-with-section-numbers-orig org-export-with-section-numbers))
+    (when (boundp 'org-export-with-special-strings)
+      (setq org-export-with-special-strings-orig org-export-with-special-strings))
+    (when (boundp 'org-export-with-sub-superscripts)
+      (setq org-export-with-sub-superscripts-orig org-export-with-sub-superscripts))
+    (when (boundp 'org-use-sub-superscripts)
+      (setq org-use-sub-superscripts-orig org-use-sub-superscripts))
+    (when (boundp 'org-export-with-statistics-cookies)
+      (setq org-export-with-statistics-cookies-orig org-export-with-statistics-cookies))
     (when (boundp 'undo-tree-auto-save-history)
       (setq undo-tree-auto-save-history-orig undo-tree-auto-save-history))
     (setq org-export-with-toc nil)
+    (setq org-export-with-date nil)
+    (setq org-export-with-tags t)
+    (setq org-export-with-email nil)
+    (setq org-export-with-latex t)
+    (setq org-export-with-tasks t)
     (setq org-export-with-title nil)
     (setq org-export-with-author nil)
-    (setq org-export-with-email nil)
-    (setq org-export-with-date nil)
+    (setq org-export-with-clocks nil)
+    (setq org-export-with-tables t)
+    (setq org-export-with-creator nil)
+    (setq org-export-with-drawers t)
+    (setq org-export-with-entities t)
+    (setq org-export-with-planning t)
+    (setq org-export-with-priority t)
+    (setq org-export-with-emphasize t)
+    (setq org-export-with-footnotes t)
+    (setq org-export-with-properties t)
+    (setq org-export-with-timestamps t)
+    (setq org-export-with-fixed-width t)
+    (setq org-export-with-inlinetasks t)
+    (setq org-export-with-broken-links t)
+    (setq org-export-with-smart-quotes t)
+    (setq org-export-with-todo-keywords t)
+    (setq org-export-with-archived-trees nil)
+    (setq org-export-with-section-numbers t)
+    (setq org-export-with-special-strings t)
+    (setq org-export-with-sub-superscripts t)
+    (setq org-use-sub-superscripts '{})
+    (setq org-export-with-statistics-cookies t)
     (when (file-readable-p org-input-file)
       (make-directory (file-name-directory output-file) t)
       (opeteceu--string-to-file cubes-stylesheet (concat (file-name-directory output-file) "stylesheet.css"))  ; Generate CSS file from variable
@@ -267,38 +377,76 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (beginning-of-line)
           (insert "\n")
           (forward-line -1)
-          ;; If graphic available, a cover will be generated. Start will argument that will need to be passed to Imagemagick.
+          ;; If graphic available, a cover will be generated. Start with argument that will need to be passed to Imagemagick.
           (when (file-readable-p opeteceu--cover-graphic)
             (setq cover-graphic-arg (concat " -draw \"image over 0,-800 0,0 \'" opeteceu--cover-graphic "\'\"")))
-          ;; Generate Imagemagick argument for book title. If book title is longer than 20 characters, split into multiple lines.
-          (if (> (length (opeteceu--get-file-property-value org-input-file "TITLE")) 20)
+          ;; If title longer than x, split into lines. Else, return title.
+          (if (> (length (opeteceu--get-file-property-value org-input-file "TITLE")) 22)
+              ;; Title too long, split it up.
               (progn
-                (setq title-words (split-string (opeteceu--get-file-property-value org-input-file "TITLE") " "))
+                (setq title-words (split-string (opeteceu--get-file-property-value org-input-file "TITLE") " "))  ; What text we're actually splitting up, stored as words
+                ;; Loop through list of words in title and arrange into lines.
                 (while title-words
-                  (setq curr-word (car title-words))
-                  (setq title-words (cdr title-words))
-                  (if (< (+ (length curr-line) (length curr-word)) 20)
-                      (if (< (length curr-line) 1)
-                          (setq curr-line curr-word)
-                        (setq curr-line (concat curr-line " " curr-word)))
-                    (if title-words
-                        (progn
-                          (setq title-lines (cons curr-line title-lines))
-                          (setq curr-line curr-word))
+                  (setq curr-word (car title-words))  ; Get first word left in list
+                  (setq title-words (cdr title-words))  ; Remove first word left in list from list
+                  ;; If adding current word to existing line will be too long, create a new line and add old one to title-lines
+                  (if (> (+ (length curr-line) (length curr-word)) 22)
                       (progn
                         (setq title-lines (cons curr-line title-lines))
-                        (setq title-lines (cons curr-word title-lines))))))
+                        (setq curr-line curr-word))
+                    ;; Add word to existing line
+                    (if (< (length curr-line) 1)
+                        (setq curr-line curr-word)
+                      (setq curr-line (concat curr-line " " curr-word))))
+                  ;; If no words left, add current line to title-lines
+                  (unless title-words
+                    (setq title-lines (cons curr-line title-lines))))
+                ;; Title has now been made into lines. However, lines are in reverse order, so switch them back
                 (setq title-lines (reverse title-lines))
+                ;; Turn title lines into imagemagick arguments.
                 (while title-lines
                   (setq title-graphic-arg (concat title-graphic-arg "-draw \"text 0," (number-to-string curr-title-pos) " \'" (car title-lines) "\'\" "))
                   (setq curr-title-pos (+ curr-title-pos 160))
                   (setq title-lines (cdr title-lines)))
+                ;; Return new title.
                 (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100," (number-to-string (+ 1280 curr-title-pos)) " 1500," (number-to-string (+ 1280 curr-title-pos)) "\" " title-graphic-arg )))
-            (progn
-              (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100,1440 1500,1440\" -draw \"text 0,0 \'" (opeteceu--get-file-property-value org-input-file "TITLE") "\'\" "))))
+            ;; Title is fine, just return it.
+            (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100,1440 1500,1440\" -draw \"text 0,0 \'" (opeteceu--get-file-property-value org-input-file "TITLE") "\'\" ")))
+          ;; If author longer than x, split into lines. Else, return author.
+          (if (> (length (opeteceu--get-file-property-value org-input-file "AUTHOR")) 22)
+              ;; Author too long, split it up.
+              (progn
+                (setq author-words (split-string (opeteceu--get-file-property-value org-input-file "AUTHOR") " "))  ; What text we're actually splitting up, stored as words
+                (setq curr-word nil)
+                (setq curr-line "")
+                ;; Loop through list of words in author and arrange into lines.
+                (while author-words
+                  (setq curr-word (car author-words))  ; Get first word left in list
+                  (setq author-words (cdr author-words))  ; Remove first word left in list from list
+                  ;; If adding current word to existing line will be too long, create a new line and add old one to author-lines
+                  (if (> (+ (length curr-line) (length curr-word)) 22)
+                      (progn
+                        (setq author-lines (cons curr-line author-lines))
+                        (setq curr-line curr-word))
+                    ;; Add word to existing line
+                    (if (< (length curr-line) 1)
+                        (setq curr-line curr-word)
+                      (setq curr-line (concat curr-line " " curr-word))))
+                  ;; If no words left, add current line to author-lines
+                  (unless author-words
+                    (setq author-lines (cons curr-line author-lines))))
+                ;; Author has now been made into lines. However, lines are in reverse order, so switch them back
+                (setq author-lines (reverse author-lines))
+                ;; Turn author lines into imagemagick arguments.
+                (while author-lines
+                  (setq author-graphic-arg (concat author-graphic-arg "-draw \"text 0," (number-to-string curr-author-pos) " \'" (car author-lines) "\'\" "))
+                  (setq curr-author-pos (+ curr-author-pos 160))
+                  (setq author-lines (cdr author-lines))))
+            ;; Author is fine, just return it.
+            (setq author-graphic-arg (concat "-draw \"text 0,800 \'" (opeteceu--get-file-property-value org-input-file "AUTHOR") "\'\" ")))
           ;; If Imagemagick is available, generate cover.
           (when (and (executable-find "magick") (file-readable-p opeteceu--cover-graphic))
-            (shell-command (concat "magick -size 1600x2560 xc:white -fill black -stroke black -font \"Josefin-Sans\" -pointsize 126 -gravity center " title-graphic-arg  " -font \"Alegreya-SC\" -pointsize 72 -draw \"text 0,800 \'" (opeteceu--get-file-property-value org-input-file "AUTHOR") "\'\"" cover-graphic-arg " \"" (file-name-directory temp-org) "cover.png\""))
+            (shell-command (concat "magick -size 1600x2560 xc:white -fill black -stroke black -font \"Josefin-Sans\" -pointsize 126 -gravity center " title-graphic-arg  " -font \"Alegreya-SC\" -pointsize 72 " author-graphic-arg cover-graphic-arg " \"" (file-name-directory temp-org) "cover.png\""))
             (setq opeteceu--cover (concat (file-name-directory temp-org) "cover.png")))
           ;; Markdown meta data and legal info.
           (insert "#+BEGIN_EXPORT md\n"
@@ -353,11 +501,22 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (insert "\n")
         (goto-char (point-min))
         (while (not (org-next-visible-heading 1))
+          ;; If tags "no_header" or "no-pagestyle" were used in Chapter Index headings, then act appropriately with formatting.
+          (when (nth 5 (org-heading-components))
+            (when (member "no_header" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+              (setq no-header t))
+            (when (member "no_header_name" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+              (setq no-header-name t))
+            (when (member "no_header_preamble" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+              (setq no-header-preamble t))
+            (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+              (setq no-toc-entry t)))
           ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
           (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                  (setq curr-heading (nth 4 (org-heading-components)))
                  (setq curr-level (org-current-level))
                  (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                 (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                  (beginning-of-line)
                  (opeteceu--delete-line)
                  (setq beg (point))
@@ -368,15 +527,25 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                  (while (> curr-level 0)
                    (setq curr-level (- curr-level 1))
                    (insert "#"))
-                 (insert " " curr-heading " {.unnumbered}\n"
-                         "\n"
-                         "---\n"
-                         "#+END_EXPORT\n"))
+                 (when (string= curr-heading "")
+                   (setq no-header-name t))
+                 (when (and no-header-name no-header-preamble)
+                   (setq no-header t))
+                 (when no-toc-entry
+                   (setq toc-head-string "{.unnumbered .unlisted}"))
+                 (if (or no-header no-header-name)
+                     (insert "   {.unnumbered .unlisted}\n"
+                             "\n")
+                   (insert " " curr-heading " " toc-head-string "\n"
+                           "\n"
+                           "---\n"))
+                 (insert "#+END_EXPORT\n")
+                 (forward-char -1))
                 ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
                  (setq curr-heading (nth 4 (org-heading-components)))
                  (setq curr-level (org-current-level))
                  (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
-                 (setq chap-num (+ chap-num 1))
+                 (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                  (beginning-of-line)
                  (opeteceu--delete-line)
                  (setq beg (point))
@@ -384,17 +553,42 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                  (delete-region beg (point))
                  (opeteceu--delete-line)
                  (insert "#+BEGIN_EXPORT md\n")
+                 (when (> curr-level 1)
+                   (setq no-header-preamble t))
+                 (when (string= curr-heading "")
+                   (setq no-header-name t))
+                 (when (and no-header-name no-header-preamble)
+                   (setq no-header t))
+                 (when no-toc-entry
+                   (setq no-header-preamble t)
+                   (setq toc-head-string "{.unnumbered .unlisted}"))
+                 (when (and (= curr-level 1) (not no-header) (not no-toc-entry))
+                   (setq chap-num (+ chap-num 1)))
                  (while (> curr-level 0)
                    (setq curr-level (- curr-level 1))
                    (insert "#"))
-                 (insert " Chapter " (number-to-string chap-num) " --- " curr-heading "\n"
-                         "\n"
-                         "---\n"
-                         "#+END_EXPORT\n"))
+                 (cond (no-header
+                        (insert "   {.unnumbered .unlisted}\n"
+                                "\n"))
+                       (no-header-preamble
+                        (insert " " curr-heading " " toc-head-string "\n"
+                                "\n"
+                                "---\n"))
+                       (no-header-name
+                        (insert " Chapter " (number-to-string chap-num) " " toc-head-string "\n"
+                                "\n"
+                                "---\n"))
+                       (t
+                        (insert " Chapter " (number-to-string chap-num) " --- " curr-heading " " toc-head-string "\n"
+                                "\n"
+                                "---\n")))
+                 (insert "#+END_EXPORT\n")
+                 (forward-char -1))
                 ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
                  (setq curr-heading (nth 4 (org-heading-components)))
                  (setq curr-level (org-current-level))
                  (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                 (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                  (beginning-of-line)
                  (opeteceu--delete-line)
                  (setq beg (point))
@@ -405,28 +599,64 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                  (while (> curr-level 0)
                    (setq curr-level (- curr-level 1))
                    (insert "#"))
-                 (insert " " curr-heading " {.unnumbered}\n"
-                         "\n"
-                         "---\n"
-                         "#+END_EXPORT\n"))
+                 (when (string= curr-heading "")
+                   (setq no-header-name t))
+                 (when (and no-header-name no-header-preamble)
+                   (setq no-header t))
+                 (when no-toc-entry
+                   (setq toc-head-string "{.unnumbered .unlisted}"))
+                 (if (or no-header no-header-name)
+                     (insert "   {.unnumbered .unlisted}\n"
+                             "\n")
+                   (insert " " curr-heading " " toc-head-string "\n"
+                           "\n"
+                           "---\n"))
+                 (insert "#+END_EXPORT\n")
+                 (forward-char -1))
                 (t
                  (setq curr-heading (nth 4 (org-heading-components)))
                  (setq curr-level (org-current-level))
                  (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                 (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                  (beginning-of-line)
                  (opeteceu--delete-line)
-                 (setq beg (point))
-                 (re-search-forward ":END:" nil t)
-                 (delete-region beg (point))
-                 (opeteceu--delete-line)
                  (insert "#+BEGIN_EXPORT md\n")
+                 (when (> curr-level 1)
+                   (setq no-header-preamble t))
+                 (when (string= curr-heading "")
+                   (setq no-header-name t))
+                 (when (and no-header-name no-header-preamble)
+                   (setq no-header t))
+                 (when no-toc-entry
+                   (setq no-header-preamble t)
+                   (setq toc-head-string "{.unnumbered .unlisted}"))
+                 (when (and (= curr-level 1) (not no-header) (not no-toc-entry))
+                   (setq chap-num (+ chap-num 1)))
                  (while (> curr-level 0)
                    (setq curr-level (- curr-level 1))
                    (insert "#"))
-                 (insert " " curr-heading " {.unnumbered}\n"
-                         "\n"
-                         "---\n"
-                         "#+END_EXPORT\n"))))
+                 (cond (no-header
+                        (insert "   {.unnumbered .unlisted}\n"
+                                "\n"))
+                       (no-header-preamble
+                        (insert " " curr-heading " " toc-head-string "\n"
+                                "\n"
+                                "---\n"))
+                       (no-header-name
+                        (insert " Chapter " (number-to-string chap-num) " " toc-head-string "\n"
+                                "\n"
+                                "---\n"))
+                       (t
+                        (insert " Chapter " (number-to-string chap-num) " --- " curr-heading " " toc-head-string "\n"
+                                "\n"
+                                "---\n")))
+                 (insert "#+END_EXPORT\n")
+                 (forward-char -1)))
+          (setq no-header nil)
+          (setq no-header-name nil)
+          (setq no-header-preamble nil)
+          (setq no-toc-entry nil)
+          (setq toc-head-string ""))
         ;; Remove shy inclusions. HTML won't process them correctly, and clearly doesn't need them anyway.
         (goto-char (point-min))
         (let ((case-fold-search t))
@@ -440,10 +670,35 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (org-md-export-to-markdown)  ; Use Org mode's built-in Markdown exporter to generate the file to be fed to Pandoc
     (opeteceu--delete-current-file t)
     (setq org-export-with-toc org-export-with-toc-orig)
+    (setq org-export-with-date org-export-with-date-orig)
+    (setq org-export-with-tags org-export-with-tags-orig)
+    (setq org-export-with-email org-export-with-email-orig)
+    (setq org-export-with-latex org-export-with-latex-orig)
+    (setq org-export-with-tasks org-export-with-tasks-orig)
     (setq org-export-with-title org-export-with-title-orig)
     (setq org-export-with-author org-export-with-author-orig)
-    (setq org-export-with-email org-export-with-email-orig)
-    (setq org-export-with-date org-export-with-date-orig)
+    (setq org-export-with-clocks org-export-with-clocks-orig)
+    (setq org-export-with-tables org-export-with-tables-orig)
+    (setq org-export-with-creator org-export-with-creator-orig)
+    (setq org-export-with-drawers org-export-with-drawers-orig)
+    (setq org-export-with-entities org-export-with-entities-orig)
+    (setq org-export-with-planning org-export-with-planning-orig)
+    (setq org-export-with-priority org-export-with-priority-orig)
+    (setq org-export-with-emphasize org-export-with-emphasize-orig)
+    (setq org-export-with-footnotes org-export-with-footnotes-orig)
+    (setq org-export-with-properties org-export-with-properties-orig)
+    (setq org-export-with-timestamps org-export-with-timestamps-orig)
+    (setq org-export-with-fixed-width org-export-with-fixed-width-orig)
+    (setq org-export-with-inlinetasks org-export-with-inlinetasks-orig)
+    (setq org-export-with-broken-links org-export-with-broken-links-orig)
+    (setq org-export-with-smart-quotes org-export-with-smart-quotes-orig)
+    (setq org-export-with-todo-keywords org-export-with-todo-keywords-orig)
+    (setq org-export-with-archived-trees org-export-with-archived-trees-orig)
+    (setq org-export-with-section-numbers org-export-with-section-numbers-orig)
+    (setq org-export-with-special-strings org-export-with-special-strings-orig)
+    (setq org-export-with-sub-superscripts org-export-with-sub-superscripts-orig)
+    (setq org-use-sub-superscripts org-use-sub-superscripts-orig)
+    (setq org-export-with-statistics-cookies org-export-with-statistics-cookies-orig)
     (make-directory (file-name-directory output-file) t)
     ;; Use Pandoc to create the ePub file from the Markdown file.
     (when (executable-find "pandoc")
