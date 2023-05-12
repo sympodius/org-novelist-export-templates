@@ -193,33 +193,145 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 
 (defun org-novelist--export-template (org-input-file output-file)
   "Given an ORG-INPUT-FILE from Org Novelist, export to OUTPUT-FILE."
-  (let ((temp-org (concat (file-name-sans-extension output-file) ".org"))
-        (org-export-with-toc-orig nil)
-        (org-export-with-title-orig nil)
-        (org-export-with-author-orig nil)
-        (org-export-with-email-orig nil)
-        (org-export-with-date-orig nil)
-        (undo-tree-auto-save-history-orig nil)
-        curr-heading
-        curr-level
-        beg)
+  (let* ((temp-org (concat (file-name-sans-extension output-file) ".org"))
+         (org-export-with-toc-orig nil)
+         (org-export-with-date-orig nil)
+         (org-export-with-tags-orig nil)
+         (org-export-with-email-orig nil)
+         (org-export-with-latex-orig nil)
+         (org-export-with-tasks-orig nil)
+         (org-export-with-title-orig nil)
+         (org-export-with-author-orig nil)
+         (org-export-with-clocks-orig nil)
+         (org-export-with-tables-orig nil)
+         (org-export-with-creator-orig nil)
+         (org-export-with-drawers-orig nil)
+         (org-export-with-entities-orig nil)
+         (org-export-with-planning-orig nil)
+         (org-export-with-priority-orig nil)
+         (org-export-with-emphasize-orig nil)
+         (org-export-with-footnotes-orig nil)
+         (org-export-with-properties-orig nil)
+         (org-export-with-timestamps-orig nil)
+         (org-export-with-fixed-width-orig nil)
+         (org-export-with-inlinetasks-orig nil)
+         (org-export-with-broken-links-orig nil)
+         (org-export-with-smart-quotes-orig nil)
+         (org-export-with-todo-keywords-orig nil)
+         (org-export-with-archived-trees-orig nil)
+         (org-export-with-section-numbers-orig nil)
+         (org-export-with-special-strings-orig nil)
+         (org-export-with-sub-superscripts-orig nil)
+         (org-use-sub-superscripts-orig nil)
+         (org-export-with-statistics-cookies-orig nil)
+         (undo-tree-auto-save-history-orig nil)
+         (chap-format (concat "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+         (sec-format (concat "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+         (subsec-format (concat "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+         (subsubsec-format (concat "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+         curr-heading
+         curr-level
+         curr-matter
+         beg
+         (toc-head-string "")
+         (no-header nil)
+         (no-header-name nil)
+         (no-header-preamble nil)
+         (no-pagestyle nil)
+         (no-toc-entry nil))
+    ;;  Store original user-set Org export settings.
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
+    (when (boundp 'org-export-with-date)
+      (setq org-export-with-date-orig org-export-with-date))
+    (when (boundp 'org-export-with-tags)
+      (setq org-export-with-tags-orig org-export-with-tags))
+    (when (boundp 'org-export-with-email)
+      (setq org-export-with-email-orig org-export-with-email))
+    (when (boundp 'org-export-with-latex)
+      (setq org-export-with-latex-orig org-export-with-latex))
+    (when (boundp 'org-export-with-tasks)
+      (setq org-export-with-tasks-orig org-export-with-tasks))
     (when (boundp 'org-export-with-title)
       (setq org-export-with-title-orig org-export-with-title))
     (when (boundp 'org-export-with-author)
       (setq org-export-with-author-orig org-export-with-author))
-    (when (boundp 'org-export-with-email)
-      (setq org-export-with-email-orig org-export-with-email))
-    (when (boundp 'org-export-with-date)
-      (setq org-export-with-date-orig org-export-with-date))
+    (when (boundp 'org-export-with-clocks)
+      (setq org-export-with-clocks-orig org-export-with-clocks))
+    (when (boundp 'org-export-with-tables)
+      (setq org-export-with-tables-orig org-export-with-tables))
+    (when (boundp 'org-export-with-creator)
+      (setq org-export-with-creator-orig org-export-with-creator))
+    (when (boundp 'org-export-with-drawers)
+      (setq org-export-with-drawers-orig org-export-with-drawers))
+    (when (boundp 'org-export-with-entities)
+      (setq org-export-with-entities-orig org-export-with-entities))
+    (when (boundp 'org-export-with-planning)
+      (setq org-export-with-planning-orig org-export-with-planning))
+    (when (boundp 'org-export-with-priority)
+      (setq org-export-with-priority-orig org-export-with-priority))
+    (when (boundp 'org-export-with-emphasize)
+      (setq org-export-with-emphasize-orig org-export-with-emphasize))
+    (when (boundp 'org-export-with-footnotes)
+      (setq org-export-with-footnotes-orig org-export-with-footnotes))
+    (when (boundp 'org-export-with-properties)
+      (setq org-export-with-properties-orig org-export-with-properties))
+    (when (boundp 'org-export-with-timestamps)
+      (setq org-export-with-timestamps-orig org-export-with-timestamps))
+    (when (boundp 'org-export-with-fixed-width)
+      (setq org-export-with-fixed-width-orig org-export-with-fixed-width))
+    (when (boundp 'org-export-with-inlinetasks)
+      (setq org-export-with-inlinetasks-orig org-export-with-inlinetasks))
+    (when (boundp 'org-export-with-broken-links)
+      (setq org-export-with-broken-links-orig org-export-with-broken-links))
+    (when (boundp 'org-export-with-smart-quotes)
+      (setq org-export-with-smart-quotes-orig org-export-with-smart-quotes))
+    (when (boundp 'org-export-with-todo-keywords)
+      (setq org-export-with-todo-keywords-orig org-export-with-todo-keywords))
+    (when (boundp 'org-export-with-archived-trees)
+      (setq org-export-with-archived-trees-orig org-export-with-archived-trees))
+    (when (boundp 'org-export-with-section-numbers)
+      (setq org-export-with-section-numbers-orig org-export-with-section-numbers))
+    (when (boundp 'org-export-with-special-strings)
+      (setq org-export-with-special-strings-orig org-export-with-special-strings))
+    (when (boundp 'org-export-with-sub-superscripts)
+      (setq org-export-with-sub-superscripts-orig org-export-with-sub-superscripts))
+    (when (boundp 'org-use-sub-superscripts)
+      (setq org-use-sub-superscripts-orig org-use-sub-superscripts))
+    (when (boundp 'org-export-with-statistics-cookies)
+      (setq org-export-with-statistics-cookies-orig org-export-with-statistics-cookies))
     (when (boundp 'undo-tree-auto-save-history)
       (setq undo-tree-auto-save-history-orig undo-tree-auto-save-history))
     (setq org-export-with-toc nil)
+    (setq org-export-with-date nil)
+    (setq org-export-with-tags t)
+    (setq org-export-with-email nil)
+    (setq org-export-with-latex t)
+    (setq org-export-with-tasks t)
     (setq org-export-with-title nil)
     (setq org-export-with-author nil)
-    (setq org-export-with-email nil)
-    (setq org-export-with-date nil)
+    (setq org-export-with-clocks nil)
+    (setq org-export-with-tables t)
+    (setq org-export-with-creator nil)
+    (setq org-export-with-drawers t)
+    (setq org-export-with-entities t)
+    (setq org-export-with-planning t)
+    (setq org-export-with-priority t)
+    (setq org-export-with-emphasize t)
+    (setq org-export-with-footnotes t)
+    (setq org-export-with-properties t)
+    (setq org-export-with-timestamps t)
+    (setq org-export-with-fixed-width t)
+    (setq org-export-with-inlinetasks t)
+    (setq org-export-with-broken-links t)
+    (setq org-export-with-smart-quotes t)
+    (setq org-export-with-todo-keywords t)
+    (setq org-export-with-archived-trees nil)
+    (setq org-export-with-section-numbers t)
+    (setq org-export-with-special-strings t)
+    (setq org-export-with-sub-superscripts t)
+    (setq org-use-sub-superscripts '{})
+    (setq org-export-with-statistics-cookies t)
     (when (file-exists-p org-input-file)
       (when (file-readable-p org-input-file)
         (with-temp-buffer
@@ -253,10 +365,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (oletptceu--set-file-property-value "LATEX_CLASS_OPTIONS" "[11pt,twoside,a5paper,titlepage,openright]")
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\docParindent" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\docParskip" nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]") nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]") nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]") nil t)
-          (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]") nil t)
+          (oletptceu--set-file-property-value "LATEX_HEADER" subsubsec-format nil t)
+          (oletptceu--set-file-property-value "LATEX_HEADER" subsec-format nil t)
+          (oletptceu--set-file-property-value "LATEX_HEADER" sec-format nil t)
+          (oletptceu--set-file-property-value "LATEX_HEADER" chap-format nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\usepackage{fix-cm}" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\RequirePackage[calcwidth]{titlesec}" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\newcommand{\\legalParindent}{\\parindent 0cm}" nil t)
@@ -334,7 +446,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                        (oletptceu--get-file-property-value org-input-file "DATE"))))  " "
                     (oletptceu--get-file-property-value org-input-file "AUTHOR") ".\n"
                     "\n")
-            (if (or (string= oletptceu--rights "Creative Commons Attribution-Non-Commercial-ShareAlike 4.0 International License") (string= opeteceu--rights "by-nc-sa"))
+            (if (or (string= oletptceu--rights "Creative Commons Attribution-Non-Commercial-ShareAlike 4.0 International License") (string= oletptceu--rights "by-nc-sa"))
                 (insert "The electronic forms of this book, including the cover art, are licensed under the Creative Commons Attribution-Non-Commerc\\-ial-Share\\\\ Alike 4.0 International License. To view a copy of this license, visit:\n"
                         "\n"
                         "\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}\n"
@@ -376,11 +488,25 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (insert "\n")
           (goto-char (point-min))
           (while (not (org-next-visible-heading 1))
+            ;; If tags "no_header" or "no-pagestyle" were used in Chapter Index headings, then act appropriately with formatting.
+            (when (nth 5 (org-heading-components))
+              (when (member "no_header" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+                (setq no-header t))
+              (when (member "no_header_name" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+                (setq no-header-name t))
+              (when (member "no_header_preamble" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+                (setq no-header-preamble t))
+              (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+                (setq no-toc-entry t))
+              (when (member "no_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+                (setq no-pagestyle t)))
             ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
             (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
+                   (setq curr-matter "FRONT MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
                    (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                   (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                    (beginning-of-line)
                    (oletptceu--delete-line)
                    (setq beg (point))
@@ -388,29 +514,67 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (delete-region beg (point))
                    (oletptceu--delete-line)
                    (insert "#+BEGIN_EXPORT latex\n")
-                   (cond ((= 1 curr-level)
-                          (insert "\\chapter*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{chapter}{" curr-heading "}\n"))
-                         ((= 2 curr-level)
-                          (insert "\\section*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{section}{" curr-heading "}\n"))
-                         ((= 3 curr-level)
-                          (insert "\\subsection*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{subsection}{" curr-heading "}\n"))
-                         ((= 4 curr-level)
-                          (insert "\\subsubsection*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n"))
-                         (t
-                          (insert "\\subsubsubsection*{" curr-heading "}\n")))
-                   (insert "\\label{" curr-heading "}\n"
-                           "\\pagestyle{plain}\n"
-                           "\\legalParindent\n"
-                           "\\legalParskip\n"
-                           "#+END_EXPORT\n"))
+                   (unless oletptceu--fm-found
+                     (insert "\\frontmatter{}\n")
+                     (setq oletptceu--fm-found t))
+                   (when (string= curr-heading "")
+                     (setq no-header-name t))
+                   (when (and no-header-name no-header-preamble)
+                     (setq no-header t))
+                   (if (or no-header no-header-name)
+                       (cond ((= 1 curr-level)
+                              (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
+                              (insert "\\chapter*{}\n"))
+                             ((= 2 curr-level)
+                              (insert "\\titleformat{\\section}[runin]{}{}{0pt}{}\n")
+                              (insert "\\section*{}\n"))
+                             ((= 3 curr-level)
+                              (insert "\\titleformat{\\subsection}[runin]{}{}{0pt}{}\n")
+                              (insert "\\subsection*{}\n"))
+                             ((= 4 curr-level)
+                              (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
+                              (insert "\\subsubsection*{}\n"))
+                             (t
+                              (insert "\\subsubsubsection*{}\n")))
+                     (progn
+                       (cond ((= 1 curr-level)
+                              (insert chap-format "\n")
+                              (insert "\\chapter*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{chapter}{" curr-heading "}\n")))
+                             ((= 2 curr-level)
+                              (insert sec-format "\n")
+                              (insert "\\section*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{section}{" curr-heading "}\n")))
+                             ((= 3 curr-level)
+                              (insert subsec-format "\n")
+                              (insert "\\subsection*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{subsection}{" curr-heading "}\n")))
+                             ((= 4 curr-level)
+                              (insert subsubsec-format "\n")
+                              (insert "\\subsubsection*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n")))
+                             (t
+                              (insert "\\subsubsubsection*{" curr-heading "}\n")))
+                       (insert "\\label{" curr-heading "}\n")))
+                   (if no-pagestyle
+                       (insert "\\thispagestyle{empty}\n"
+                               "\\pagestyle{empty}\n")
+                     (insert "\\thispagestyle{plain}\n"
+                             "\\pagestyle{plain}\n"
+                             "\\legalParindent\n"
+                             "\\legalParskip\n"))
+                   (insert "#+END_EXPORT\n")
+                   (forward-char -1))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
+                   (setq curr-matter "MAIN MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
                    (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                   (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                    (beginning-of-line)
                    (oletptceu--delete-line)
                    (setq beg (point))
@@ -429,25 +593,94 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                              "\\thispagestyle{empty}\n"
                              "\\mainmatter{}\n")
                      (setq oletptceu--mm-found t))
-                   (cond ((= 1 curr-level)
-                          (insert "\\chapter{" curr-heading "}\n"))
-                         ((= 2 curr-level)
-                          (insert "\\section{" curr-heading "}\n"))
-                         ((= 3 curr-level)
-                          (insert "\\subsection{" curr-heading "}\n"))
-                         ((= 4 curr-level)
-                          (insert "\\subsubsection{" curr-heading "}\n"))
+                   ;; blank title => equivalent to no-header
+                   ;; no-header => Chapter X NOT used, other title NOT used, entry still appears (blank) in toc
+                   ;; no-header-name => Chapter X used, other title NOT used, entry still apears (blank) in toc
+                   ;; no-header-preamble => Chapter X NOT used, , other title used, entry still appear (blank) in toc
+                   ;; no-header-name AND no-header-preamble => equivalent to no-header
+                   ;; no-toc-entry => remove entry from toc
+                   (when (string= curr-heading "")
+                     (setq no-header-name t))
+                   (when (and no-header-name no-header-preamble)
+                     (setq no-header t))
+                   (when no-toc-entry
+                     (setq toc-head-string "*"))
+                   (cond (no-header
+                          (cond ((= 1 curr-level)
+                                 (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\chapter" toc-head-string "{}\n"))
+                                ((= 2 curr-level)
+                                 (insert "\\titleformat{\\section}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\section" toc-head-string "{}\n"))
+                                ((= 3 curr-level)
+                                 (insert "\\titleformat{\\subsection}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\subsection" toc-head-string "{}\n"))
+                                ((= 4 curr-level)
+                                 (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\subsubsection" toc-head-string "{}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
+                         (no-header-preamble
+                          (cond ((= 1 curr-level)
+                                 (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
+                                ((= 2 curr-level)
+                                 (insert "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\section" toc-head-string "{" curr-heading "}\n"))
+                                ((= 3 curr-level)
+                                 (insert "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\subsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 4 curr-level)
+                                 (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                          (insert "\\label{" curr-heading "}\n"))
+                         (no-header-name
+                          (cond ((= 1 curr-level)
+                                 (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\chapter" toc-head-string "{}\n"))
+                                ((= 2 curr-level)
+                                 (insert "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\section" toc-head-string "{}\n"))
+                                ((= 3 curr-level)
+                                 (insert "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\subsection" toc-head-string "{}\n"))
+                                ((= 4 curr-level)
+                                 (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\subsubsection" toc-head-string "{}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
                          (t
-                          (insert "\\subsubsubsection{" curr-heading "}\n")))
-                   (insert "\\label{" curr-heading "}\n"
-                           "\\pagestyle{headings}\n"
-                           "\\docParindent\n"
-                           "\\docParskip\n"
-                           "#+END_EXPORT\n"))
+                          (cond ((= 1 curr-level)
+                                 (insert chap-format "\n")
+                                 (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
+                                ((= 2 curr-level)
+                                 (insert sec-format "\n")
+                                 (insert "\\section" toc-head-string "{" curr-heading "}\n"))
+                                ((= 3 curr-level)
+                                 (insert subsec-format "\n")
+                                 (insert "\\subsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 4 curr-level)
+                                 (insert subsubsec-format "\n")
+                                 (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                          (insert "\\label{" curr-heading "}\n")))
+                   (if no-pagestyle
+                       (insert "\\thispagestyle{empty}\n"
+                               "\\pagestyle{empty}\n")
+                     (insert "\\pagestyle{headings}\n"
+                             "\\docParindent\n"
+                             "\\docParskip\n"))
+                   (insert "#+END_EXPORT\n")
+                   (forward-char -1))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
+                   (setq curr-matter "BACK MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
                    (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                   (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                    (beginning-of-line)
                    (oletptceu--delete-line)
                    (setq beg (point))
@@ -460,58 +693,177 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                              "\\thispagestyle{empty}\n"
                              "\\backmatter{}\n")
                      (setq oletptceu--bm-found t))
-                   (cond ((= 1 curr-level)
-                          (insert "\\chapter*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{chapter}{" curr-heading "}\n"))
-                         ((= 2 curr-level)
-                          (insert "\\section*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{section}{" curr-heading "}\n"))
-                         ((= 3 curr-level)
-                          (insert "\\subsection*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{subsection}{" curr-heading "}\n"))
-                         ((= 4 curr-level)
-                          (insert "\\subsubsection*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n"))
-                         (t
-                          (insert "\\subsubsubsection*{" curr-heading "}\n")))
-                   (insert "\\label{" curr-heading "}\n"
-                           "\\pagestyle{plain}\n"
-                           "\\legalParindent\n"
-                           "\\legalParskip\n"
-                           "#+END_EXPORT\n"))
+                   (when (string= curr-heading "")
+                     (setq no-header-name t))
+                   (when (and no-header-name no-header-preamble)
+                     (setq no-header t))
+                   (if (or no-header no-header-name)
+                       (cond ((= 1 curr-level)
+                              (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
+                              (insert "\\chapter*{}\n"))
+                             ((= 2 curr-level)
+                              (insert "\\titleformat{\\section}[runin]{}{}{0pt}{}\n")
+                              (insert "\\section*{}\n"))
+                             ((= 3 curr-level)
+                              (insert "\\titleformat{\\subsection}[runin]{}{}{0pt}{}\n")
+                              (insert "\\subsection*{}\n"))
+                             ((= 4 curr-level)
+                              (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
+                              (insert "\\subsubsection*{}\n"))
+                             (t
+                              (insert "\\subsubsubsection*{}\n")))
+                     (progn
+                       (cond ((= 1 curr-level)
+                              (insert chap-format "\n")
+                              (insert "\\chapter*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{chapter}{" curr-heading "}\n")))
+                             ((= 2 curr-level)
+                              (insert sec-format "\n")
+                              (insert "\\section*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{section}{" curr-heading "}\n")))
+                             ((= 3 curr-level)
+                              (insert subsec-format "\n")
+                              (insert "\\subsection*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{subsection}{" curr-heading "}\n")))
+                             ((= 4 curr-level)
+                              (insert subsubsec-format "\n")
+                              (insert "\\subsubsection*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n")))
+                             (t
+                              (insert "\\subsubsubsection*{" curr-heading "}\n")))
+                       (insert "\\label{" curr-heading "}\n")))
+                   (if no-pagestyle
+                       (insert "\\thispagestyle{empty}\n"
+                               "\\pagestyle{empty}\n")
+                     (insert "\\pagestyle{plain}\n"
+                             "\\legalParindent\n"
+                             "\\legalParskip\n"))
+                   (insert "#+END_EXPORT\n")
+                   (forward-char -1))
                   (t
                    (setq curr-heading (nth 4 (org-heading-components)))
                    (setq curr-level (org-current-level))
                    (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
+                   (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                    (beginning-of-line)
                    (oletptceu--delete-line)
-                   (setq beg (point))
-                   (re-search-forward ":END:" nil t)
-                   (delete-region beg (point))
-                   (oletptceu--delete-line)
                    (insert "#+BEGIN_EXPORT latex\n")
-                   (unless oletptceu--fm-found
-                     (insert "\\frontmatter{}\n")
-                     (setq oletptceu--fm-found t))
-                   (cond ((= 1 curr-level)
-                          (insert "\\chapter*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{chapter}{" curr-heading "}\n"))
-                         ((= 2 curr-level)
-                          (insert "\\section*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{section}{" curr-heading "}\n"))
-                         ((= 3 curr-level)
-                          (insert "\\subsection*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{subsection}{" curr-heading "}\n"))
-                         ((= 4 curr-level)
-                          (insert "\\subsubsection*{" curr-heading "}\n"
-                                  "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n"))
+                   (cond ((string= curr-matter "FRONT MATTER")
+                          (unless oletptceu--fm-found
+                            (insert "\\frontmatter{}\n")
+                            (setq oletptceu--fm-found t))
+                          (setq no-toc-entry t))
+                         ((string= curr-matter "MAIN MATTER")
+                          (unless oletptceu--mm-found
+                            (insert "\\tocParindent\n"
+                                    "\\tocParskip\n"
+                                    "\\setcounter{tocdepth}{4}\n"
+                                    "\\tableofcontents\n"
+                                    "\\docParindent\n"
+                                    "\\docParskip\n"
+                                    "\\newpage\n"
+                                    "\\thispagestyle{empty}\n"
+                                    "\\mainmatter{}\n")
+                            (setq oletptceu--mm-found t)))
+                         ((string= curr-matter "BACK MATTER")
+                          (unless oletptceu--bm-found
+                            (insert "\\newpage\n"
+                                    "\\thispagestyle{empty}\n"
+                                    "\\backmatter{}\n")
+                            (setq oletptceu--bm-found t))
+                          (setq no-toc-entry t)))
+                   ;; blank title => equivalent to no-header
+                   ;; no-header => Chapter X NOT used, other title NOT used, entry still appears (blank) in toc
+                   ;; no-header-name => Chapter X used, other title NOT used, entry still apears (blank) in toc
+                   ;; no-header-preamble => Chapter X NOT used, , other title used, entry still appear (blank) in toc
+                   ;; no-header-name AND no-header-preamble => equivalent to no-header
+                   ;; no-toc-entry => remove entry from toc
+                   (when (string= curr-heading "")
+                     (setq no-header-name t))
+                   (when (and no-header-name no-header-preamble)
+                     (setq no-header t))
+                   (when no-toc-entry
+                     (setq toc-head-string "*"))
+                   (cond (no-header
+                          (cond ((= 1 curr-level)
+                                 (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\chapter" toc-head-string "{}\n"))
+                                ((= 2 curr-level)
+                                 (insert "\\titleformat{\\section}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\section" toc-head-string "{}\n"))
+                                ((= 3 curr-level)
+                                 (insert "\\titleformat{\\subsection}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\subsection" toc-head-string "{}\n"))
+                                ((= 4 curr-level)
+                                 (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\subsubsection" toc-head-string "{}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
+                         (no-header-preamble
+                          (cond ((= 1 curr-level)
+                                 (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
+                                ((= 2 curr-level)
+                                 (insert "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\section" toc-head-string "{" curr-heading "}\n"))
+                                ((= 3 curr-level)
+                                 (insert "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\subsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 4 curr-level)
+                                 (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                          (insert "\\label{" curr-heading "}\n"))
+                         (no-header-name
+                          (cond ((= 1 curr-level)
+                                 (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\chapter" toc-head-string "{}\n"))
+                                ((= 2 curr-level)
+                                 (insert "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\section" toc-head-string "{}\n"))
+                                ((= 3 curr-level)
+                                 (insert "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\subsection" toc-head-string "{}\n"))
+                                ((= 4 curr-level)
+                                 (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\subsubsection" toc-head-string "{}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
                          (t
-                          (insert "\\subsubsubsection*{" curr-heading "}\n")))
-                   (insert "\\label{" curr-heading "}\n"
-                           "\\pagestyle{plain}\n"
-                           "\\legalParindent\n"
-                           "\\legalParskip\n"
-                           "#+END_EXPORT\n"))))
+                          (cond ((= 1 curr-level)
+                                 (insert chap-format "\n")
+                                 (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
+                                ((= 2 curr-level)
+                                 (insert sec-format "\n")
+                                 (insert "\\section" toc-head-string "{" curr-heading "}\n"))
+                                ((= 3 curr-level)
+                                 (insert subsec-format "\n")
+                                 (insert "\\subsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 4 curr-level)
+                                 (insert subsubsec-format "\n")
+                                 (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                (t
+                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                          (insert "\\label{" curr-heading "}\n")))
+                   (if no-pagestyle
+                       (insert "\\thispagestyle{empty}\n"
+                               "\\pagestyle{empty}\n")
+                     (insert "\\pagestyle{headings}\n"
+                             "\\docParindent\n"
+                             "\\docParskip\n"))
+                   (insert "#+END_EXPORT\n")
+                   (forward-char -1)))
+            (setq no-header nil)
+            (setq no-header-name nil)
+            (setq no-header-preamble nil)
+            (setq no-pagestyle nil)
+            (setq no-toc-entry nil)
+            (setq toc-head-string ""))
           (goto-char (point-min))
           (oletptceu--delete-line)
           (oletptceu--string-to-file (buffer-string) temp-org))))  ; Write new Org file to be fed to exporter
@@ -520,10 +872,35 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (org-latex-export-to-pdf)  ; Use Org mode's built-in LaTeX -> PDF exporter to generate PDF from the new Org file
     (oletptceu--delete-current-file t)
     (setq org-export-with-toc org-export-with-toc-orig)
+    (setq org-export-with-date org-export-with-date-orig)
+    (setq org-export-with-tags org-export-with-tags-orig)
+    (setq org-export-with-email org-export-with-email-orig)
+    (setq org-export-with-latex org-export-with-latex-orig)
+    (setq org-export-with-tasks org-export-with-tasks-orig)
     (setq org-export-with-title org-export-with-title-orig)
     (setq org-export-with-author org-export-with-author-orig)
-    (setq org-export-with-email org-export-with-email-orig)
-    (setq org-export-with-date org-export-with-date-orig)
+    (setq org-export-with-clocks org-export-with-clocks-orig)
+    (setq org-export-with-tables org-export-with-tables-orig)
+    (setq org-export-with-creator org-export-with-creator-orig)
+    (setq org-export-with-drawers org-export-with-drawers-orig)
+    (setq org-export-with-entities org-export-with-entities-orig)
+    (setq org-export-with-planning org-export-with-planning-orig)
+    (setq org-export-with-priority org-export-with-priority-orig)
+    (setq org-export-with-emphasize org-export-with-emphasize-orig)
+    (setq org-export-with-footnotes org-export-with-footnotes-orig)
+    (setq org-export-with-properties org-export-with-properties-orig)
+    (setq org-export-with-timestamps org-export-with-timestamps-orig)
+    (setq org-export-with-fixed-width org-export-with-fixed-width-orig)
+    (setq org-export-with-inlinetasks org-export-with-inlinetasks-orig)
+    (setq org-export-with-broken-links org-export-with-broken-links-orig)
+    (setq org-export-with-smart-quotes org-export-with-smart-quotes-orig)
+    (setq org-export-with-todo-keywords org-export-with-todo-keywords-orig)
+    (setq org-export-with-archived-trees org-export-with-archived-trees-orig)
+    (setq org-export-with-section-numbers org-export-with-section-numbers-orig)
+    (setq org-export-with-special-strings org-export-with-special-strings-orig)
+    (setq org-export-with-sub-superscripts org-export-with-sub-superscripts-orig)
+    (setq org-use-sub-superscripts org-use-sub-superscripts-orig)
+    (setq org-export-with-statistics-cookies org-export-with-statistics-cookies-orig)
     (make-directory (file-name-directory output-file) t)
     (rename-file (concat (file-name-sans-extension temp-org) ".pdf") output-file t)
     (rename-file (concat (file-name-sans-extension temp-org) ".tex") (concat (file-name-sans-extension output-file) ".tex") t)
