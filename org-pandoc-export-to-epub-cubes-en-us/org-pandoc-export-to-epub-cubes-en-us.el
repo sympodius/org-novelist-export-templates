@@ -662,6 +662,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (let ((case-fold-search t))
           (while (re-search-forward "\\\\-" nil t)
             (delete-char -2)))
+        ;; Remove #+INDEX: properties as ODT won't deal with them, and it will cause unwanted line breaks in final ODT.
+        (goto-char (point-min))
+        (let ((case-fold-search t))
+          (while (re-search-forward "^[ \t]*#\\+INDEX:" nil t)
+            (opeteceu--delete-line)))
         (goto-char (point-min))
         (opeteceu--delete-line)
         (opeteceu--string-to-file (buffer-string) temp-org)))  ; Write new Org file to be fed to exporter

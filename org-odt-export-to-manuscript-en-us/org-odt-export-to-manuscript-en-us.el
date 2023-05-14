@@ -468,6 +468,11 @@ Otherwise, run org-fold-show-all."
               (ooetmeu--delete-line)
               (insert "#+BEGIN_EXPORT odt\n<text:line-break/>\n")
               (insert "#+END_EXPORT\n")))
+          ;; Remove #+INDEX: properties as ODT won't deal with them, and it will cause unwanted line breaks in final ODT.
+          (goto-char (point-min))
+          (let ((case-fold-search t))
+            (while (re-search-forward "^[ \t]*#\\+INDEX:" nil t)
+              (ooetmeu--delete-line)))
           (goto-char (point-min))
           (ooetmeu--delete-line)
           (ooetmeu--string-to-file (buffer-string) temp-org))

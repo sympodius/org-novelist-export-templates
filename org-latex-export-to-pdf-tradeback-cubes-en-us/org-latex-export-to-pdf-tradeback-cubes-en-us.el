@@ -188,6 +188,28 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
             (setq value (org-trim (buffer-substring beg (point))))))))
     value))
 
+(defun oletptceu--get-file-properties-and-values (file)
+  "Given a FILE, return the properties and values."
+  (let ((property-list '())
+        (regexp-start "^[ \t]*#\\+")
+        (regexp-end ": ")
+        (case-fold-search t)
+        beg
+        beg-line-num)
+    (with-temp-buffer
+      (when (file-exists-p file)
+        (when (file-readable-p file)
+          (insert-file-contents file)
+          (goto-char (point-min))
+          (while (re-search-forward regexp-start nil t)
+            (setq beg (point))
+            (setq beg-line-num (line-number-at-pos))
+            (when (re-search-forward regexp-end nil t)
+              (when (= beg-line-num (line-number-at-pos))
+                (forward-char -2)
+                (push `(,(org-trim (buffer-substring beg (point))) . ,(org-trim (buffer-substring (+ (point) 2) (line-end-position)))) property-list)))))))
+    property-list))
+
 
 ;;;; Required Entry Point Function for Org Novelist Export
 
@@ -233,6 +255,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
          curr-level
          curr-matter
          beg
+         curr-properties-list
+         curr-property
          (toc-head-string "")
          (no-header nil)
          (no-header-name nil)
@@ -363,6 +387,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (oletptceu--set-file-property-value "LATEX_COMPILER" "xelatex")
           (oletptceu--set-file-property-value "LATEX_CLASS" "book")
           (oletptceu--set-file-property-value "LATEX_CLASS_OPTIONS" "[11pt,twoside,a5paper,titlepage,openright]")
+          (oletptceu--set-file-property-value "LATEX_HEADER" "\\usepackage{makeidx}" nil t)
+          (oletptceu--set-file-property-value "LATEX_HEADER" "\\makeindex" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\docParindent" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" "\\docParskip" nil t)
           (oletptceu--set-file-property-value "LATEX_HEADER" subsubsec-format nil t)
@@ -864,6 +890,28 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
             (setq no-pagestyle nil)
             (setq no-toc-entry nil)
             (setq toc-head-string ""))
+          ;; Add index flags to the story.
+          (setq curr-properties-list (oletptceu--get-file-properties-and-values org-input-file))
+          (while curr-properties-list
+            (setq curr-property (pop curr-properties-list))
+            (when (string= (car curr-property) "ORG_NOVELIST_INDEX_ENTRY")
+              (let ((case-fold-search t)
+                    (curr-term (cdr curr-property))
+                    pos)
+                (when (> (length (split-string curr-term "!" t " ")) 1)
+                  (setq curr-term (car (last (split-string curr-term "!" t " ")))))
+                (goto-char (point-max))
+                (while (re-search-backward (format "[[:space:][:punct:]]+%s[[:space:][:punct:]]+" (regexp-quote curr-term)) nil t)
+                  ;; Check insert not already done in previous loop.
+                  (setq pos (point))
+                  (beginning-of-line)
+                  (unless (looking-at-p "^[ \t]*#\\+")
+                    (goto-char pos)
+                    (insert "\n#+index: " (cdr curr-property) "\n"))))))
+          ;; Only print an Index at the end of the story if user requested it.
+          (when (member "index" (split-string (oletptceu--get-file-property-value org-input-file "GENERATE") "[,\f\t\n\r\v]+" t " "))
+            (goto-char (point-max))
+            (insert "\n#+LATEX: \\printindex\n"))
           (goto-char (point-min))
           (oletptceu--delete-line)
           (oletptceu--string-to-file (buffer-string) temp-org))))  ; Write new Org file to be fed to exporter
