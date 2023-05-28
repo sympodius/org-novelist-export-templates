@@ -262,7 +262,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
          (no-header-name nil)
          (no-header-preamble nil)
          (no-pagestyle nil)
-         (no-toc-entry nil))
+         (no-toc-entry nil)
+         (pagestyle nil))
     ;;  Store original user-set Org export settings.
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
@@ -525,7 +526,9 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
               (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
                 (setq no-toc-entry t))
               (when (member "no_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
-                (setq no-pagestyle t)))
+                (setq no-pagestyle t))
+              (when (member "plain_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+                (setq pagestyle "plain")))
             ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
             (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                    (setq curr-matter "FRONT MATTER")
@@ -589,10 +592,15 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
-                     (insert "\\thispagestyle{plain}\n"
-                             "\\pagestyle{plain}\n"
-                             "\\legalParindent\n"
-                             "\\legalParskip\n"))
+                     (cond ((string= "plain" pagestyle)
+                            (insert "\\pagestyle{plain}\n"
+                                    "\\legalParindent\n"
+                                    "\\legalParskip\n"))
+                           (t
+                            (insert "\\thispagestyle{plain}\n"
+                                    "\\pagestyle{plain}\n"
+                                    "\\legalParindent\n"
+                                    "\\legalParskip\n"))))
                    (insert "#+END_EXPORT\n")
                    (forward-char -1))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
@@ -696,9 +704,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
-                     (insert "\\pagestyle{headings}\n"
-                             "\\docParindent\n"
-                             "\\docParskip\n"))
+                     (cond ((string= "plain" pagestyle)
+                            (insert "\\pagestyle{plain}\n"
+                                    "\\legalParindent\n"
+                                    "\\legalParskip\n"))
+                           (t
+                            (insert "\\pagestyle{headings}\n"
+                                    "\\docParindent\n"
+                                    "\\docParskip\n"))))
                    (insert "#+END_EXPORT\n")
                    (forward-char -1))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
@@ -765,9 +778,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
-                     (insert "\\pagestyle{plain}\n"
-                             "\\legalParindent\n"
-                             "\\legalParskip\n"))
+                     (cond ((string= "plain" pagestyle)
+                            (insert "\\pagestyle{plain}\n"
+                                    "\\legalParindent\n"
+                                    "\\legalParskip\n"))
+                           (t
+                            (insert "\\pagestyle{plain}\n"
+                                    "\\legalParindent\n"
+                                    "\\legalParskip\n"))))
                    (insert "#+END_EXPORT\n")
                    (forward-char -1))
                   (t
@@ -879,9 +897,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
-                     (insert "\\pagestyle{headings}\n"
-                             "\\docParindent\n"
-                             "\\docParskip\n"))
+                     (cond ((string= "plain" pagestyle)
+                            (insert "\\pagestyle{plain}\n"
+                                    "\\legalParindent\n"
+                                    "\\legalParskip\n"))
+                           (t
+                            (insert "\\pagestyle{headings}\n"
+                                    "\\docParindent\n"
+                                    "\\docParskip\n"))))
                    (insert "#+END_EXPORT\n")
                    (forward-char -1)))
             (setq no-header nil)
