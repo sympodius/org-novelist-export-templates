@@ -232,7 +232,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           "  font-family: sans-serif;\n"
           "  text-align: right;\n"
           "  text-transform: none;\n"
-          "  margin: 0 auto;\n"
+					;"  margin: 0 auto;\n"
+	  "  margin: 4em auto 0;\n"
           "  font-weight: 100;\n"
           "}\n"
           "h1 {\n"
@@ -662,6 +663,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (let ((case-fold-search t))
           (while (re-search-forward "\\\\-" nil t)
             (delete-char -2)))
+	;; Replace a space followed by a ` with a \lsquo﻿. A little broad as a solution, but works for me most of the time.
+	(goto-char (point-min))
+	(let ((case-fold-search t))
+	  (while (re-search-forward " `" nil t)
+	     (replace-match " \\lsquo﻿" nil t)))
         ;; Remove #+INDEX: properties as ODT won't deal with them, and it will cause unwanted line breaks in final ODT.
         (goto-char (point-min))
         (let ((case-fold-search t))
