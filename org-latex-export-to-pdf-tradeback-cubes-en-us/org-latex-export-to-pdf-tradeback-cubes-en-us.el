@@ -64,6 +64,8 @@
 (defvar oletptceu--typeface-size-section 15 "Typeface size (pt) for the section heading text.")
 (defvar oletptceu--typeface-size-subsection 11 "Typeface size (pt) for the subsection heading text.")
 (defvar oletptceu--typeface-size-subsubsection 11 "Typeface size (pt) for the subsubsection heading text.")
+(defvar oletptceu--typeface-size-paragraph 11 "Typeface size (pt) for the paragraph heading text.")
+(defvar oletptceu--typeface-size-subparagraph 11 "Typeface size (pt) for the subparagraph heading text.")
 (defvar oletptceu--mainfont "Libre Baskerville" "Main text font, must be installed on system already.")
 (defvar oletptceu--sansfont "Josefin Sans" "Main text font, must be installed on system already.")
 (defvar oletptceu--monofont "DejaVu Sans Mono" "Main text font, must be installed on system already.")
@@ -251,6 +253,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
          (sec-format (concat "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
          (subsec-format (concat "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
          (subsubsec-format (concat "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+	 (paragraph-format (concat "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\theparagraph}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+	 (subparagraph-format (concat "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\thesubparagraph}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
          curr-heading
          curr-level
          curr-matter
@@ -440,8 +444,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
               (insert "~\\\\[8.5cm]\n"
                       "\n"))
             (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
-                    "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value org-input-file "TITLE") "}\\\\[0.2cm]\n"
-                    "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n")
+                    "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value org-input-file "TITLE") "}\\\\[0.2cm]\n")
+	    (if (oletptceu--get-file-property-value org-input-file "SUBTITLE")
+		(insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
+			"\\textsf{ \\large \\itshape " (oletptceu--get-file-property-value org-input-file "SUBTITLE") "}\\\\[3.5cm]\n")
+	      (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"))
             (if (find-font (font-spec :name oletptceu--signaturefont))
                 (insert "{\\signaturefont {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}}\\\\[0.25cm]\n")
               (insert "\\textsc {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\\\\[0.25cm]\n"))
@@ -454,8 +461,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                     "\\thispagestyle{empty}\n"
                     "\\legalParindent\n"
                     "\\legalParskip\n"
-                    (oletptceu--get-file-property-value org-input-file "TITLE") "\n"
-                    "\n")
+                    (oletptceu--get-file-property-value org-input-file "TITLE"))
+	    (if (oletptceu--get-file-property-value org-input-file "SUBTITLE")
+		(insert ": " (oletptceu--get-file-property-value org-input-file "SUBTITLE")))
+            (insert "\n"
+		    "\n")
             (if (find-font (font-spec :name oletptceu--signaturefont))
                 (insert "Author: {\\signaturefont " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\n"
                         "\n")
@@ -563,8 +573,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                              ((= 4 curr-level)
                               (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
                               (insert "\\subsubsection*{}\n"))
+			     ((= 5 curr-level)
+			      (insert "\\titleformat{\\paragraph}[runin]{}{}{0pt}{}\n")
+			      (insert "\\paragraph*{}\n"))
+			     ((= 6 curr-level)
+			      (insert "\\titleformat{\\subparagraph}[runin]{}{}{0pt}{}\n")
+			      (insert "\\subparagraph*{}\n"))
                              (t
-                              (insert "\\subsubsubsection*{}\n")))
+                              (insert "\\subparagraph*{}\n")))
                      (progn
                        (cond ((= 1 curr-level)
                               (insert chap-format "\n")
@@ -586,8 +602,18 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                               (insert "\\subsubsection*{" curr-heading "}\n")
                               (unless no-toc-entry
                                 (insert "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n")))
+                             ((= 5 curr-level)
+                              (insert paragraph-format "\n")
+                              (insert "\\paragraph*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{paragraph}{" curr-heading "}\n")))
+                             ((= 6 curr-level)
+                              (insert subparagraph-format "\n")
+                              (insert "\\subparagraph*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{subparagraph}{" curr-heading "}\n")))
                              (t
-                              (insert "\\subsubsubsection*{" curr-heading "}\n")))
+                              (insert "\\subparagraph*{" curr-heading "}\n")))
                        (insert "\\label{" curr-heading "}\n")))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
@@ -652,8 +678,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
                                  (insert "\\subsubsection" toc-head-string "{}\n"))
+                                ((= 5 curr-level)
+                                 (insert "\\titleformat{\\paragraph}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\paragraph" toc-head-string "{}\n"))
+                                ((= 6 curr-level)
+                                 (insert "\\titleformat{\\subparagraph}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))))
                          (no-header-preamble
                           (cond ((= 1 curr-level)
                                  (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
@@ -667,8 +699,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
                                  (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 5 curr-level)
+                                 (insert "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\paragraph" toc-head-string "{" curr-heading "}\n"))
+                                ((= 6 curr-level)
+                                 (insert "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont}{0pt}{\\,\\,\\,--\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
                           (insert "\\label{" curr-heading "}\n"))
                          (no-header-name
                           (cond ((= 1 curr-level)
@@ -683,8 +721,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
                                  (insert "\\subsubsection" toc-head-string "{}\n"))
+                                ((= 5 curr-level)
+                                 (insert "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\theparagraph}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\paragraph" toc-head-string "{}\n"))
+                                ((= 6 curr-level)
+                                 (insert "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\thesubparagraph}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))))
                          (t
                           (cond ((= 1 curr-level)
                                  (insert chap-format "\n")
@@ -698,8 +742,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert subsubsec-format "\n")
                                  (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 5 curr-level)
+                                 (insert paragraph-format "\n")
+                                 (insert "\\paragraph" toc-head-string "{" curr-heading "}\n"))
+                                ((= 6 curr-level)
+                                 (insert subparagraph-format "\n")
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
                           (insert "\\label{" curr-heading "}\n")))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
@@ -749,8 +799,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                              ((= 4 curr-level)
                               (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
                               (insert "\\subsubsection*{}\n"))
+                             ((= 5 curr-level)
+                              (insert "\\titleformat{\\paragraph}[runin]{}{}{0pt}{}\n")
+                              (insert "\\paragraph*{}\n"))
+                             ((= 6 curr-level)
+                              (insert "\\titleformat{\\subparagraph}[runin]{}{}{0pt}{}\n")
+                              (insert "\\subparagraph*{}\n"))
                              (t
-                              (insert "\\subsubsubsection*{}\n")))
+                              (insert "\\subparagraph*{}\n")))
                      (progn
                        (cond ((= 1 curr-level)
                               (insert chap-format "\n")
@@ -772,8 +828,18 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                               (insert "\\subsubsection*{" curr-heading "}\n")
                               (unless no-toc-entry
                                 (insert "\\addcontentsline{toc}{subsubsection}{" curr-heading "}\n")))
+                             ((= 5 curr-level)
+                              (insert paragraph-format "\n")
+                              (insert "\\paragraph*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{paragraph}{" curr-heading "}\n")))
+                             ((= 6 curr-level)
+                              (insert subparagraph-format "\n")
+                              (insert "\\subparagraph*{" curr-heading "}\n")
+                              (unless no-toc-entry
+                                (insert "\\addcontentsline{toc}{subparagraph}{" curr-heading "}\n")))
                              (t
-                              (insert "\\subsubsubsection*{" curr-heading "}\n")))
+                              (insert "\\subparagraph*{" curr-heading "}\n")))
                        (insert "\\label{" curr-heading "}\n")))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
@@ -845,8 +911,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
                                  (insert "\\subsubsection" toc-head-string "{}\n"))
+                                ((= 5 curr-level)
+                                 (insert "\\titleformat{\\paragraph}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\paragraph" toc-head-string "{}\n"))
+                                ((= 6 curr-level)
+                                 (insert "\\titleformat{\\subparagraph}[runin]{}{}{0pt}{}\n")
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))))
                          (no-header-preamble
                           (cond ((= 1 curr-level)
                                  (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
@@ -860,8 +932,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
                                  (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 5 curr-level)
+                                 (insert "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\paragraph" toc-head-string "{" curr-heading "}\n"))
+                                ((= 6 curr-level)
+                                 (insert "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
                           (insert "\\label{" curr-heading "}\n"))
                          (no-header-name
                           (cond ((= 1 curr-level)
@@ -876,8 +954,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
                                  (insert "\\subsubsection" toc-head-string "{}\n"))
+                                ((= 5 curr-level)
+                                 (insert "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\theparagraph}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\paragraph" toc-head-string "{}\n"))
+                                ((= 6 curr-level)
+                                 (insert "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\thesubparagraph}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{}\n"))))
+                                 (insert "\\subparagraph" toc-head-string "{}\n"))))
                          (t
                           (cond ((= 1 curr-level)
                                  (insert chap-format "\n")
@@ -891,8 +975,14 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 ((= 4 curr-level)
                                  (insert subsubsec-format "\n")
                                  (insert "\\subsubsection" toc-head-string "{" curr-heading "}\n"))
+                                ((= 5 curr-level)
+                                 (insert paragraph-format "\n")
+                                 (insert "\\paragraph" toc-head-string "{" curr-heading "}\n"))
+                                ((= 6 curr-level)
+                                 (insert subparagraph-format "\n")
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
-                                 (insert "\\subsubsubsection" toc-head-string "{" curr-heading "}\n")))
+                                 (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
                           (insert "\\label{" curr-heading "}\n")))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
@@ -975,6 +1065,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (make-directory (file-name-directory output-file) t)
     (rename-file (concat (file-name-sans-extension temp-org) ".pdf") output-file t)
     (rename-file (concat (file-name-sans-extension temp-org) ".tex") (concat (file-name-sans-extension output-file) ".tex") t)
+    (delete-file (concat (file-name-sans-extension temp-org) ".ilg"))
+    (delete-file (concat (file-name-sans-extension temp-org) ".ind"))
     (setq oletptceu--fm-found nil)
     (setq oletptceu--mm-found nil)
     (setq oletptceu--bm-found nil)
