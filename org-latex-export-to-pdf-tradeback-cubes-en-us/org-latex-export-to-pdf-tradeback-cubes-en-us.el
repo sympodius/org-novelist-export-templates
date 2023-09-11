@@ -60,6 +60,7 @@
 ;;;; User Variables
 
 (defvar oletptceu--typeface-size 0.795 "Typeface size (fraction of normal) for the document text.")
+(defvar oletptceu--monofont-typeface-size-adjustment 1.000 "Typeface size (fraction of oletptceu--typeface-size) for the document text.")
 (defvar oletptceu--typeface-size-chapter 20 "Typeface size (pt) for the chapter heading text.")
 (defvar oletptceu--typeface-size-section 15 "Typeface size (pt) for the section heading text.")
 (defvar oletptceu--typeface-size-subsection 11 "Typeface size (pt) for the subsection heading text.")
@@ -423,12 +424,12 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (when (find-font (font-spec :name oletptceu--signaturefont))
             (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\newfontfamily\\signaturefont[Scale=" (number-to-string oletptceu--typeface-size) "]{" oletptceu--signaturefont "}") nil t))
           (when (find-font (font-spec :name oletptceu--monofont))
-            (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmonofont[Scale=MatchLowercase]{" oletptceu--monofont "}") nil t))
+            (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmonofont[Scale=MatchLowercase,ScaleAgain=" (number-to-string oletptceu--monofont-typeface-size-adjustment)"]{" oletptceu--monofont "}") nil t))
           (when (find-font (font-spec :name oletptceu--sansfont))
             (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setsansfont[Scale=MatchLowercase]{" oletptceu--sansfont "}") nil t))
           (when (find-font (font-spec :name oletptceu--mainfont))
             (oletptceu--set-file-property-value "LATEX_HEADER" (concat "\\setmainfont[Scale=" (number-to-string oletptceu--typeface-size) "]{" oletptceu--mainfont "}") nil t))
-          (oletptceu--set-file-property-value "LATEX_HEADER" "\\usepackage{fontspec} " nil t)
+          (oletptceu--set-file-property-value "LATEX_HEADER" "\\usepackage{fontspec}" nil t)
           (goto-char (point-min))
           (when (org-goto-first-child)
             (beginning-of-line)
