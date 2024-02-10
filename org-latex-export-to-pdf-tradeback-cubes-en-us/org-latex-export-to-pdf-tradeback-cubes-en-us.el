@@ -356,7 +356,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (setq org-export-with-timestamps t)
     (setq org-export-with-fixed-width t)
     (setq org-export-with-inlinetasks t)
-    (setq org-export-with-broken-links t)
+    (setq org-export-with-broken-links 'mark)
     (setq org-export-with-smart-quotes t)
     (setq org-export-with-todo-keywords t)
     (setq org-export-with-archived-trees nil)
