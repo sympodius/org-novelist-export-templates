@@ -497,7 +497,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                       "\n"))
             (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
                     "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value org-input-file "TITLE") "}\\\\[0.2cm]\n")
-	    (if (oletptceu--get-file-property-value org-input-file "SUBTITLE")
+	    (if (> (length (oletptceu--get-file-property-value org-input-file "SUBTITLE")) 0)
 		(insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
 			"\\textsf{ \\large \\itshape " (oletptceu--get-file-property-value org-input-file "SUBTITLE") "}\\\\[3.5cm]\n")
 	      (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"))
@@ -514,8 +514,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                     "\\legalParindent\n"
                     "\\legalParskip\n"
                     (oletptceu--get-file-property-value org-input-file "TITLE"))
-	    (if (oletptceu--get-file-property-value org-input-file "SUBTITLE")
-		(insert ": " (oletptceu--get-file-property-value org-input-file "SUBTITLE")))
+	    (unless (string= (oletptceu--get-file-property-value org-input-file "SUBTITLE") "")
+		(insert " --- " (oletptceu--get-file-property-value org-input-file "SUBTITLE")))
             (insert "\n"
 		    "\n")
             (if (find-font (font-spec :name oletptceu--signaturefont))
