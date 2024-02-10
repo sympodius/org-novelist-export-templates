@@ -473,6 +473,12 @@ Otherwise, run org-fold-show-all."
           (let ((case-fold-search t))
             (while (re-search-forward "^[ \t]*#\\+INDEX:" nil t)
               (ooetmeu--delete-line)))
+	  ;; Remap image embeds to correct directory.
+          (goto-char (point-min))
+          (let ((case-fold-search t))
+            (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[file:../Images/")) nil t)
+              (delete-char -7)
+	      (insert "../Images/")))
           (goto-char (point-min))
           (ooetmeu--delete-line)
           (ooetmeu--string-to-file (buffer-string) temp-org))
