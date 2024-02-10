@@ -76,6 +76,9 @@
 (defvar oletptceu--edition "Early Draft Edition" "Text describing this edition.")
 (defvar oletptceu--rights "Creative Commons Attribution-Non-Commercial-ShareAlike 4.0 International License" "Copyright statement or license.")
 (defvar oletptceu--sigil-graphic "/home/sympodius/Git/sympodius/org-novelist-export-templates/org-latex-export-to-pdf-tradeback-cubes-en-us/juf-sigil.pdf" "Location of image file to use as sigil in legal page.")
+(defvar oletptceu--make-booklet t "Also output an imposed booklet version of PDF for bookbinding.")
+(defvar oletptceu--signature-size 6 "The number of pieces of paper you wish to use in your booklet signatures for bookbinding.")
+(defvar oletptceu--booklet-buffer-pages 2 "The number of blank pages to add to the start and end of your booklet for bookbinding.")
 
 
 
@@ -1068,6 +1071,35 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (rename-file (concat (file-name-sans-extension temp-org) ".tex") (concat (file-name-sans-extension output-file) ".tex") t)
     (delete-file (concat (file-name-sans-extension temp-org) ".ilg"))
     (delete-file (concat (file-name-sans-extension temp-org) ".ind"))
+    ;; The next block creates an imposed booklet for bookbinding if required.
+    (when (and oletptceu--make-booklet (executable-find "xelatex"))
+      (with-temp-buffer
+	(insert "\\documentclass[a4paper]{article}\n"
+		"\\usepackage[xetex]{color,graphicx,epsfig}\n"
+		"\\usepackage[final]{pdfpages}\n"
+		"\\begin{document}\n"
+		"\\includepdf[pages=")
+	(when (> oletptceu--booklet-buffer-pages 0)
+	  (insert "{"))
+	(let ((i oletptceu--booklet-buffer-pages))
+	  (while (> i 0)
+	    (insert "{},")
+	    (setq i (- i 1))))
+	(insert "-")
+	(let ((i oletptceu--booklet-buffer-pages))
+	  (while (> i 0)
+	    (insert ",{}")
+	    (setq i (- i 1))))
+	(when (> oletptceu--booklet-buffer-pages 0)
+	  (insert "}"))
+	(insert ",nup=1x2,landscape,signature=" (number-to-string (* 4 oletptceu--signature-size)) "]{./" (file-name-base output-file) ".pdf}\n"
+		"\\end{document}")
+	(oletptceu--string-to-file (buffer-string) (concat (file-name-sans-extension output-file) "Booklet.tex")))
+      (when (file-readable-p (concat (file-name-sans-extension output-file) "Booklet.tex"))
+	(let ((default-directory (file-name-directory output-file)))
+	  (shell-command-to-string (concat "xelatex \"" (file-name-sans-extension output-file) "Booklet.tex\""))))
+      (delete-file (concat (file-name-sans-extension output-file) "Booklet.aux"))
+      (delete-file (concat (file-name-sans-extension output-file) "Booklet.log")))
     (setq oletptceu--fm-found nil)
     (setq oletptceu--mm-found nil)
     (setq oletptceu--bm-found nil)
