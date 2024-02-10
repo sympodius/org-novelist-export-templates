@@ -1055,6 +1055,12 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
             (setq no-pagestyle nil)
             (setq no-toc-entry nil)
             (setq toc-head-string ""))
+	  ;; Remap image embeds to correct directory.
+          (goto-char (point-min))
+          (let ((case-fold-search t))
+            (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[file:../Images/")) nil t)
+              (delete-char -7)
+	      (insert "../Images/")))
           (goto-char (point-min))
           (oletptceu--delete-line)
           (oletptceu--string-to-file (buffer-string) temp-org))))  ; Write new Org file to be fed to exporter
