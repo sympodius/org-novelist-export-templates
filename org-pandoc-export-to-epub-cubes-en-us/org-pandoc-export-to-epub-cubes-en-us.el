@@ -206,12 +206,16 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (title-graphic-arg "")
         title-words
         (title-lines '())
+	(subtitle-graphic-arg "")
+	subtitle-words
+	(subtitle-lines '())
         (author-graphic-arg "")
         author-words
         (author-lines '())
         (curr-line "")
         curr-word
         (curr-title-pos 0)
+	(curr-subtitle-pos 300)
         (curr-author-pos 800)
         ;; The CSS sylesheet for the ePub.
         (cubes-stylesheet
@@ -412,7 +416,37 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                 ;; Return new title.
                 (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100," (number-to-string (+ 1280 curr-title-pos)) " 1500," (number-to-string (+ 1280 curr-title-pos)) "\" " title-graphic-arg )))
             ;; Title is fine, just return it.
-            (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100,1440 1500,1440\" -draw \"text 0,0 \'" (opeteceu--get-file-property-value org-input-file "TITLE") "\'\" ")))
+            (setq title-graphic-arg (concat "-draw \"line 100,1120 1500,1120\" -draw \"line 100,1440 1500,1440\" -draw \"text 0," (number-to-string curr-title-pos) " \'" (opeteceu--get-file-property-value org-input-file "TITLE") "\'\" ")))
+	  ;; If subtitle longer than x, split into lines. Else, return subtitle.
+          (if (> (length (opeteceu--get-file-property-value org-input-file "SUBTITLE")) 56)
+              ;; Subtitle too long, split it up.
+              (progn
+                (setq subtitle-words (split-string (opeteceu--get-file-property-value org-input-file "SUBTITLE") " "))  ; What text we're actually splitting up, stored as words
+                ;; Loop through list of words in subtitle and arrange into lines.
+                (while subtitle-words
+                  (setq curr-word (car subtitle-words))  ; Get first word left in list
+                  (setq subtitle-words (cdr subtitle-words))  ; Remove first word left in list from list
+                  ;; If adding current word to existing line will be too long, create a new line and add old one to title-lines
+                  (if (> (+ (length curr-line) (length curr-word)) 56)
+                      (progn
+                        (setq subtitle-lines (cons curr-line subtitle-lines))
+                        (setq curr-line curr-word))
+                    ;; Add word to existing line
+                    (if (< (length curr-line) 1)
+                        (setq curr-line curr-word)
+                      (setq curr-line (concat curr-line " " curr-word))))
+                  ;; If no words left, add current line to subtitle-lines
+                  (unless subtitle-words
+                    (setq subtitle-lines (cons curr-line subtitle-lines))))
+                ;; Subtitle has now been made into lines. However, lines are in reverse order, so switch them back
+                (setq subtitle-lines (reverse subtitle-lines))
+                ;; Turn subtitle lines into imagemagick arguments.
+                (while subtitle-lines
+                  (setq subtitle-graphic-arg (concat subtitle-graphic-arg "-draw \"text 0," (number-to-string curr-subtitle-pos) " \'" (car subtitle-lines) "\'\" "))
+                  (setq curr-subtitle-pos (+ curr-subtitle-pos 160))
+                  (setq subtitle-lines (cdr subtitle-lines))))
+            ;; Subtitle is fine, just return it.
+            (setq subtitle-graphic-arg (concat "-draw \"text 0," (number-to-string curr-subtitle-pos) " \'" (opeteceu--get-file-property-value org-input-file "SUBTITLE") "\'\" ")))
           ;; If author longer than x, split into lines. Else, return author.
           (if (> (length (opeteceu--get-file-property-value org-input-file "AUTHOR")) 22)
               ;; Author too long, split it up.
@@ -444,17 +478,20 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                   (setq curr-author-pos (+ curr-author-pos 160))
                   (setq author-lines (cdr author-lines))))
             ;; Author is fine, just return it.
-            (setq author-graphic-arg (concat "-draw \"text 0,800 \'" (opeteceu--get-file-property-value org-input-file "AUTHOR") "\'\" ")))
+            (setq author-graphic-arg (concat "-draw \"text 0," (number-to-string curr-author-pos) " \'" (opeteceu--get-file-property-value org-input-file "AUTHOR") "\'\" ")))
           ;; If Imagemagick is available, generate cover.
           (when (and (executable-find "magick") (file-readable-p opeteceu--cover-graphic))
-            (shell-command (concat "magick -size 1600x2560 xc:white -fill black -stroke black -font \"Josefin-Sans\" -pointsize 126 -gravity center " title-graphic-arg  " -font \"Alegreya-SC\" -pointsize 72 " author-graphic-arg cover-graphic-arg " \"" (file-name-directory temp-org) "cover.png\""))
+            (shell-command (concat "magick -size 1600x2560 xc:white -fill black -stroke black -font \"Josefin-Sans\" -pointsize 126 -gravity center " title-graphic-arg " -font \"Josefin-Sans-Italic\" -pointsize 54 " subtitle-graphic-arg " -font \"Alegreya-SC\" -pointsize 72 " author-graphic-arg cover-graphic-arg " \"" (file-name-directory temp-org) "cover.png\""))
             (setq opeteceu--cover (concat (file-name-directory temp-org) "cover.png")))
           ;; Markdown meta data and legal info.
           (insert "#+BEGIN_EXPORT md\n"
                   "---\n"
                   "title:\n"
                   "- type: main\n"
-                  "  text: " (opeteceu--get-file-property-value org-input-file "TITLE") "\n"
+                  "  text: " (opeteceu--get-file-property-value org-input-file "TITLE"))
+	  (unless (string= (opeteceu--get-file-property-value org-input-file "SUBTITLE") "")
+	    (insert " --- " (opeteceu--get-file-property-value org-input-file "SUBTITLE")))
+	  (insert "\n"
                   "creator:\n"
                   "- role: author\n"
                   "  text: " (opeteceu--get-file-property-value org-input-file "AUTHOR") "\n"
