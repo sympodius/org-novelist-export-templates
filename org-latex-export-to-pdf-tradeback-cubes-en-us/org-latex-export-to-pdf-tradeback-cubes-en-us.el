@@ -371,6 +371,54 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (insert-file-contents org-input-file)
           (org-mode)
           (oletptceu--fold-show-all)
+	  ;; Add index flags to the story. Doing this here, before any other processing, ensures we won't include things like title pages and copyright pages in the index.
+	  (goto-char (point-min))
+	  (insert "\n")
+	  (goto-char (point-min))
+          (setq curr-properties-list (oletptceu--get-file-properties-and-values org-input-file))
+          (while curr-properties-list
+            (setq curr-property (pop curr-properties-list))
+            (when (string= (car curr-property) "ORG_NOVELIST_INDEX_ENTRY")
+              (let ((case-fold-search t)
+                    (curr-term (cdr curr-property))
+                    (pos (point-min))
+		    (search-bound-pos (point-max))
+		    (curr-term-insert-str ""))
+                (when (> (length (split-string curr-term "!" t " ")) 1)
+                  (setq curr-term (car (last (split-string curr-term "!" t " ")))))
+		(while (not (org-next-visible-heading 1))
+		  ;; Don't include glossary entries in the index (keep in mind that this template is intended for en-US language).
+		  (unless (string= (downcase (nth 4 (org-heading-components))) "glossary")
+		    ;; Don't include heading appearances of term in the index.
+		    (forward-line)
+		    (beginning-of-line)
+		    (setq pos (point))
+		    (if (not (org-next-visible-heading 1))
+			(progn
+			  ;; Don't include heading appearances of term in the index.
+			  (beginning-of-line)
+			  (forward-char -1)
+			  (setq search-bound-pos (point)))
+		      (setq search-bound-pos (point-max)))
+		    (goto-char pos)
+		    (while (re-search-forward (format "[[:space:][:punct:]]+?%s[[:space:][:punct:]]+?" (regexp-quote curr-term)) search-bound-pos t)
+		      ;; Check insert not already done in previous loop.
+		      (setq pos (point))
+		      (beginning-of-line)
+		      ;; Don't match Document or Section properties.
+		      (unless (or (looking-at-p "^[ \t]*#\\+") (looking-at-p "^[ \t]*:+?[^\s]+?:+?"))
+			(goto-char pos)
+			(setq curr-term-insert-str (concat "\n#+index: " (cdr curr-property) "\n"))
+			(insert curr-term-insert-str)
+			;; Increase search-bound-pos by the number of characters we've added.
+			(setq search-bound-pos (+ search-bound-pos (length curr-term-insert-str)))))))))
+	    (goto-char (point-min)))
+	  (goto-char (point-min))
+	  (oletptceu--delete-line)
+          ;; Only print an Index at the end of the story if user requested it.
+          (when (member "index" (split-string (oletptceu--get-file-property-value org-input-file "GENERATE") "[,\f\t\n\r\v]+" t " "))
+            (goto-char (point-max))
+            (insert "\n#+LATEX: \\printindex\n"))
           ;; Set fallback fonts if user selections not found.
           (cond
            ((find-font (font-spec :name oletptceu--mainfont))
@@ -1007,28 +1055,6 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
             (setq no-pagestyle nil)
             (setq no-toc-entry nil)
             (setq toc-head-string ""))
-          ;; Add index flags to the story.
-          (setq curr-properties-list (oletptceu--get-file-properties-and-values org-input-file))
-          (while curr-properties-list
-            (setq curr-property (pop curr-properties-list))
-            (when (string= (car curr-property) "ORG_NOVELIST_INDEX_ENTRY")
-              (let ((case-fold-search t)
-                    (curr-term (cdr curr-property))
-                    pos)
-                (when (> (length (split-string curr-term "!" t " ")) 1)
-                  (setq curr-term (car (last (split-string curr-term "!" t " ")))))
-                (goto-char (point-max))
-                (while (re-search-backward (format "[[:space:][:punct:]]+%s[[:space:][:punct:]]+" (regexp-quote curr-term)) nil t)
-                  ;; Check insert not already done in previous loop.
-                  (setq pos (point))
-                  (beginning-of-line)
-                  (unless (looking-at-p "^[ \t]*#\\+")
-                    (goto-char pos)
-                    (insert "\n#+index: " (cdr curr-property) "\n"))))))
-          ;; Only print an Index at the end of the story if user requested it.
-          (when (member "index" (split-string (oletptceu--get-file-property-value org-input-file "GENERATE") "[,\f\t\n\r\v]+" t " "))
-            (goto-char (point-max))
-            (insert "\n#+LATEX: \\printindex\n"))
           (goto-char (point-min))
           (oletptceu--delete-line)
           (oletptceu--string-to-file (buffer-string) temp-org))))  ; Write new Org file to be fed to exporter
