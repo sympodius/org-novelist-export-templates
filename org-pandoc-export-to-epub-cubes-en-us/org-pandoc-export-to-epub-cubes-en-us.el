@@ -697,6 +697,15 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (find-file temp-org)
     (org-md-export-to-markdown)  ; Use Org mode's built-in Markdown exporter to generate the file to be fed to Pandoc
     (opeteceu--delete-current-file t)
+    ;; Remove img name tags for images without a given name.
+    (find-file (concat (file-name-sans-extension output-file) ".md"))
+    (goto-char (point-min))
+    (let ((case-fold-search t))
+      (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "![img](../Images/")) nil t)
+        (delete-char -15)
+	(insert "](../Images/"))
+      (save-buffer)
+      (kill-buffer))
     (setq org-export-with-toc org-export-with-toc-orig)
     (setq org-export-with-date org-export-with-date-orig)
     (setq org-export-with-tags org-export-with-tags-orig)
