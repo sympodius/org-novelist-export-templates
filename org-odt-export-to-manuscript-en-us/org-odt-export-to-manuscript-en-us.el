@@ -42,8 +42,8 @@
 ;; methodology can be done without the use of Emacs or the Org Novelist
 ;; package, but using the package within Emacs will provide helper
 ;; functions that make the methodology much easier to use; allowing the
-;; following of links, programmatic updating of crossreferences, and
-;; ability to programatically export to other formats.
+;; following of links, programmatic updating of cross-references, and
+;; ability to programmatically export to other formats.
 ;;
 ;; Installation, Activation, and Documentation
 ;; -------------------------------------------

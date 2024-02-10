@@ -41,8 +41,8 @@
 ;; methodology can be done without the use of Emacs or the Org Novelist
 ;; package, but using the package within Emacs will provide helper
 ;; functions that make the methodology much easier to use; allowing the
-;; following of links, programmatic updating of crossreferences, and
-;; ability to programatically export to other formats.
+;; following of links, programmatic updating of cross-references, and
+;; ability to programmatically export to other formats.
 ;;
 ;; Installation, Activation, and Documentation
 ;; -------------------------------------------
@@ -378,7 +378,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (beginning-of-line)
           (insert "\n")
           (forward-line -1)
-          ;; If graphic available, a cover will be generated. Start with argument that will need to be passed to Imagemagick.
+          ;; If graphic available, it will be used in generating cover. Start with argument that will need to be passed to Imagemagick.
           (when (file-readable-p opeteceu--cover-graphic)
             (setq cover-graphic-arg (concat " -draw \"image over 0,-800 0,0 \'" opeteceu--cover-graphic "\'\"")))
           ;; If title longer than x, split into lines. Else, return title.
@@ -468,16 +468,26 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (insert "...\n"
                   "\n"
                   "#   {.unnumbered .unlisted}\n\n"
-                  "Author: " (opeteceu--get-file-property-value org-input-file "AUTHOR") "\\\n"
-                  "Cover: Cube Family by Martin Anderson (2012 – ?)\\\n"
-                  "Made with Blender 3D - <http://www.blender.org>\n"
+		  (opeteceu--get-file-property-value org-input-file "TITLE"))
+	  (unless (string= (opeteceu--get-file-property-value org-input-file "SUBTITLE") "")
+	    (insert " --- " (opeteceu--get-file-property-value org-input-file "SUBTITLE")))
+	  (insert "\n"
+		  "\n"
+                  "Author: " (opeteceu--get-file-property-value org-input-file "AUTHOR") "\n"
+		  "\n"
+                  "Cover: *Cube Family* by Martin Anderson (2012–-?)\\\n"
+                  "Made with Blender 3D --- <http://www.blender.org>\n"
                   "\n"
+		  "\\\n"
+		  "\\\n"
                   "This book, including the cover art, is copyright &copy; " (opeteceu--format-time-string "%Y" (org-time-from-absolute (org-time-string-to-absolute (opeteceu--get-file-property-value org-input-file "DATE"))))
                   " " (opeteceu--get-file-property-value org-input-file "AUTHOR") ".\n"
                   "\n")
           (if (or (string= opeteceu--rights "Creative Commons Attribution-Non-Commercial-ShareAlike 4.0 International License") (string= opeteceu--rights "by-nc-sa"))
               (insert "The electronic forms of this book, including the cover art, are licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\n"
+		      "\\\n"
                       "<http://creativecommons.org/licenses/by-nc-sa/4.0/> \\\n"
+		      "\\\n"
                       "Or, send a letter to Creative Commons, PO Box 1866, MountainView, CA 94042, USA.\n")
             (insert opeteceu--rights "\n"))
           (insert "\n"
@@ -485,16 +495,23 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                   "\n")
           (unless (string= (opeteceu--get-file-property-value org-input-file "EMAIL") "")
             (insert "You can contact the author via e-mail:\\\n"
+		    "\\\n"
                     "<" (opeteceu--get-file-property-value org-input-file "EMAIL") ">\n"
-                    "\n"))
+                    "\n"
+		    "\\\n"
+		    "\\\n"))
           (unless (string= opeteceu--isbn "")
             (insert "ISBN " opeteceu--isbn "\n"
-                    "\n"))
+                    "\n"
+		    "\\\n"
+		    "\\\n"))
           (insert opeteceu--edition ": " (opeteceu--format-time-string "%B %Y" (org-time-from-absolute (org-time-string-to-absolute (opeteceu--get-file-property-value org-input-file "DATE")))) "\n"
-                  "\n")
+                  "\n"
+		  "\\\n"
+		  "\\\n")
           (when (file-readable-p opeteceu--sigil-graphic)
             (insert "<div class=\"center\">\n"
-                    "![Sigil](" opeteceu--sigil-graphic " \"Sigil\"){ width=10% }\\\n"
+                    "![Sigil](" opeteceu--sigil-graphic " \"Sigil\"){ width=5% }\\\n"
                     "</div>\n"))
           (insert "<div id=\"endmeta\"></div>\n"
                   "#+END_EXPORT\n"))
