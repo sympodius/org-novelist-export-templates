@@ -94,6 +94,28 @@
             (setq value (org-trim (buffer-substring beg (point))))))))
     value))
 
+(defun opeteceu--get-file-properties-and-values (file)
+  "Given a FILE, return the properties and values."
+  (let ((property-list '())
+        (regexp-start "^[ \t]*#\\+")
+        (regexp-end ": ")
+        (case-fold-search t)
+        beg
+        beg-line-num)
+    (with-temp-buffer
+      (when (file-exists-p file)
+        (when (file-readable-p file)
+          (insert-file-contents file)
+          (goto-char (point-min))
+          (while (re-search-forward regexp-start nil t)
+            (setq beg (point))
+            (setq beg-line-num (line-number-at-pos))
+            (when (re-search-forward regexp-end nil t)
+              (when (= beg-line-num (line-number-at-pos))
+                (forward-char -2)
+                (push `(,(org-trim (buffer-substring beg (point))) . ,(org-trim (buffer-substring (+ (point) 2) (line-end-position)))) property-list)))))))
+    property-list))
+
 (defun opeteceu--fold-show-all ()
   "Run the deprecated `org-show-all' when Org version is less than 9.6.
 Otherwise, run `org-fold-show-all'."
@@ -113,6 +135,76 @@ TIME-ZONE is the given time. If omitted or nil, use local time."
                (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
       (format-time-string format-string time-zone)
     (org-format-time-string format-string time-zone)))
+
+(defun opeteceu--make-index-string (index-entries-hash-table words-per-page)
+  "Create an index without header.
+INDEX-ENTRIES-HASH-TABLE is a hash table of lists. Each list is a series of
+word positions in a story for the given key.
+WORDS-PER-PAGE is the average number of words in a page of the story in order
+to generate the virtual page numbers in the index."
+  (catch 'INDEX-STRING-FAULT
+    (let ((keys (sort (hash-table-keys index-entries-hash-table) 'string<))
+          key
+          (pages-hash (make-hash-table :test 'eql))
+          (curr-pages-list '())
+          curr-word
+          curr-page
+          (terms '())
+          curr-term
+          curr-parent
+          pages-keys
+          pages-key
+          (low-page -1)
+          (index-str ""))
+      (while keys
+        (setq key (pop keys))
+        (when (> (length (split-string key "!" t " ")) 1)
+          (setq terms (cons (car (split-string key "!" t " ")) terms)))
+        (setq terms (cons key terms)))
+      (setq terms (delete-dups terms))
+      (setq terms (sort terms 'string<))
+      (while terms
+        (setq key (pop terms))
+        (setq curr-term key)
+        (setq curr-parent nil)
+        (when (> (length (split-string key "!" t " ")) 1)
+          (setq curr-parent (car (split-string key "!" t " ")))
+          (setq curr-term (car (last (split-string key "!" t " ")))))
+        (if curr-parent
+            (setq index-str (concat index-str " \\nbsp\\nbsp\\nbsp\\nbsp\\nbsp\\nbsp\\nbsp " curr-term))
+          (setq index-str (concat index-str curr-term)))
+        (when (gethash key index-entries-hash-table)
+          (setq index-str (concat index-str ", "))
+          ;; Process into pages here.
+          ;; Pages will be in reverse order. Create hash map where page is the key, and anchor is the value. Adding new ones will continue to update the anchor until it hits the correct (earliest) value. Reset the hash table for each iteration of the loop.
+          (setq curr-pages-list (sort (gethash key index-entries-hash-table) '>))
+          (while curr-pages-list
+            (setq curr-word (pop curr-pages-list))
+            (setq curr-page (+ 1 (/ curr-word words-per-page)))
+            (puthash curr-page (concat "@@html:[" (number-to-string curr-page) "](#" (string-replace " " "" (string-replace "!" "" key)) "-" (number-to-string curr-word) ")@@") pages-hash))
+          ;; We have the correct page numbers, and the correct link for each. The only thing left to do is concatenate consecutive pages into one link from a range.
+          (setq pages-keys (sort (hash-table-keys pages-hash) '<))
+          (while pages-keys
+            (setq pages-key (pop pages-keys))
+            (when (= low-page -1)
+              (setq low-page pages-key))
+            (if (not (car pages-keys))
+                ;; Last one
+                (progn
+                  (if (not (eq low-page pages-key))
+                      (setq index-str (concat index-str (format "%s&ndash;%s" (gethash low-page pages-hash) (gethash pages-key pages-hash))))
+                    (setq index-str (concat index-str (format "%s" (gethash pages-key pages-hash)))))
+                  (setq low-page -1))
+              (unless (eq pages-key (- (car pages-keys) 1))
+                (if (not (eq low-page pages-key))
+                    (setq index-str (concat index-str (format "%s&ndash;%s, " (gethash low-page pages-hash) (gethash pages-key pages-hash))))
+                  (setq index-str (concat index-str (format "%s, " (gethash pages-key pages-hash)))))
+                (setq low-page -1))))
+          (clrhash pages-hash))
+	(if curr-parent
+	    (setq index-str (concat index-str "\n\n"))
+	  (setq index-str (concat index-str "@@html:\\@@\n"))))
+      (string-trim index-str))))
 
 (defun opeteceu--string-to-file (str filename)
   "Create/Overwrite FILENAME with the contents of STR."
@@ -219,6 +311,11 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (curr-title-pos 0)
 	(curr-subtitle-pos 300)
         (curr-author-pos 800)
+	curr-properties-list
+        curr-property
+	(index-str "")
+	(index-entries (make-hash-table :test 'equal))
+	(words-per-page 248)  ; Not actually, but an average that takes blank pages, glossaries, indices, half used pages, and title pages into account
         ;; The CSS sylesheet for the ePub.
         (cubes-stylesheet
          (concat
@@ -379,7 +476,87 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (insert-file-contents org-input-file)
         (org-mode)
         (opeteceu--fold-show-all)
+        ;; Add index anchors to story. Doing this here, before any other processing, ensures we won't include things like title pages and copyright pages in the index.
         (goto-char (point-min))
+        (insert "\n")
+        (goto-char (point-min))
+        (setq curr-properties-list (opeteceu--get-file-properties-and-values org-input-file))
+        (while curr-properties-list
+          (setq curr-property (pop curr-properties-list))
+          (when (string= (car curr-property) "ORG_NOVELIST_INDEX_ENTRY")
+            (let ((case-fold-search t)
+                  (curr-term (cdr curr-property))
+                  (pos (point-min))
+                  (search-bound-pos (point-max))
+                  (curr-term-insert-str "")
+                  (buffer-str "")
+                  (word-count 0))
+              (when (> (length (split-string curr-term "!" t " ")) 1)
+                (setq curr-term (car (last (split-string curr-term "!" t " ")))))
+              (while (not (org-next-visible-heading 1))
+                ;; Don't include glossary entries in the index (keep in mind that this template is intended for en-US language).
+                (unless (string= (downcase (nth 4 (org-heading-components))) "glossary")
+                  ;; Don't include heading appearances of term in the index.
+                  (forward-line)
+                  (beginning-of-line)
+                  (setq pos (point))
+                  (if (not (org-next-visible-heading 1))
+                      (progn
+                        ;; Don't include heading appearances of term in the index.
+                        (beginning-of-line)
+                        (forward-char -1)
+                        (setq search-bound-pos (point)))
+                    (setq search-bound-pos (point-max)))
+                  (goto-char pos)
+                  (while (re-search-forward (format "[[:space:][:punct:]]+?%s\\('s\\)?[[:punct:][:space:]]+?" (regexp-quote curr-term)) search-bound-pos t)
+                    ;; Check insert not already done in previous loop.
+                    (setq pos (point))
+                    (unless (or (looking-at-p "@@html:<a ") (looking-at-p "></a>"))
+                      (goto-char pos)
+                      ;; Don't match Document or Section properties.
+                      (unless (or (looking-at-p "^[ \t]*#\\+") (looking-at-p "^[ \t]*:+?[^\s]+?:+?"))
+                        (goto-char pos)
+                        ;; Get accurate(ish) word count at position.
+                        (insert "<<<<<org-novelist-word-count-tag>>>>>")
+                        (setq buffer-str (buffer-string))
+                        (when (re-search-backward "<<<<<org-novelist-word-count-tag>>>>>" nil t)
+                          (replace-match "" nil nil))
+                        (with-temp-buffer
+                          (insert buffer-str)
+                          (fundamental-mode)
+                          (goto-char (point-min))
+                          (while (re-search-forward "@@html:<a.+?></a>@@" nil t)
+                            (replace-match "" nil nil))
+                          (goto-char (point-max))
+                          (when (re-search-backward "<<<<<org-novelist-word-count-tag>>>>>" nil t)
+                            (replace-match "" nil nil)
+                            (setq word-count (how-many "\\w+" (point-min) (point)))))
+                        ;; We should now have a resonably accurate word count.
+                        (setq curr-term-insert-str (concat "@@html:<a id=\"" (string-replace " " "" (string-replace "!" "" (cdr curr-property))) "-" (number-to-string word-count) "\"></a>@@"))
+                        ;; Make lists of the known page positions of terms in the story, based on word count.
+			(puthash (cdr curr-property) (cons word-count (gethash (cdr curr-property) index-entries)) index-entries)
+			(setq word-count 0)
+			(insert curr-term-insert-str)
+			;; Increase search-bound-pos by the number of characters we've added.
+			(setq search-bound-pos (+ search-bound-pos (length curr-term-insert-str))))))))))
+          (goto-char (point-min)))
+        (goto-char (point-min))
+        (opeteceu--delete-line)
+        ;; At this point, we should have the story full tagged with anchors for the index, as well as have a hash map containing all the index terms, and a way to link to every appearance in the text.
+	(setq index-str (concat index-str (opeteceu--make-index-string index-entries words-per-page)))
+	;; After the Index string has been constructed, we can place it anywhere in the code it is required.
+	(when (member "index" (split-string (opeteceu--get-file-property-value org-input-file "GENERATE") "[,\f\t\n\r\v]+" t " "))
+	  ;; Add index to end of story.
+	  (goto-char (point-max))
+	  (insert (concat "* Index                  :no_header_preamble:no_toc_entry:plain_pagestyle:\n"))  ; Don't add as backmatter as this will add the index to TOC. LaTeX doesn't add it to TOC, so I'm just making it match.
+	  (insert index-str))
+	;; Replace "#+latex: \printindex" with an actual index﻿. A little broad as a solution, but works for me most of the time.
+	(goto-char (point-min))
+	(let ((case-fold-search t))
+	  (while (re-search-forward "^[ \t]*#\\+latex: \\\\printindex" nil t)
+	     (replace-match (concat "* Index                  :no_header_preamble:no_toc_entry:plain_pagestyle:\n" index-str) nil t)))
+	;; Indices have all been placed. Add cover.
+	(goto-char (point-min))
         (when (org-goto-first-child)
           (beginning-of-line)
           (insert "\n")
