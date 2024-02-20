@@ -403,20 +403,21 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 			  (setq search-bound-pos (point)))
 		      (setq search-bound-pos (point-max)))
 		    (goto-char pos)
-		    (while (re-search-forward (format "[[:space:][:punct:]]+?%s[[:space:][:punct:]]+?" (regexp-quote curr-term)) search-bound-pos t)
-		      ;; Check insert not already done in previous loop.
-		      (setq pos (point))
-		      (beginning-of-line)
-		      ;; Don't match Document or Section properties.
-		      (unless (or (looking-at-p "^[ \t]*#\\+") (looking-at-p "^[ \t]*:+?[^\s]+?:+?"))
+                    (while (re-search-forward (format "[[:space:][:punct:]]+?%s\\('s\\)?[[:punct:][:space:]]+?" (regexp-quote curr-term)) search-bound-pos t)
+                      ;; Check insert not already done in previous loop.
+                      (setq pos (point))
+                      (unless (or (looking-at-p "@@latex:\\\\index{") (looking-at-p "}?@@"))
 			(goto-char pos)
-			(setq curr-term-insert-str (concat "\n#+index: " (cdr curr-property) "\n"))
-			(insert curr-term-insert-str)
-			;; Increase search-bound-pos by the number of characters we've added.
-			(setq search-bound-pos (+ search-bound-pos (length curr-term-insert-str)))))))))
-	    (goto-char (point-min)))
-	  (goto-char (point-min))
-	  (oletptceu--delete-line)
+                        ;; Don't match Document or Section properties.
+                        (unless (or (looking-at-p "^[ \t]*#\\+") (looking-at-p "^[ \t]*:+?[^\s]+?:+?"))
+                          (goto-char pos)
+                          (setq curr-term-insert-str (concat "@@latex:\\index{" (cdr curr-property) "}@@"))
+                          (insert curr-term-insert-str)
+                          ;; Increase search-bound-pos by the number of characters we've added.
+                          (setq search-bound-pos (+ search-bound-pos (length curr-term-insert-str))))))))))
+            (goto-char (point-min)))
+          (goto-char (point-min))
+          (oletptceu--delete-line)
           ;; Only print an Index at the end of the story if user requested it.
           (when (member "index" (split-string (oletptceu--get-file-property-value org-input-file "GENERATE") "[,\f\t\n\r\v]+" t " "))
             (goto-char (point-max))
