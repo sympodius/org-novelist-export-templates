@@ -97,8 +97,9 @@
 (defun opeteceu--fold-show-all ()
   "Run the deprecated `org-show-all' when Org version is less than 9.6.
 Otherwise, run `org-fold-show-all'."
-  (if (and (>= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-           (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6))
+  (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+	  (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+               (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
       (org-fold-show-all)
     (org-show-all)))
 
@@ -107,8 +108,9 @@ Otherwise, run `org-fold-show-all'."
 Otherwise, run `format-time-string'.
 FORMAT-STRING is the output format.
 TIME-ZONE is the given time. If omitted or nil, use local time."
-  (if (and (>= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-           (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6))
+  (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+	  (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+               (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
       (format-time-string format-string time-zone)
     (org-format-time-string format-string time-zone)))
 
