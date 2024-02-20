@@ -724,7 +724,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
 	(let ((case-fold-search t))
 	  (while (re-search-forward " `" nil t)
 	     (replace-match " \\lsquo﻿" nil t)))
-        ;; Remove #+INDEX: properties as ODT won't deal with them, and it will cause unwanted line breaks in final ODT.
+        ;; Remove #+INDEX: properties as ePub won't deal with them, and it will cause unwanted line breaks in final ePub.
         (goto-char (point-min))
         (let ((case-fold-search t))
           (while (re-search-forward "^[ \t]*#\\+INDEX:" nil t)
@@ -778,7 +778,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     (make-directory (file-name-directory output-file) t)
     ;; Use Pandoc to create the ePub file from the Markdown file.
     (when (executable-find "pandoc")
-      (shell-command (concat "pandoc \'" (file-name-sans-extension temp-org) ".md\'  -f markdown+smart -t epub --css \'" (file-name-directory output-file)  "stylesheet.css\' --toc -s -o \'" (file-name-sans-extension temp-org) ".epub\'"))
+      (shell-command (concat "pandoc \'" (file-name-sans-extension temp-org) ".md\' -f markdown+smart -t epub --css \'" (file-name-directory output-file)  "stylesheet.css\' --toc -s -o \'" (file-name-sans-extension temp-org) ".epub\'"))
       (when (file-exists-p (concat (file-name-sans-extension temp-org) ".epub"))
         (rename-file (concat (file-name-sans-extension temp-org) ".epub") (concat (file-name-sans-extension output-file) ".epub") t)))
     ;; If available, use Calibre's ebook-convert to generate an azw3 file from the ePub file.
