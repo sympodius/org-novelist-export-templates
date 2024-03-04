@@ -315,6 +315,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (curr-author-pos 800)
 	curr-properties-list
         curr-property
+	curr-cust-id
 	(index-str "")
 	(index-entries (make-hash-table :test 'equal))
 	(words-per-page 248)  ; Not actually, but an average that takes blank pages, glossaries, indices, half used pages, and title pages into account
@@ -747,6 +748,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
               (setq no-header-preamble t))
             (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
               (setq no-toc-entry t)))
+	  (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
+	  (unless curr-cust-id
+	    (when (string= "" curr-cust-id)
+	      (setq curr-cust-id nil)))
           ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
           (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                  (setq curr-heading (nth 4 (org-heading-components)))
@@ -775,6 +780,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (insert " " curr-heading " " toc-head-string "\n"
                            "\n"
                            "---\n"))
+		 (when curr-cust-id
+		   (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
+		 (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+		   (insert "\n<a id=\"" curr-heading "\"></a>\n"))
                  (insert "#+END_EXPORT\n")
                  (forward-char -1))
                 ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
@@ -818,6 +827,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                         (insert " Chapter " (number-to-string chap-num) " --- " curr-heading " " toc-head-string "\n"
                                 "\n"
                                 "---\n")))
+		 (when curr-cust-id
+		   (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
+		 (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+		   (insert "\n<a id=\"" curr-heading "\"></a>\n"))
                  (insert "#+END_EXPORT\n")
                  (forward-char -1))
                 ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
@@ -847,6 +860,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                    (insert " " curr-heading " " toc-head-string "\n"
                            "\n"
                            "---\n"))
+		 (when curr-cust-id
+		   (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
+		 (unless (string= curr-heading "")
+		   (insert "\n<a id=\"" curr-heading "\"></a>\n"))
                  (insert "#+END_EXPORT\n")
                  (forward-char -1))
                 (t
@@ -886,6 +903,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                         (insert " Chapter " (number-to-string chap-num) " --- " curr-heading " " toc-head-string "\n"
                                 "\n"
                                 "---\n")))
+		 (when curr-cust-id
+		   (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
+		 (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+		   (insert "\n<a id=\"" curr-heading "\"></a>\n"))
                  (insert "#+END_EXPORT\n")
                  (forward-char -1)))
           (setq no-header nil)
@@ -908,6 +929,41 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
         (let ((case-fold-search t))
           (while (re-search-forward "^[ \t]*#\\+INDEX:" nil t)
             (opeteceu--delete-line)))
+	;; Remap internal document links to point to replacement heading labels.
+        (goto-char (point-min))
+	(let ((case-fold-search t)
+              beg
+              link-val
+	      link-text
+	      (blind-link-num 0))
+	  (while (re-search-forward "\\[\\[[^:/\.\n\r]+?]]" nil t)
+	    (setq link-text nil)
+	    (setq beg (point))
+	    (when (re-search-backward "\\[\\[" nil t)
+	      (setq link-val (buffer-substring (point) beg))
+	      (delete-region (point) beg)
+	      (with-temp-buffer
+		(insert link-val)
+		(goto-char (point-max))
+		(delete-char -2)
+		(goto-char (point-min))
+		(delete-char 2)
+		(when (re-search-forward "#" nil t)
+		  (replace-match ""))
+		(goto-char (point-min))
+		(when (re-search-forward "*" nil t)
+		  (replace-match ""))
+		(goto-char (point-min))
+		(when (re-search-forward "]\\[" nil t)
+		  (delete-char -2)
+		  (setq link-text (buffer-substring (point) (point-max)))
+		  (delete-region (point) (point-max)))
+		(setq link-val (buffer-string)))
+	      (if link-text
+		  (insert "@@html:[" link-text "](#" link-val ")@@")
+		(progn
+		  (setq blind-link-num (+ 1 blind-link-num))
+		  (insert "@@html:[" (number-to-string blind-link-num) "](#" link-val ")@@"))))))
         (goto-char (point-min))
         (opeteceu--delete-line)
         (opeteceu--string-to-file (buffer-string) temp-org)))  ; Write new Org file to be fed to exporter
