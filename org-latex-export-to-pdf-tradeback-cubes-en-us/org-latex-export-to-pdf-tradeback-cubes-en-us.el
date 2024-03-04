@@ -50,6 +50,11 @@
 ;;
 ;;   https://johnurquhartferguson.info
 ;;
+;; Requires LaTeX (and XeLaTeX specifically if generating a booklet).
+;; Default fonts used are Libre Baskerville, Josefin Sans,
+;; DejaVu Sans Mono, and Alegreya SC. If you wish to use these, you will
+;; need to have them installed on your system.
+;;
 ;;; Code:
 
 ;;;; Require other packages
