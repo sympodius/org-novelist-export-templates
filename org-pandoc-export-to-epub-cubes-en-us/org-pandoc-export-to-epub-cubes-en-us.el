@@ -50,7 +50,9 @@
 ;;
 ;;   https://johnurquhartferguson.info
 ;;
-;; Requires Pandoc and Imagemagick.
+;; Requires Pandoc and Imagemagick. Default fonts used for the cover
+;; generator are Josefin Sans, and Alegreya SC. If you wish to use
+;; these, you will need to have them installed on your system.
 ;; If Calibre's ebook-convert is available, Amazon Kindle azw3 files
 ;; will also be generated.
 ;;
