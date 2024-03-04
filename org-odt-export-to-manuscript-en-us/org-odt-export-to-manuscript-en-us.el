@@ -156,7 +156,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
   "Run the deprecated org-show-all when Org version is less than 9.6.
 Otherwise, run org-fold-show-all."
   (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-	  (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+          (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
                (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
       (org-fold-show-all)
     (org-show-all)))
@@ -323,9 +323,9 @@ Otherwise, run org-fold-show-all."
           (insert-file-contents org-input-file)
           (org-mode)
           (ooetmeu--fold-show-all)
-	  (unless (string= (ooetmeu--get-file-property-value org-input-file "SUBTITLE") "")
-	    (ooetmeu--set-file-property-value "TITLE" (concat (ooetmeu--get-file-property-value org-input-file "TITLE")" — " (ooetmeu--get-file-property-value org-input-file "SUBTITLE")))
-	    (ooetmeu--delete-file-property-value "SUBTITLE"))
+          (unless (string= (ooetmeu--get-file-property-value org-input-file "SUBTITLE") "")
+            (ooetmeu--set-file-property-value "TITLE" (concat (ooetmeu--get-file-property-value org-input-file "TITLE")" — " (ooetmeu--get-file-property-value org-input-file "SUBTITLE")))
+            (ooetmeu--delete-file-property-value "SUBTITLE"))
           (goto-char (point-min))
           (when (org-goto-first-child)
             (beginning-of-line)
@@ -354,9 +354,9 @@ Otherwise, run org-fold-show-all."
                     "</table:table>\n"
                     "<text:p text:style-name=\"OrgTitle\"><text:title>"
                     (ooetmeu--get-file-property-value org-input-file "TITLE"))
-	    (unless (string= (ooetmeu--get-file-property-value org-input-file "SUBTITLE") "")
-	      (insert " — " (ooetmeu--get-file-property-value org-input-file "SUBTITLE")))
-	    (insert "</text:title></text:p>\n"
+            (unless (string= (ooetmeu--get-file-property-value org-input-file "SUBTITLE") "")
+              (insert " — " (ooetmeu--get-file-property-value org-input-file "SUBTITLE")))
+            (insert "</text:title></text:p>\n"
                     "\n"
                     "<text:p text:style-name=\"OrgSubtitle\"><text:span>by "
                     (ooetmeu--get-file-property-value org-input-file "AUTHOR")
