@@ -610,6 +610,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                 (setq no-pagestyle t))
               (when (member "plain_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
                 (setq pagestyle "plain")))
+	    (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
+	    (unless curr-cust-id
+	      (when (string= "" curr-cust-id)
+		(setq curr-cust-id nil)))
             ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
             (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                    (setq curr-matter "FRONT MATTER")
@@ -685,7 +689,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 (insert "\\addcontentsline{toc}{subparagraph}{" curr-heading "}\n")))
                              (t
                               (insert "\\subparagraph*{" curr-heading "}\n")))
-                       (insert "\\label{" curr-heading "}\n")))
+		       (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+			 (insert "\\label{" curr-heading "}\n"))
+		       (when curr-cust-id
+			 (insert "\\label{" curr-cust-id "}\n"))))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
@@ -778,7 +785,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
-                          (insert "\\label{" curr-heading "}\n"))
+			  (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                            (insert "\\label{" curr-heading "}\n"))
+			  (when curr-cust-id
+			    (insert "\\label{" curr-cust-id "}\n")))
                          (no-header-name
                           (cond ((= 1 curr-level)
                                  (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
@@ -821,7 +831,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
-                          (insert "\\label{" curr-heading "}\n")))
+			  (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                            (insert "\\label{" curr-heading "}\n"))
+			  (when curr-cust-id
+			    (insert "\\label{" curr-cust-id "}\n"))))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
@@ -911,7 +924,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                 (insert "\\addcontentsline{toc}{subparagraph}{" curr-heading "}\n")))
                              (t
                               (insert "\\subparagraph*{" curr-heading "}\n")))
-                       (insert "\\label{" curr-heading "}\n")))
+		       (unless (string= curr-heading "")
+			 (insert "\\label{" curr-heading "}\n"))
+		       (when curr-cust-id
+			 (insert "\\label{" curr-cust-id "}\n"))))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
@@ -1011,7 +1027,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
-                          (insert "\\label{" curr-heading "}\n"))
+			  (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                            (insert "\\label{" curr-heading "}\n"))
+			  (when curr-cust-id
+			    (insert "\\label{" curr-cust-id "}\n")))
                          (no-header-name
                           (cond ((= 1 curr-level)
                                  (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
@@ -1054,7 +1073,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n"))
                                 (t
                                  (insert "\\subparagraph" toc-head-string "{" curr-heading "}\n")))
-                          (insert "\\label{" curr-heading "}\n")))
+			  (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                            (insert "\\label{" curr-heading "}\n"))
+			  (when curr-cust-id
+			    (insert "\\label{" curr-cust-id "}\n"))))
                    (if no-pagestyle
                        (insert "\\thispagestyle{empty}\n"
                                "\\pagestyle{empty}\n")
@@ -1079,7 +1101,39 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (let ((case-fold-search t))
             (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[file:../Images/")) nil t)
               (delete-char -7)
-	      (insert "../Images/")))
+              (insert "../Images/")))
+	  ;; Remap internal document links to point to replacement heading labels.
+          (goto-char (point-min))
+	  (let ((case-fold-search t)
+                beg
+                link-val
+		link-text)
+	    (while (re-search-forward "\\[\\[[^:/\.\n\r]+?]]" nil t)
+	      (setq link-text nil)
+	      (setq beg (point))
+	      (when (re-search-backward "\\[\\[" nil t)
+		(setq link-val (buffer-substring (point) beg))
+		(delete-region (point) beg)
+		(with-temp-buffer
+		  (insert link-val)
+		  (goto-char (point-max))
+		  (delete-char -2)
+		  (goto-char (point-min))
+		  (delete-char 2)
+		  (when (re-search-forward "#" nil t)
+		    (replace-match ""))
+		  (goto-char (point-min))
+		  (when (re-search-forward "*" nil t)
+		    (replace-match ""))
+		  (goto-char (point-min))
+		  (when (re-search-forward "]\\[" nil t)
+		    (delete-char -2)
+		    (setq link-text (buffer-substring (point) (point-max)))
+		    (delete-region (point) (point-max)))
+		  (setq link-val (buffer-string)))
+		(if link-text
+		    (insert "@@latex:\\hyperref[" link-val "]{" link-text "}@@")
+		  (insert "@@latex:\\ref{" link-val "}@@")))))
           (goto-char (point-min))
           (oletptceu--delete-line)
           (oletptceu--string-to-file (buffer-string) temp-org))))  ; Write new Org file to be fed to exporter
