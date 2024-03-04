@@ -543,6 +543,11 @@ Otherwise, run org-fold-show-all."
               (ooetmeu--delete-line)
               (insert "#+BEGIN_EXPORT odt\n<text:line-break/>\n")
               (insert "#+END_EXPORT\n")))
+          ;; Remove shy inclusions. ODT won't process them correctly, and clearly doesn't need them anyway.
+          (goto-char (point-min))
+          (let ((case-fold-search t))
+            (while (re-search-forward "\\\\-" nil t)
+              (delete-char -2)))
           ;; Remove #+INDEX: properties as ODT won't deal with them, and it will cause unwanted line breaks in final ODT.
           (goto-char (point-min))
           (let ((case-fold-search t))
