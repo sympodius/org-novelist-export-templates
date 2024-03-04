@@ -212,6 +212,7 @@ Otherwise, run org-fold-show-all."
         curr-level
         (chap-num 0)
         beg
+        curr-cust-id
         (no-header nil)
         (no-header-name nil)
         (no-header-preamble nil)
@@ -376,6 +377,10 @@ Otherwise, run org-fold-show-all."
                 (setq no-header-preamble t))
               (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
                 (setq no-toc-entry t)))
+            (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
+            (unless curr-cust-id
+              (when (string= "" curr-cust-id)
+                (setq curr-cust-id nil)))
             ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
             (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
@@ -394,10 +399,18 @@ Otherwise, run org-fold-show-all."
                      (setq no-header-preamble t))
                    (insert "\n#+BEGIN_EXPORT odt\n"
                            "<text:h text:style-name=\"Heading_20_1_20_First\" text:outline-level=\""
-                           curr-level "\" text:is-list-header=\"false\">\n"
-                           "<text:bookmark-start text:name=\"OrgXref.org622dc31\"/>\n"
-                           "<text:bookmark text:name=\"org622dc31\"/>" curr-heading "\n"
-                           "<text:bookmark-end text:name=\"OrgXref.org622dc31\"/></text:h>\n"
+                           curr-level "\" text:is-list-header=\"false\">\n")
+                   (when curr-cust-id
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-cust-id "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
+                             "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
+                   (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-heading "\"/>"))
+                   (insert curr-heading "\n")
+                   (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                     (insert "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                   (insert "</text:h>\n"
                            "#+END_EXPORT\n"))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
@@ -416,9 +429,14 @@ Otherwise, run org-fold-show-all."
                      (setq chap-num (+ chap-num 1)))
                    (insert "\n#+BEGIN_EXPORT odt\n"
                            "<text:h text:style-name=\"Heading_20_1\" text:outline-level=\""
-                           curr-level "\" text:is-list-header=\"false\">\n"
-                           "<text:bookmark-start text:name=\"OrgXref.org622dc31\"/>\n"
-                           "<text:bookmark text:name=\"org622dc31\"/>")
+                           curr-level "\" text:is-list-header=\"false\">\n")
+                   (when curr-cust-id
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-cust-id "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
+                             "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
+                   (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-heading "\"/>"))
                    (unless no-header-preamble
                      (setq curr-heading-construct (concat "Chapter " (number-to-string chap-num))))
                    (unless (or no-header-preamble no-header-name)
@@ -427,8 +445,10 @@ Otherwise, run org-fold-show-all."
                      (setq curr-heading-construct (concat curr-heading-construct curr-heading)))
                    (when no-header
                      (setq curr-heading-construct ""))
-                   (insert curr-heading-construct "\n"
-                           "<text:bookmark-end text:name=\"OrgXref.org622dc31\"/></text:h>\n"
+                   (insert curr-heading-construct "\n")
+                   (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                     (insert "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                   (insert "</text:h>\n"
                            "#+END_EXPORT\n"))
                   ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
                    (setq curr-heading (nth 4 (org-heading-components)))
@@ -447,10 +467,16 @@ Otherwise, run org-fold-show-all."
                      (setq no-header-preamble t))
                    (insert "\n#+BEGIN_EXPORT odt\n"
                            "<text:h text:style-name=\"Heading_20_1\" text:outline-level=\""
-                           curr-level "\" text:is-list-header=\"false\">\n"
-                           "<text:bookmark-start text:name=\"OrgXref.org622dc31\"/>\n"
-                           "<text:bookmark text:name=\"org622dc31\"/>" curr-heading "\n"
-                           "<text:bookmark-end text:name=\"OrgXref.org622dc31\"/></text:h>\n"
+                           curr-level "\" text:is-list-header=\"false\">\n")
+                   (when curr-cust-id
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-cust-id "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
+                             "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
+                   (unless (string= curr-heading "")
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-heading "\"/>" curr-heading "\n"
+                             "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                   (insert "</text:h>\n"
                            "#+END_EXPORT\n"))
                   (t
                    (setq curr-heading (nth 4 (org-heading-components)))
@@ -465,9 +491,14 @@ Otherwise, run org-fold-show-all."
                      (setq chap-num (+ chap-num 1)))
                    (insert "\n#+BEGIN_EXPORT odt\n"
                            "<text:h text:style-name=\"Heading_20_1\" text:outline-level=\""
-                           curr-level "\" text:is-list-header=\"false\">\n"
-                           "<text:bookmark-start text:name=\"OrgXref.org622dc31\"/>\n"
-                           "<text:bookmark text:name=\"org622dc31\"/>")
+                           curr-level "\" text:is-list-header=\"false\">\n")
+                   (when curr-cust-id
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-cust-id "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
+                             "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
+                   (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                     (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
+                             "<text:bookmark text:name=\"" curr-heading "\"/>"))
                    (unless no-header-preamble
                      (when (string= curr-level "1")
                        (setq curr-heading-construct (concat "Chapter " (number-to-string chap-num)))))
@@ -478,8 +509,10 @@ Otherwise, run org-fold-show-all."
                      (setq curr-heading-construct (concat curr-heading-construct curr-heading)))
                    (when no-header
                      (setq curr-heading-construct ""))
-                   (insert curr-heading-construct "\n"
-                           "<text:bookmark-end text:name=\"OrgXref.org622dc31\"/></text:h>\n"
+                   (insert curr-heading-construct "\n")
+                   (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
+                     (insert "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                   (insert "</text:h>\n"
                            "#+END_EXPORT\n")))
             (setq curr-heading-construct "")
             (setq no-header nil)
@@ -515,12 +548,47 @@ Otherwise, run org-fold-show-all."
           (let ((case-fold-search t))
             (while (re-search-forward "^[ \t]*#\\+INDEX:" nil t)
               (ooetmeu--delete-line)))
-	  ;; Remap image embeds to correct directory.
+          ;; Remap image embeds to correct directory.
           (goto-char (point-min))
           (let ((case-fold-search t))
             (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[file:../Images/")) nil t)
               (delete-char -7)
-	      (insert "../Images/")))
+              (insert "../Images/")))
+          ;; Remap internal document links to point to replacement heading labels.
+          (goto-char (point-min))
+          (let ((case-fold-search t)
+                beg
+                link-val
+                link-text
+                (blind-link-num 0))
+            (while (re-search-forward "\\[\\[[^:/\.\n\r]+?]]" nil t)
+              (setq link-text nil)
+              (setq beg (point))
+              (when (re-search-backward "\\[\\[" nil t)
+                (setq link-val (buffer-substring (point) beg))
+                (delete-region (point) beg)
+                (with-temp-buffer
+                  (insert link-val)
+                  (goto-char (point-max))
+                  (delete-char -2)
+                  (goto-char (point-min))
+                  (delete-char 2)
+                  (when (re-search-forward "#" nil t)
+                    (replace-match ""))
+                  (goto-char (point-min))
+                  (when (re-search-forward "*" nil t)
+                    (replace-match ""))
+                  (goto-char (point-min))
+                  (when (re-search-forward "]\\[" nil t)
+                    (delete-char -2)
+                    (setq link-text (buffer-substring (point) (point-max)))
+                    (delete-region (point) (point-max)))
+                  (setq link-val (buffer-string)))
+                (if link-text
+                    (insert "@@odt:<text:a xlink:type=\"simple\" xlink:href=\"#" link-val "\">" link-text "</text:a>@@")
+                  (progn
+                    (setq blind-link-num (+ 1 blind-link-num))
+                    (insert "@@odt:<text:bookmark-ref text:reference-format=\"chapter\" text:ref-name=\"OrgXref." link-val "\">" (number-to-string blind-link-num) "</text:bookmark-ref>@@"))))))
           (goto-char (point-min))
           (ooetmeu--delete-line)
           (ooetmeu--string-to-file (buffer-string) temp-org))
