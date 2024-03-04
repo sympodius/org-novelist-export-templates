@@ -99,7 +99,7 @@
   "Run the deprecated `org-show-all' when Org version is less than 9.6.
 Otherwise, run `org-fold-show-all'."
   (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-	  (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+          (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
                (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
       (org-fold-show-all)
     (org-show-all)))
@@ -110,7 +110,7 @@ Otherwise, run `format-time-string'.
 FORMAT-STRING is the output format.
 TIME-ZONE is the given time. If omitted or nil, use local time."
   (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-	  (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
+          (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
                (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
       (format-time-string format-string time-zone)
     (org-format-time-string format-string time-zone)))
@@ -264,14 +264,15 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
          (sec-format (concat "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
          (subsec-format (concat "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
          (subsubsec-format (concat "\\titleformat{\\subsubsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\thesubsubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsubsection) "}{" (number-to-string oletptceu--typeface-size-subsubsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
-	 (paragraph-format (concat "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\theparagraph}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
-	 (subparagraph-format (concat "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\thesubparagraph}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+         (paragraph-format (concat "\\titleformat{\\paragraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\theparagraph}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-paragraph) "}{" (number-to-string oletptceu--typeface-size-paragraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
+         (subparagraph-format (concat "\\titleformat{\\subparagraph}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\thesubparagraph}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subparagraph) "}{" (number-to-string oletptceu--typeface-size-subparagraph) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
          curr-heading
          curr-level
          curr-matter
          beg
          curr-properties-list
          curr-property
+	 curr-cust-id
          (toc-head-string "")
          (no-header nil)
          (no-header-name nil)
@@ -378,10 +379,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
           (insert-file-contents org-input-file)
           (org-mode)
           (oletptceu--fold-show-all)
-	  ;; Add index flags to the story. Doing this here, before any other processing, ensures we won't include things like title pages and copyright pages in the index.
-	  (goto-char (point-min))
-	  (insert "\n")
-	  (goto-char (point-min))
+          ;; Add index flags to the story. Doing this here, before any other processing, ensures we won't include things like title pages and copyright pages in the index.
+          (goto-char (point-min))
+          (insert "\n")
+          (goto-char (point-min))
           (setq curr-properties-list (oletptceu--get-file-properties-and-values org-input-file))
           (while curr-properties-list
             (setq curr-property (pop curr-properties-list))
@@ -389,30 +390,30 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
               (let ((case-fold-search t)
                     (curr-term (cdr curr-property))
                     (pos (point-min))
-		    (search-bound-pos (point-max))
-		    (curr-term-insert-str ""))
+                    (search-bound-pos (point-max))
+                    (curr-term-insert-str ""))
                 (when (> (length (split-string curr-term "!" t " ")) 1)
                   (setq curr-term (car (last (split-string curr-term "!" t " ")))))
-		(while (not (org-next-visible-heading 1))
-		  ;; Don't include glossary entries in the index (keep in mind that this template is intended for en-US language).
-		  (unless (string= (downcase (nth 4 (org-heading-components))) "glossary")
-		    ;; Don't include heading appearances of term in the index.
-		    (forward-line)
-		    (beginning-of-line)
-		    (setq pos (point))
-		    (if (not (org-next-visible-heading 1))
-			(progn
-			  ;; Don't include heading appearances of term in the index.
-			  (beginning-of-line)
-			  (forward-char -1)
-			  (setq search-bound-pos (point)))
-		      (setq search-bound-pos (point-max)))
-		    (goto-char pos)
+                (while (not (org-next-visible-heading 1))
+                  ;; Don't include glossary entries in the index (keep in mind that this template is intended for en-US language).
+                  (unless (string= (downcase (nth 4 (org-heading-components))) "glossary")
+                    ;; Don't include heading appearances of term in the index.
+                    (forward-line)
+                    (beginning-of-line)
+                    (setq pos (point))
+                    (if (not (org-next-visible-heading 1))
+                        (progn
+                          ;; Don't include heading appearances of term in the index.
+                          (beginning-of-line)
+                          (forward-char -1)
+                          (setq search-bound-pos (point)))
+                      (setq search-bound-pos (point-max)))
+                    (goto-char pos)
                     (while (re-search-forward (format "[[:space:][:punct:]]+?%s\\('s\\)?[[:punct:][:space:]]+?" (regexp-quote curr-term)) search-bound-pos t)
                       ;; Check insert not already done in previous loop.
                       (setq pos (point))
                       (unless (or (looking-at-p "@@latex:\\\\index{") (looking-at-p "}?@@"))
-			(goto-char pos)
+                        (goto-char pos)
                         ;; Don't match Document or Section properties.
                         (unless (or (looking-at-p "^[ \t]*#\\+") (looking-at-p "^[ \t]*:+?[^\s]+?:+?"))
                           (goto-char pos)
@@ -505,10 +506,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                       "\n"))
             (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
                     "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value org-input-file "TITLE") "}\\\\[0.2cm]\n")
-	    (if (> (length (oletptceu--get-file-property-value org-input-file "SUBTITLE")) 0)
-		(insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
-			"\\textsf{ \\large \\itshape " (oletptceu--get-file-property-value org-input-file "SUBTITLE") "}\\\\[3.5cm]\n")
-	      (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"))
+            (if (> (length (oletptceu--get-file-property-value org-input-file "SUBTITLE")) 0)
+                (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
+                        "\\textsf{ \\large \\itshape " (oletptceu--get-file-property-value org-input-file "SUBTITLE") "}\\\\[3.5cm]\n")
+              (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"))
             (if (find-font (font-spec :name oletptceu--signaturefont))
                 (insert "{\\signaturefont {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}}\\\\[0.25cm]\n")
               (insert "\\textsc {\\Large " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\\\\[0.25cm]\n"))
@@ -522,10 +523,10 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                     "\\legalParindent\n"
                     "\\legalParskip\n"
                     (oletptceu--get-file-property-value org-input-file "TITLE"))
-	    (unless (string= (oletptceu--get-file-property-value org-input-file "SUBTITLE") "")
-		(insert " --- " (oletptceu--get-file-property-value org-input-file "SUBTITLE")))
+            (unless (string= (oletptceu--get-file-property-value org-input-file "SUBTITLE") "")
+              (insert " --- " (oletptceu--get-file-property-value org-input-file "SUBTITLE")))
             (insert "\n"
-		    "\n")
+                    "\n")
             (if (find-font (font-spec :name oletptceu--signaturefont))
                 (insert "Author: {\\signaturefont " (oletptceu--get-file-property-value org-input-file "AUTHOR") "}\n"
                         "\n")
@@ -633,12 +634,12 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                              ((= 4 curr-level)
                               (insert "\\titleformat{\\subsubsection}[runin]{}{}{0pt}{}\n")
                               (insert "\\subsubsection*{}\n"))
-			     ((= 5 curr-level)
-			      (insert "\\titleformat{\\paragraph}[runin]{}{}{0pt}{}\n")
-			      (insert "\\paragraph*{}\n"))
-			     ((= 6 curr-level)
-			      (insert "\\titleformat{\\subparagraph}[runin]{}{}{0pt}{}\n")
-			      (insert "\\subparagraph*{}\n"))
+                             ((= 5 curr-level)
+                              (insert "\\titleformat{\\paragraph}[runin]{}{}{0pt}{}\n")
+                              (insert "\\paragraph*{}\n"))
+                             ((= 6 curr-level)
+                              (insert "\\titleformat{\\subparagraph}[runin]{}{}{0pt}{}\n")
+                              (insert "\\subparagraph*{}\n"))
                              (t
                               (insert "\\subparagraph*{}\n")))
                      (progn
@@ -948,8 +949,8 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
                           (setq no-toc-entry t)))
                    ;; blank title => equivalent to no-header
                    ;; no-header => Chapter X NOT used, other title NOT used, entry still appears (blank) in toc
-                   ;; no-header-name => Chapter X used, other title NOT used, entry still apears (blank) in toc
-                   ;; no-header-preamble => Chapter X NOT used, , other title used, entry still appear (blank) in toc
+                   ;; no-header-name => Chapter X used, other title NOT used, entry still appears (blank) in toc
+                   ;; no-header-preamble => Chapter X NOT used, other title used, entry still appears (blank) in toc
                    ;; no-header-name AND no-header-preamble => equivalent to no-header
                    ;; no-toc-entry => remove entry from toc
                    (when (string= curr-heading "")
@@ -1063,7 +1064,7 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
             (setq no-pagestyle nil)
             (setq no-toc-entry nil)
             (setq toc-head-string ""))
-	  ;; Remap image embeds to correct directory.
+          ;; Remap image embeds to correct directory.
           (goto-char (point-min))
           (let ((case-fold-search t))
             (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[file:../Images/")) nil t)
@@ -1114,30 +1115,30 @@ prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
     ;; The next block creates an imposed booklet for bookbinding if required.
     (when (and oletptceu--make-booklet (executable-find "xelatex"))
       (with-temp-buffer
-	(insert "\\documentclass[a4paper]{article}\n"
-		"\\usepackage[xetex]{color,graphicx,epsfig}\n"
-		"\\usepackage[final]{pdfpages}\n"
-		"\\begin{document}\n"
-		"\\includepdf[pages=")
-	(when (> oletptceu--booklet-buffer-pages 0)
-	  (insert "{"))
-	(let ((i oletptceu--booklet-buffer-pages))
-	  (while (> i 0)
-	    (insert "{},")
-	    (setq i (- i 1))))
-	(insert "-")
-	(let ((i oletptceu--booklet-buffer-pages))
-	  (while (> i 0)
-	    (insert ",{}")
-	    (setq i (- i 1))))
-	(when (> oletptceu--booklet-buffer-pages 0)
-	  (insert "}"))
-	(insert ",nup=1x2,landscape,signature=" (number-to-string (* 4 oletptceu--signature-size)) "]{./" (file-name-base output-file) ".pdf}\n"
-		"\\end{document}")
-	(oletptceu--string-to-file (buffer-string) (concat (file-name-sans-extension output-file) "Booklet.tex")))
+        (insert "\\documentclass[a4paper]{article}\n"
+                "\\usepackage[xetex]{color,graphicx,epsfig}\n"
+                "\\usepackage[final]{pdfpages}\n"
+                "\\begin{document}\n"
+                "\\includepdf[pages=")
+        (when (> oletptceu--booklet-buffer-pages 0)
+          (insert "{"))
+        (let ((i oletptceu--booklet-buffer-pages))
+          (while (> i 0)
+            (insert "{},")
+            (setq i (- i 1))))
+        (insert "-")
+        (let ((i oletptceu--booklet-buffer-pages))
+          (while (> i 0)
+            (insert ",{}")
+            (setq i (- i 1))))
+        (when (> oletptceu--booklet-buffer-pages 0)
+          (insert "}"))
+        (insert ",nup=1x2,landscape,signature=" (number-to-string (* 4 oletptceu--signature-size)) "]{./" (file-name-base output-file) ".pdf}\n"
+                "\\end{document}")
+        (oletptceu--string-to-file (buffer-string) (concat (file-name-sans-extension output-file) "Booklet.tex")))
       (when (file-readable-p (concat (file-name-sans-extension output-file) "Booklet.tex"))
-	(let ((default-directory (file-name-directory output-file)))
-	  (shell-command-to-string (concat "xelatex \"" (file-name-sans-extension output-file) "Booklet.tex\""))))
+        (let ((default-directory (file-name-directory output-file)))
+          (shell-command-to-string (concat "xelatex \"" (file-name-sans-extension output-file) "Booklet.tex\""))))
       (delete-file (concat (file-name-sans-extension output-file) "Booklet.aux"))
       (delete-file (concat (file-name-sans-extension output-file) "Booklet.log")))
     (setq oletptceu--fm-found nil)
