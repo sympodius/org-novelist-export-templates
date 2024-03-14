@@ -62,8 +62,9 @@
 ;; the system (and XeLaTeX specifically if generating a booklet
 ;; suitable for bookbinding).
 ;;
+;;
 ;; You should also have the following typefaces installed and
-;; accessible on your system:
+;; accessible on your system if using the default settings:
 ;;
 ;; Libre Baskerville
 ;; (https://fonts.google.com/specimen/Libre+Baskerville)
@@ -77,12 +78,146 @@
 ;; Alegreya SC
 ;; (https://fonts.google.com/specimen/Alegreya+SC)
 ;;
+;;
+;; The following configuration overrides are supported and can be
+;; applied using the org-novelist-config.org file of the story:
+;;
+;; #+TYPEFACE_SIZE:
+;; The size of the main text (fraction of normal) for the document.
+;; eg: 0.795
+;;
+;; #+MONOFONT_TYPEFACE_SIZE_ADJUSTMENT:
+;; The size of monospaced fonts as a fraction of TYPEFACE_SIZE.
+;; eg: 1.000
+;;
+;; #+TYPEFACE_SIZE_CHAPTER:
+;; The size (in pt) of the chapter heading text.
+;; eg: 20
+;;
+;; #+TYPEFACE_SIZE_SECTION:
+;; The size (in pt) of the section heading text.
+;; eg: 15
+;;
+;; #+TYPEFACE_SIZE_SUBSECTION:
+;; The size (in pt) of the subsection heading text.
+;; eg: 11
+;;
+;; #+TYPEFACE_SIZE_SUBSUBSECTION:
+;; The size (in pt) of the subsubsection heading text.
+;; eg: 11
+;;
+;; #+TYPEFACE_SIZE_PARAGRAPH:
+;; The size (in pt) of the paragraph heading text.
+;; eg: 11
+;;
+;; #+TYPEFACE_SIZE_SUBPARAGRAPH:
+;; The size (in pt) of the paragraph heading text.
+;; eg: 11
+;;
+;; #+MAINFONT:
+;; The typeface to use as the main text font.
+;; Must be installed on the system.
+;; eg: Libre Baskerville
+;;
+;; #+HEADFONT:
+;; The typeface to use as the headings font.
+;; Must be installed on the system.
+;; eg: Josefin Sans
+;;
+;; #+MONOFONT:
+;; The typeface to use as the monospaced font.
+;; Must be installed on the system.
+;; eg: DejaVu Sans Mono
+;;
+;; #+SIGNATUREFONT:
+;; The typeface to use as the signature font.
+;; Must be installed on the system.
+;; eg: Alegreya SC
+;;
+;; #+TITLE_PAGE_GRAPHIC:
+;; Location of image file to include when generating the title page.
+;; eg: ../Images/cubes.png
+;;
+;; #+TITLE_PAGE_GRAPHIC_SCALE:
+;; The scaled display size (fraction of normal) of TITLE_PAGE_GRAPHIC.
+;; eg: 0.175
+;;
+;; #+TITLE_PAGE_GRAPHIC_COPYRIGHT:
+;; Copyright credit for TITLE_PAGE_GRAPHIC.
+;; eg: `\textit{Cube Family}' is copyright \copyright~2012 Mr Anderson.
+;;
+;; #+TITLE_PAGE_GRAPHIC_LICENSE:
+;; License statement for TITLE_PAGE_GRAPHIC.
+;; Any text is viable (eg: All rights reserved.), but the following
+;; Creative Commons codes will be handled automatically if used
+;; (see https://creativecommons.org for more information):
+;; CC0-1.0
+;; CC-BY-4.0
+;; CC-BY-SA-4.0
+;; CC-BY-ND-4.0
+;; CC-BY-NC-4.0
+;; CC-BY-NC-SA-4.0
+;; CC-BY-NC-ND-4.0
+;;
+;; #+TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU:
+;; Location of image file to replace the generated title page, if
+;; needed.
+;; eg: ../Images/ReplacementTitlePage.png
+;;
+;; #+TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU_SCALE:
+;; The scaled display size (fraction of normal) of
+;; TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU.
+;; eg: 0.750
+;;
+;; #+ISBN:
+;; ISBN number of the book, if there is one.
+;; eg: 1234567890123
+;;
+;; #+EDITION:
+;; Text describing this edition.
+;; eg: Early Draft Edition (not for publication)
+;;
+;; #+LICENSE:
+;; License statement for story.
+;; Any text is viable (eg: All rights reserved.), but the following
+;; Creative Commons codes will be handled automatically if used
+;; (see https://creativecommons.org for more information):
+;; CC0-1.0
+;; CC-BY-4.0
+;; CC-BY-SA-4.0
+;; CC-BY-ND-4.0
+;; CC-BY-NC-4.0
+;; CC-BY-NC-SA-4.0
+;; CC-BY-NC-ND-4.0
+;;
+;; #+SIGIL_GRAPHIC:
+;; Location of author's sigil image file, if needed.
+;; eg: ../Images/juf-sigil.pdf
+;;
+;; #+SIGIL_GRAPHIC_SCALE:
+;; The scaled display size (fraction of normal) of SIGIL_GRAPHIC.
+;; eg: 0.500
+;;
+;; #+MAKE_BOOKLET:
+;; Also output an imposed booklet version of PDF for bookbinding?
+;; eg: t
+;;
+;; #+BOOKLET_SIGNATURE_SIZE:
+;; If MAKE_BOOKLET is t, set the number of leaves in booklet signatures
+;; for bookbinding.
+;; eg: 6
+;;
+;; #+BOOKLET_BUFFER_PAGES:
+;; If MAKE_BOOKLET is t, set the number of blank pages at start and end
+;; of booklet for bookbinding.
+;; eg: 2
+
 ;;; Code:
 
 ;;;; Require other packages
 
 (require 'org)  ; Org Novelist is built upon the incredible work of Org mode
-(require 'ox)  ; Org mode export variables and functions we will be calling
+(require 'ox)  ; Necessary to call Org's built-in export functions.
 
 
 ;;;; User Variables
@@ -100,14 +235,16 @@
 (defvar oletptceu--monofont-default "DejaVu Sans Mono" "Mono text font, must be installed on system already.")
 (defvar oletptceu--signaturefont-default "Alegreya SC" "Author signature text font, must be installed on system already.")
 (defvar oletptceu--title-page-graphic-default "cubes.png" "Location of image file to use in title page.")
-(defvar oletptceu--title-page-graphic-scale-default 0.175 "Scale of the title page image.")
+(defvar oletptceu--title-page-graphic-scale-default 0.175 "Display scale of the title page image.")
 (defvar oletptceu--title-page-graphic-copyright-default "`\\textit{Cube Family}' is copyright \\copyright~2012 Martin Anderson (2012--?)\\\\Made with Blender 3D --- \\url{https://www.blender.org}" "Copyright credit for title page image.")
 (defvar oletptceu--title-page-graphic-license-default "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "Title page image license statement.")
+(defvar oletptceu--title-page-replacement-graphic-default nil "Location of image file to use as a replacement for the generated title page.")
+(defvar oletptceu--title-page-replacement-graphic-scale-default nil "Display scale of the title page replacement image.")
 (defvar oletptceu--isbn-default "" "ISBN number of book, if there is one.")
 (defvar oletptceu--edition-default "Early Draft Edition (not for publication)" "Text describing this edition.")
 (defvar oletptceu--license-default "All rights reserved." "License statement.")
 (defvar oletptceu--sigil-graphic-default "" "Location of image file to use as sigil in legal page.")
-(defvar oletptceu--sigil-graphic-scale-default 0.5 "Scale of the sigil image.")
+(defvar oletptceu--sigil-graphic-scale-default 0.5 "Display scale of the sigil image.")
 (defvar oletptceu--make-booklet-default t "Also output an imposed booklet version of PDF for bookbinding.")
 (defvar oletptceu--booklet-signature-size-default 6 "Number of leaves you wish to use in your booklet signatures for bookbinding.")
 (defvar oletptceu--booklet-buffer-pages-default 2 "Number of blank pages at start and end of your booklet for bookbinding.")
@@ -131,14 +268,16 @@
 (defvar oletptceu--monofont nil "Mono text font, must be installed on system already.")
 (defvar oletptceu--signaturefont nil "Author signature text font, must be installed on system already.")
 (defvar oletptceu--title-page-graphic nil "Location of image file to use in title page.")
-(defvar oletptceu--title-page-graphic-scale nil "Scale of the title page image.")
+(defvar oletptceu--title-page-graphic-scale nil "Display scale of the title page image.")
 (defvar oletptceu--title-page-graphic-copyright nil "Copyright credit for title page image.")
 (defvar oletptceu--title-page-graphic-license nil "Title page image license statement.")
+(defvar oletptceu--title-page-replacement-graphic nil "Location of image file to use as a replacement for the generated title page.")
+(defvar oletptceu--title-page-replacement-graphic-scale nil "Display scale of the title page replacement image.")
 (defvar oletptceu--isbn nil "ISBN number of book, if there is one.")
 (defvar oletptceu--edition nil "Text describing this edition.")
 (defvar oletptceu--license nil "License statement.")
 (defvar oletptceu--sigil-graphic nil "Location of image file to use as sigil in legal page.")
-(defvar oletptceu--sigil-graphic-scale nil "Scale of the sigil image.")
+(defvar oletptceu--sigil-graphic-scale nil "Display scale of the sigil image.")
 (defvar oletptceu--make-booklet nil "Also output an imposed booklet version of PDF for bookbinding.")
 (defvar oletptceu--booklet-signature-size nil "Number of leaves you wish to use in your booklet signatures for bookbinding.")
 (defvar oletptceu--booklet-buffer-pages nil "Number of blank pages at start and end of your booklet for bookbinding.")
@@ -413,6 +552,14 @@ Any relative file names will be relative to OUTPUT-FILE."
         (setq oletptceu--title-page-graphic-license oletptceu--title-page-graphic-license-cc-by-nc-nd-4.0))
        (t
         (setq oletptceu--title-page-graphic-license prop-val))))
+    (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU" org-input-file))
+    (if (string= "" prop-val)
+        (setq oletptceu--title-page-replacement-graphic oletptceu--title-page-replacement-graphic-default)
+      (setq oletptceu--title-page-replacement-graphic (expand-file-name prop-val)))
+    (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU_SCALE" org-input-file))
+    (if (string= "" prop-val)
+        (setq oletptceu--title-page-replacement-graphic-scale oletptceu--title-page-replacement-graphic-scale-default)
+      (setq oletptceu--title-page-replacement-graphic-scale (string-to-number prop-val)))
     (setq prop-val (oletptceu--get-file-property-value "ISBN" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--isbn oletptceu--isbn-default)
@@ -627,21 +774,27 @@ Return string of new file contents."
                 "\\frontmatter{}\n"
                 "\\begin{titlepage}\n"
                 "\\begin{center}\n")
-        (if (file-readable-p oletptceu--title-page-graphic)
-            (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-graphic-scale) "]{" oletptceu--title-page-graphic "}\\\\[3cm]\n")
-          (insert "~\\\\[8.5cm]\n"
-                  "\n"))
-        (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
-                "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value "TITLE") "}\\\\[0.2cm]\n")
-        (if (> (length (oletptceu--get-file-property-value "SUBTITLE")) 0)
+        ;; If replacement graphic was supplied by story config, put it here instead of generating one.
+        (if (and oletptceu--title-page-replacement-graphic (file-readable-p oletptceu--title-page-replacement-graphic))
+            (if oletptceu--title-page-replacement-graphic-scale
+                (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-replacement-graphic-scale) "]{" oletptceu--title-page-replacement-graphic  "}\n")
+              (insert "\\includegraphics[scale=1.000]{" oletptceu--title-page-replacement-graphic  "}\n"))
+          (progn
+            (if (file-readable-p oletptceu--title-page-graphic)
+                (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-graphic-scale) "]{" oletptceu--title-page-graphic "}\\\\[3cm]\n")
+              (insert "~\\\\[8.5cm]\n"
+                      "\n"))
             (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
-                    "\\textsf{ \\large \\itshape " (oletptceu--get-file-property-value "SUBTITLE") "}\\\\[3.5cm]\n")
-          (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"))
-        (if (find-font (font-spec :name oletptceu--signaturefont))
-            (insert "{\\signaturefont {\\Large " (oletptceu--get-file-property-value "AUTHOR") "}}\\\\[0.25cm]\n")
-          (insert "\\textsc {\\Large " (oletptceu--get-file-property-value "AUTHOR") "}\\\\[0.25cm]\n"))
-        (insert "\\vfill\n"
-                "\\end{center}\n"
+                    "\\textsf{ \\huge \\bfseries " (oletptceu--get-file-property-value "TITLE") "}\\\\[0.2cm]\n")
+            (if (> (length (oletptceu--get-file-property-value "SUBTITLE")) 0)
+                (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[0.5cm]\n"
+                        "\\textsf{ \\large \\itshape " (oletptceu--get-file-property-value "SUBTITLE") "}\\\\[3.5cm]\n")
+              (insert "\\noindent\\rule{\\textwidth}{0.5pt} \\\\[4.0cm]\n"))
+            (if (find-font (font-spec :name oletptceu--signaturefont))
+                (insert "{\\signaturefont {\\Large " (oletptceu--get-file-property-value "AUTHOR") "}}\\\\[0.25cm]\n")
+              (insert "\\textsc {\\Large " (oletptceu--get-file-property-value "AUTHOR") "}\\\\[0.25cm]\n"))
+            (insert "\\vfill\n")))
+        (insert "\\end{center}\n"
                 "\\end{titlepage}\n"
                 "#+END_EXPORT\n"))
       (goto-char (point-min))
