@@ -79,8 +79,56 @@
 ;; (https://fonts.google.com/specimen/Alegreya+SC)
 ;;
 ;;
-;; The following configuration overrides are supported and can be
-;; applied using the org-novelist-config.org file of the story:
+;; Front matter chapters will not have "Chapter X" in the title, but
+;; will have the chapter name (unless told not). They also will not use
+;; the main page counts, but rather their own Roman numeral page count.
+;; Front matter chapters will appear before the table of contents.
+;; Front matter chapters will use the plain pagestyle.
+;;
+;; Main matter chapters will have "Chapter X" and the chapter name in
+;; the title (unless told not). They will use the main page counts.
+;; Main matter chapters will appear after the table of contents. Main
+;; matter chapters will use the headings pagestyle.
+;;
+;; Back matter chapters will not have "Chapter X" in the title, but
+;; will have the chapter name (unless told not). They will use the main
+;; page counts. Back matter chapters will appear after the main matter
+;; chapters. Back matter chapters will use the plain pagestyle.
+;;
+;;
+;; The following chapter index tags are supported and can be applied to
+;; chapter headings in the Org Novelist chapter index:
+;;
+;; :no_header:
+;; Do not include any sort of header at the start of the chapter.
+;;
+;; :no_header_name:
+;; Do not include the chapter name at the start of the chapter.
+;; The text "Chapter X" will still be shown if in the main matter.
+;;
+;; :no_header_preamble:
+;; Do not include the text "Chapter X" at the start of the chapter.
+;; The chapter name will still be shown. Chapter will still be used to
+;; calculate the numbering of other main matter chapters.
+;;
+;; :no_toc_entry:
+;; Do not include chapter in the table of contents. Chapter will have
+;; no "Chapter X" text, and will not be used to calculate the numbering
+;; of main matter chapters.
+;;
+;; :empty_pagestyle:
+;; Do not display page footers or page headers. In practical terms,
+;; this means no page numbers will be dispayed for this chapter, and
+;; the chapter name will not be shown at the top of each page.
+;;
+;; :plain_pagestyle:
+;; Display page numbers, centered in the page footer. Do not display
+;; any page headers (the chapter name will not be shown at the top of
+;; each page).
+;;
+;;
+;; The following optional configuration overrides are supported and can
+;; be applied using the org-novelist-config.org file of the story:
 ;;
 ;; #+TYPEFACE_SIZE:
 ;; The size of the main text (fraction of normal) for the document.
@@ -168,6 +216,10 @@
 ;; The scaled display size (fraction of normal) of
 ;; TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU.
 ;; eg: 0.750
+;;
+;; #+PUBLISHER:
+;; The name of the story's publisher, if there is one.
+;; eg: Good and Evil Publishing
 ;;
 ;; #+ISBN:
 ;; ISBN number of the book, if there is one.
