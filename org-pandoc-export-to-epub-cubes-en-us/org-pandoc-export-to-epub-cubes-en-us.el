@@ -34,15 +34,23 @@
 ;; files such that notes and plans can be easily created and quickly
 ;; accessed while writing the main text of a story. Org Novelist's
 ;; secondary function is the ability to use this known structure to
-;; easily export and publish stories to other formats. This package
-;; supplies an example export to the standard Org mode PDF format.
+;; easily export and publish stories to other formats. The Org Novelist
+;; package supplies a collection of support functions which make it
+;; easier to use this methodology.
 ;;
 ;; Creating, linking, and laying out files in the Org Novelist
 ;; methodology can be done without the use of Emacs or the Org Novelist
 ;; package, but using the package within Emacs will provide helper
 ;; functions that make the methodology much easier to use; allowing the
 ;; following of links, programmatic updating of cross-references, and
-;; ability to programmatically export to other formats.
+;; the ability to programmatically export to other formats.
+;;
+;; This package supplies an example export template to ePub format,
+;; suitable for most eReaders.
+;;
+;; It can be used with the standard Org file that is exported from the
+;; Org Novelist package, or be called though Org Novelist's export
+;; functions.
 ;;
 ;; Installation, Activation, and Documentation
 ;; -------------------------------------------
@@ -50,12 +58,137 @@
 ;;
 ;;   https://johnurquhartferguson.info
 ;;
-;; Requires Pandoc and Imagemagick. Default fonts used for the cover
-;; generator are Josefin Sans, and Alegreya SC. If you wish to use
-;; these, you will need to have them installed on your system.
-;; If Calibre's ebook-convert is available, Amazon Kindle azw3 files
-;; will also be generated.
+;; This package requires Pandoc and Imagemagick to be installed and
+;; accessible on the system. If Calibre's ebook-convert is available,
+;; an Amazon Kindle azw3 file can also be generated.
 ;;
+;;
+;; You should also have the following typefaces installed and
+;; accessible on your system if using the default settings for
+;; generating the book cover:
+;;
+;; Josefin Sans
+;; (https://fonts.google.com/specimen/Josefin+Sans)
+;;
+;; Alegreya SC
+;; (https://fonts.google.com/specimen/Alegreya+SC)
+;;
+;;
+;; Front matter chapters will not have "Chapter X" in the title, but
+;; will have the chapter name (unless told not). Front matter chapters
+;; will appear before the main matter chapters.
+;;
+;; Main matter chapters will have "Chapter X" and the chapter name in
+;; the title (unless told not). Main matter chapters will appear after
+;; the front matter chapters.
+;;
+;; Back matter chapters will not have "Chapter X" in the title, but
+;; will have the chapter name (unless told not). Back matter chapters
+;; will appear after the main matter chapters.
+;;
+;;
+;; The following chapter index tags are supported and can be applied to
+;; chapter headings in the Org Novelist chapter index:
+;;
+;; :no_header:
+;; Do not include any sort of header at the start of the chapter.
+;;
+;; :no_header_name:
+;; Do not include the chapter name at the start of the chapter.
+;; The text "Chapter X" will still be shown if in the main matter.
+;;
+;; :no_header_preamble:
+;; Do not include the text "Chapter X" at the start of the chapter.
+;; The chapter name will still be shown. Chapter will still be used to
+;; calculate the numbering of other main matter chapters.
+;;
+;; :no_toc_entry:
+;; Do not include chapter in the table of contents. Chapter will have
+;; no "Chapter X" text, and will not be used to calculate the numbering
+;; of main matter chapters.
+;;
+;;
+;; The following optional configuration overrides are supported and can
+;; be applied using the org-novelist-config.org file of the story:
+;;
+;; #+HEADFONT:
+;; The typeface to use as the headings font.
+;; Must be installed on the system.
+;; eg: Josefin Sans
+;;
+;; #+SIGNATUREFONT:
+;; The typeface to use as the signature font.
+;; Must be installed on the system.
+;; eg: Alegreya SC
+;;
+;; #+TITLE_PAGE_GRAPHIC:
+;; Location of image file to include when generating the title page.
+;; eg: ../Images/cubes.png
+;;
+;; #+TITLE_PAGE_GRAPHIC_SCALE:
+;; The scaled display size (fraction of normal) of TITLE_PAGE_GRAPHIC.
+;; eg: 0.175
+;;
+;; #+TITLE_PAGE_GRAPHIC_COPYRIGHT:
+;; Copyright credit for TITLE_PAGE_GRAPHIC.
+;; eg: `\textit{Cube Family}' is copyright \copyright~2012 Mr Anderson.
+;;
+;; #+TITLE_PAGE_GRAPHIC_LICENSE:
+;; License statement for TITLE_PAGE_GRAPHIC.
+;; Any text is viable (eg: All rights reserved.), but the following
+;; Creative Commons codes will be handled automatically if used
+;; (see https://creativecommons.org for more information):
+;; CC0-1.0
+;; CC-BY-4.0
+;; CC-BY-SA-4.0
+;; CC-BY-ND-4.0
+;; CC-BY-NC-4.0
+;; CC-BY-NC-SA-4.0
+;; CC-BY-NC-ND-4.0
+;;
+;; #+TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU:
+;; Location of image file to replace the generated title page, if
+;; needed.
+;; eg: ../Images/ReplacementTitlePage.png
+;;
+;; #+TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU_SCALE:
+;; The scaled display size (fraction of normal) of
+;; TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU.
+;; eg: 0.750
+;;
+;; #+PUBLISHER:
+;; The name of the story's publisher, if there is one.
+;; eg: Good and Evil Publishing
+;;
+;; #+ISBN:
+;; ISBN number of the book, if there is one.
+;; eg: 1234567890123
+;;
+;; #+EDITION:
+;; Text describing this edition.
+;; eg: Early Draft Edition (not for publication)
+;;
+;; #+LICENSE:
+;; License statement for story.
+;; Any text is viable (eg: All rights reserved.), but the following
+;; Creative Commons codes will be handled automatically if used
+;; (see https://creativecommons.org for more information):
+;; CC0-1.0
+;; CC-BY-4.0
+;; CC-BY-SA-4.0
+;; CC-BY-ND-4.0
+;; CC-BY-NC-4.0
+;; CC-BY-NC-SA-4.0
+;; CC-BY-NC-ND-4.0
+;;
+;; #+SIGIL_GRAPHIC:
+;; Location of author's sigil image file, if needed.
+;; eg: ../Images/juf-sigil.pdf
+;;
+;; #+SIGIL_GRAPHIC_SCALE:
+;; The scaled display size (fraction of normal) of SIGIL_GRAPHIC.
+;; eg: 0.500
+
 ;;; Code:
 
 ;;;; Require other packages
