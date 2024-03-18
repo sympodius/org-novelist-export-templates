@@ -34,16 +34,23 @@
 ;; files such that notes and plans can be easily created and quickly
 ;; accessed while writing the main text of a story. Org Novelist's
 ;; secondary function is the ability to use this known structure to
-;; easily export and publish stories to other formats. This package
-;; supplies an example export to manuscript format, as required by most
-;; publishers.
+;; easily export and publish stories to other formats. The Org Novelist
+;; package supplies a collection of support functions which make it
+;; easier to use this methodology.
 ;;
 ;; Creating, linking, and laying out files in the Org Novelist
 ;; methodology can be done without the use of Emacs or the Org Novelist
 ;; package, but using the package within Emacs will provide helper
 ;; functions that make the methodology much easier to use; allowing the
 ;; following of links, programmatic updating of cross-references, and
-;; ability to programmatically export to other formats.
+;; the ability to programmatically export to other formats.
+;;
+;; This package supplies an example export template to manuscript
+;; format, suitable for submission to publishers and publications.
+;;
+;; It can be used with the standard Org file that is exported from the
+;; Org Novelist package, or be called though Org Novelist's export
+;; functions.
 ;;
 ;; Installation, Activation, and Documentation
 ;; -------------------------------------------
@@ -51,6 +58,48 @@
 ;;
 ;;   https://johnurquhartferguson.info
 ;;
+;;
+;; You should also have the following typeface installed and
+;; accessible on your system:
+;;
+;; Courier Prime
+;; (https://fonts.google.com/specimen/Courier+Prime)
+;;
+;;
+;; Front matter chapters will not have "Chapter X" in the title, but
+;; will have the chapter name (unless told not). Front matter chapters
+;; will appear before the main matter chapters.
+;;
+;; Main matter chapters will have "Chapter X" and the chapter name in
+;; the title (unless told not). Main matter chapters will appear after
+;; the front matter chapters.
+;;
+;; Back matter chapters will not have "Chapter X" in the title, but
+;; will have the chapter name (unless told not). Back matter chapters
+;; will appear after the main matter chapters.
+;;
+;;
+;; The following chapter index tags are supported and can be applied to
+;; chapter headings in the Org Novelist chapter index:
+;;
+;; :no_header:
+;; Do not include any sort of header at the start of the chapter.
+;;
+;; :no_header_name:
+;; Do not include the chapter name at the start of the chapter.
+;; The text "Chapter X" will still be shown if in the main matter.
+;;
+;; :no_header_preamble:
+;; Do not include the text "Chapter X" at the start of the chapter.
+;; The chapter name will still be shown. Chapter will still be used to
+;; calculate the numbering of other main matter chapters.
+;;
+;; :no_toc_entry:
+;; Chapter will have no "Chapter X" text, and will not be used to
+;; calculate the numbering of main matter chapters. However, if user
+;; actively generates a table of contents in post, then this chapter
+;; will likely still be included.
+
 ;;; Code:
 
 ;;;; Require other packages
