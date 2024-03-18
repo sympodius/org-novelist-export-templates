@@ -289,9 +289,10 @@
 (defvar oletptceu--title-page-graphic-default "cubes.png" "Location of image file to use in title page.")
 (defvar oletptceu--title-page-graphic-scale-default 0.175 "Display scale of the title page image.")
 (defvar oletptceu--title-page-graphic-copyright-default "`\\textit{Cube Family}' is copyright \\copyright~2012 Martin Anderson (2012--?)\\\\Made with Blender 3D --- \\url{https://www.blender.org}" "Copyright credit for title page image.")
-(defvar oletptceu--title-page-graphic-license-default "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "Title page image license statement.")
+(defvar oletptceu--title-page-graphic-license-default "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "Title page image license statement.")
 (defvar oletptceu--title-page-replacement-graphic-default nil "Location of image file to use as a replacement for the generated title page.")
 (defvar oletptceu--title-page-replacement-graphic-scale-default nil "Display scale of the title page replacement image.")
+(defvar oletptceu--publisher-default "" "The publisher of the story.")
 (defvar oletptceu--isbn-default "" "ISBN number of book, if there is one.")
 (defvar oletptceu--edition-default "Early Draft Edition (not for publication)" "Text describing this edition.")
 (defvar oletptceu--license-default "All rights reserved." "License statement.")
@@ -325,6 +326,7 @@
 (defvar oletptceu--title-page-graphic-license nil "Title page image license statement.")
 (defvar oletptceu--title-page-replacement-graphic nil "Location of image file to use as a replacement for the generated title page.")
 (defvar oletptceu--title-page-replacement-graphic-scale nil "Display scale of the title page replacement image.")
+(defvar oletptceu--publisher nil "The publisher of the story.")
 (defvar oletptceu--isbn nil "ISBN number of book, if there is one.")
 (defvar oletptceu--edition nil "Text describing this edition.")
 (defvar oletptceu--license nil "License statement.")
@@ -333,20 +335,20 @@
 (defvar oletptceu--make-booklet nil "Also output an imposed booklet version of PDF for bookbinding.")
 (defvar oletptceu--booklet-signature-size nil "Number of leaves you wish to use in your booklet signatures for bookbinding.")
 (defvar oletptceu--booklet-buffer-pages nil "Number of blank pages at start and end of your booklet for bookbinding.")
-(defvar oletptceu--license-cc0-1.0 "This book, excluding the cover art, is licensed under the Creative Commons CC0 1.0 Universal License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/publicdomain/zero/1.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC0.")
-(defvar oletptceu--license-cc-by-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution.")
-(defvar oletptceu--license-cc-by-sa-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-ShareAlike.")
-(defvar oletptceu--license-cc-by-nd-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NoDerivs.")
-(defvar oletptceu--license-cc-by-nc-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NonCommercial.")
-(defvar oletptceu--license-cc-by-nc-sa-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NonCommercial-ShareAlike.")
-(defvar oletptceu--license-cc-by-nc-nd-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NonCommercial-NoDerivs.")
-(defvar oletptceu--title-page-graphic-license-cc0-1.0 "Licensed under the Creative Commons CC0 1.0 Universal License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/publicdomain/zero/1.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC0.")
-(defvar oletptceu--title-page-graphic-license-cc-by-4.0 "Licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution.")
-(defvar oletptceu--title-page-graphic-license-cc-by-sa-4.0 "Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-ShareAlike.")
-(defvar oletptceu--title-page-graphic-license-cc-by-nd-4.0 "Licensed under the Creative Commons Attribution-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NoDerivs.")
-(defvar oletptceu--title-page-graphic-license-cc-by-nc-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NonCommercial.")
-(defvar oletptceu--title-page-graphic-license-cc-by-nc-sa-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NonCommercial-ShareAlike.")
-(defvar oletptceu--title-page-graphic-license-cc-by-nc-nd-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.\n" "The license instructions for CC Attribution-NonCommercial-NoDerivs.")
+(defvar oletptceu--license-cc0-1.0 "This book, excluding the cover art, is licensed under the Creative Commons CC0 1.0 Universal License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/publicdomain/zero/1.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC0.")
+(defvar oletptceu--license-cc-by-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution.")
+(defvar oletptceu--license-cc-by-sa-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-ShareAlike.")
+(defvar oletptceu--license-cc-by-nd-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NoDerivs.")
+(defvar oletptceu--license-cc-by-nc-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial.")
+(defvar oletptceu--license-cc-by-nc-sa-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial-ShareAlike.")
+(defvar oletptceu--license-cc-by-nc-nd-4.0 "This book, excluding the cover art, is licensed under the Creative Commons Attribution-NonCommercial-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial-NoDerivs.")
+(defvar oletptceu--title-page-graphic-license-cc0-1.0 "Licensed under the Creative Commons CC0 1.0 Universal License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/publicdomain/zero/1.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC0.")
+(defvar oletptceu--title-page-graphic-license-cc-by-4.0 "Licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution.")
+(defvar oletptceu--title-page-graphic-license-cc-by-sa-4.0 "Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-ShareAlike.")
+(defvar oletptceu--title-page-graphic-license-cc-by-nd-4.0 "Licensed under the Creative Commons Attribution-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NoDerivs.")
+(defvar oletptceu--title-page-graphic-license-cc-by-nc-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial.")
+(defvar oletptceu--title-page-graphic-license-cc-by-nc-sa-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial-ShareAlike.")
+(defvar oletptceu--title-page-graphic-license-cc-by-nc-nd-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial-NoDerivs.")
 (defvar oletptceu--chap-format nil "LaTeX format string for chapter headings.")
 (defvar oletptceu--sec-format nil "LaTeX format string for section headings.")
 (defvar oletptceu--subsec-format nil "LaTeX format string for sub-section headings.")
@@ -382,28 +384,28 @@ TIME-ZONE is the given time. If omitted or nil, use local time."
       (format-time-string format-string time-zone)
     (org-format-time-string format-string time-zone)))
 
-(defun oletptceu--set-file-property-value (property value &optional file no-overwrite)
-  "Given a FILE and VALUE, change PROPERTY value of that file.
-If property not found, add it.
-If no file given, attmept to use current buffer.
-If NO-OVERWRITE is t, don't replace existing property, just add new one."
-  (when file
-    (when (file-exists-p file)
-      (when (file-readable-p file)
-        (find-file file))))
-  (let* ((regexp (format "^[ \t]*#\\+%s:" (regexp-quote property)))
-         (case-fold-search t)
-         (property-found-p nil))
-    (goto-char (point-min))
-    (while (and (re-search-forward regexp nil t) (not no-overwrite))
-      (setq property-found-p t)
-      (insert " ")
-      (delete-region (point) (line-end-position))
-      (insert value))
-    (unless property-found-p
-      (goto-char (point-min))
-      (end-of-line)
-      (insert (format "\n\#\+%s\: %s" property value)))))
+(defun oletptceu--delete-line ()
+  "If Emacs version is less than 29, delete line the old fashioned way."
+  (let ((inhibit-field-text-motion t))
+    (if (>= (string-to-number (nth 0 (split-string (string-trim-left (emacs-version) "GNU Emacs ") "\\."))) 29)
+        (delete-line)
+      (delete-region (line-beginning-position) (line-beginning-position 2)))))
+
+(defun oletptceu--delete-current-file (&optional no-prompt)
+  "Delete the file associated with the current buffer.
+Kill the current buffer too. If no file is associated, just kill buffer without
+prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
+  (let ((current-file (buffer-file-name)))
+    (if no-prompt
+        (progn
+          (set-buffer-modified-p nil)
+          (kill-buffer (current-buffer))
+          (when current-file
+            (delete-file current-file)))
+      (when (yes-or-no-p (concat "Delete file? " current-file " "))
+        (kill-buffer (current-buffer))
+        (when current-file
+          (delete-file current-file))))))
 
 (defun oletptceu--string-to-file (str filename)
   "Create/Overwrite FILENAME with the contents of STR."
@@ -426,28 +428,28 @@ If NO-OVERWRITE is t, don't replace existing property, just add new one."
             (error (concat filename " is not writable"))
             (throw 'FILE-NOT-WRITABLE (concat filename " is not writable"))))))))
 
-(defun oletptceu--delete-current-file (&optional no-prompt)
-  "Delete the file associated with the current buffer.
-Kill the current buffer too. If no file is associated, just kill buffer without
-prompt for save. If NO-PROMPT is non-nil, don't ask user for confirmation."
-  (let ((current-file (buffer-file-name)))
-    (if no-prompt
-        (progn
-          (set-buffer-modified-p nil)
-          (kill-buffer (current-buffer))
-          (when current-file
-            (delete-file current-file)))
-      (when (yes-or-no-p (concat "Delete file? " current-file " "))
-        (kill-buffer (current-buffer))
-        (when current-file
-          (delete-file current-file))))))
-
-(defun oletptceu--delete-line ()
-  "If Emacs version is less than 29, delete line the old fashioned way."
-  (let ((inhibit-field-text-motion t))
-    (if (>= (string-to-number (nth 0 (split-string (string-trim-left (emacs-version) "GNU Emacs ") "\\."))) 29)
-        (delete-line)
-      (delete-region (line-beginning-position) (line-beginning-position 2)))))
+(defun oletptceu--set-file-property-value (property value &optional file no-overwrite)
+  "Given a FILE and VALUE, change PROPERTY value of that file.
+If property not found, add it.
+If no file given, attmept to use current buffer.
+If NO-OVERWRITE is t, don't replace existing property, just add new one."
+  (when file
+    (when (file-exists-p file)
+      (when (file-readable-p file)
+        (find-file file))))
+  (let* ((regexp (format "^[ \t]*#\\+%s:" (regexp-quote property)))
+         (case-fold-search t)
+         (property-found-p nil))
+    (goto-char (point-min))
+    (while (and (re-search-forward regexp nil t) (not no-overwrite))
+      (setq property-found-p t)
+      (insert " ")
+      (delete-region (point) (line-end-position))
+      (insert value))
+    (unless property-found-p
+      (goto-char (point-min))
+      (end-of-line)
+      (insert (format "\n\#\+%s\: %s" property value)))))
 
 (defun oletptceu--get-file-property-value (property &optional file)
   "Given an Org FILE, return the value of PROPERTY.
@@ -541,7 +543,9 @@ Any relative file names will be relative to OUTPUT-FILE."
           (setq oletptceu--mainfont "cmr"))
       (if (find-font (font-spec :name prop-val))
           (setq oletptceu--mainfont prop-val)
-        (setq oletptceu--mainfont "cmr")))
+        (if (find-font (font-spec :name oletptceu--mainfont-default))
+            (setq oletptceu--mainfont oletptceu--mainfont-default)
+          (setq oletptceu--mainfont "cmr"))))
     (setq prop-val (oletptceu--get-file-property-value "HEADFONT" org-input-file))
     (if (string= "" prop-val)
         (if (find-font (font-spec :name oletptceu--headfont-default))
@@ -549,7 +553,9 @@ Any relative file names will be relative to OUTPUT-FILE."
           (setq oletptceu--headfont "cmss"))
       (if (find-font (font-spec :name prop-val))
           (setq oletptceu--headfont prop-val)
-        (setq oletptceu--headfont "cmss")))
+        (if (find-font (font-spec :name oletptceu--headfont-default))
+            (setq oletptceu--headfont oletptceu--headfont-default)
+          (setq oletptceu--headfont "cmss"))))
     (setq prop-val (oletptceu--get-file-property-value "MONOFONT" org-input-file))
     (if (string= "" prop-val)
         (if (find-font (font-spec :name oletptceu--monofont-default))
@@ -557,7 +563,9 @@ Any relative file names will be relative to OUTPUT-FILE."
           (setq oletptceu--monofont "cmtt"))
       (if (find-font (font-spec :name prop-val))
           (setq oletptceu--monofont prop-val)
-        (setq oletptceu--monofont "cmtt")))
+        (if (find-font (font-spec :name oletptceu--monofont-default))
+            (setq oletptceu--monofont oletptceu--monofont-default)
+          (setq oletptceu--monofont "cmtt"))))
     (setq prop-val (oletptceu--get-file-property-value "SIGNATUREFONT" org-input-file))
     (if (string= "" prop-val)
         (if (find-font (font-spec :name oletptceu--signaturefont-default))
@@ -565,7 +573,9 @@ Any relative file names will be relative to OUTPUT-FILE."
           (setq oletptceu--signaturefont "cmss"))
       (if (find-font (font-spec :name prop-val))
           (setq oletptceu--signaturefont prop-val)
-        (setq oletptceu--signaturefont "cmss")))
+        (if (find-font (font-spec :name oletptceu--signaturefont-default))
+            (setq oletptceu--signaturefont oletptceu--signaturefont-default)
+          (setq oletptceu--signaturefont "cmss"))))
     (setq prop-val (expand-file-name
                     (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC" org-input-file)
                     (expand-file-name (file-name-directory output-file))))
@@ -583,7 +593,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC_COPYRIGHT" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-graphic-copyright oletptceu--title-page-graphic-copyright-default)
-      (setq oletptceu--title-page-graphic-copyright prop-val))
+      (setq oletptceu--title-page-graphic-copyright (org-export-string-as prop-val 'latex t)))
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC_LICENSE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-graphic-license oletptceu--title-page-graphic-license-default)
@@ -603,7 +613,7 @@ Any relative file names will be relative to OUTPUT-FILE."
        ((string= "CC-BY-NC-ND-4.0" prop-val)
         (setq oletptceu--title-page-graphic-license oletptceu--title-page-graphic-license-cc-by-nc-nd-4.0))
        (t
-        (setq oletptceu--title-page-graphic-license prop-val))))
+        (setq oletptceu--title-page-graphic-license (org-export-string-as prop-val 'latex t)))))
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-replacement-graphic oletptceu--title-page-replacement-graphic-default)
@@ -612,6 +622,10 @@ Any relative file names will be relative to OUTPUT-FILE."
     (if (string= "" prop-val)
         (setq oletptceu--title-page-replacement-graphic-scale oletptceu--title-page-replacement-graphic-scale-default)
       (setq oletptceu--title-page-replacement-graphic-scale (string-to-number prop-val)))
+    (setq prop-val (oletptceu--get-file-property-value "PUBLISHER" org-input-file))
+    (if (string= "" prop-val)
+        (setq oletptceu--publisher oletptceu--publisher-default)
+      (setq oletptceu--publisher (org-export-string-as prop-val 'latex t)))
     (setq prop-val (oletptceu--get-file-property-value "ISBN" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--isbn oletptceu--isbn-default)
@@ -619,7 +633,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (oletptceu--get-file-property-value "EDITION" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--edition oletptceu--edition-default)
-      (setq oletptceu--edition prop-val))
+      (setq oletptceu--edition (org-export-string-as prop-val 'latex t)))
     (setq prop-val (oletptceu--get-file-property-value "LICENSE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--license oletptceu--license-default)
@@ -639,7 +653,7 @@ Any relative file names will be relative to OUTPUT-FILE."
        ((string= "CC-BY-NC-ND-4.0" prop-val)
         (setq oletptceu--license oletptceu--license-cc-by-nc-nd-4.0))
        (t
-        (setq oletptceu--license prop-val))))
+        (setq oletptceu--license (org-export-string-as prop-val 'latex t)))))
     (setq prop-val (expand-file-name
                     (oletptceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file)
                     (expand-file-name (file-name-directory output-file))))
@@ -830,7 +844,7 @@ Return string of new file contents."
         (if (and oletptceu--title-page-replacement-graphic (file-readable-p oletptceu--title-page-replacement-graphic))
             (if oletptceu--title-page-replacement-graphic-scale
                 (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-replacement-graphic-scale) "]{" oletptceu--title-page-replacement-graphic  "}\n")
-              (insert "\\includegraphics[scale=1.000]{" oletptceu--title-page-replacement-graphic  "}\n"))
+              (insert "\\includegraphics[width=0.999\\textwidth,height=0.999\\textheight,keepaspectratio]{" oletptceu--title-page-replacement-graphic  "}\n"))
           (progn
             (if (file-readable-p oletptceu--title-page-graphic)
                 (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-graphic-scale) "]{" oletptceu--title-page-graphic "}\\\\[3cm]\n")
@@ -873,7 +887,7 @@ Return string of new file contents."
                 "\\thispagestyle{empty}\n"
                 "\\legalParindent\n"
                 "\\legalParskip\n"
-                (oletptceu--get-file-property-value "TITLE"))
+                "\\textbf{" (oletptceu--get-file-property-value "TITLE") "}")
         (unless (string= (oletptceu--get-file-property-value "SUBTITLE") "")
           (insert " --- " (oletptceu--get-file-property-value "SUBTITLE")))
         (insert "\n"
@@ -887,7 +901,7 @@ Return string of new file contents."
         (insert oletptceu--title-page-graphic-copyright)
         (insert "\\\\\nCover: ")
         (insert oletptceu--title-page-graphic-license)
-        (insert "\n"
+        (insert "\n\n"
                 "\n"
                 "This book, excluding the cover art, is copyright \\copyright~"
                 (oletptceu--format-time-string
@@ -897,15 +911,18 @@ Return string of new file contents."
                    (oletptceu--get-file-property-value "DATE")))) " "
                 (oletptceu--get-file-property-value "AUTHOR") ".\n"
                 "\n")
-        (insert oletptceu--license "\n")
+        (insert oletptceu--license "\n\n")
         (insert "\n"
                 "The author assumes no liability for errors or omissions in this book, or for damages or loss of revenue resulting from the use of the information contained herein. The characters and incidents portrayed in this book are fictional. Any similarities to real persons, living, dead or yet to exist, is entirely coincidental.\n"
                 "\n")
         (unless (string= (oletptceu--get-file-property-value "EMAIL") "")
           (insert "You can contact the author via e-mail:\\\\\n"
-                  "\\href{mailto:" (oletptceu--get-file-property-value "EMAIL")
-                  "}{" (oletptceu--get-file-property-value "EMAIL") "}\n"
+                  "\\texttt{\\href{mailto:" (oletptceu--get-file-property-value "EMAIL")
+                  "}{" (oletptceu--get-file-property-value "EMAIL") "}}\n"
                   "\n"
+                  "\n"))
+        (unless (string= oletptceu--publisher "")
+          (insert "Published by " oletptceu--publisher "\n"
                   "\n"))
         (unless (string= oletptceu--isbn "")
           (insert "ISBN " oletptceu--isbn "\n"
@@ -918,7 +935,7 @@ Return string of new file contents."
                    (oletptceu--get-file-property-value "DATE")))) "\n"
                 "\n")
         (when (file-readable-p oletptceu--sigil-graphic)
-          (insert "\\vspace{1cm}\n"
+          (insert "\\vspace{0.5cm}\n"
                   "\n"
                   "\\begin{center}\n"
                   "\\includegraphics[scale=" (number-to-string oletptceu--sigil-graphic-scale) "]{" oletptceu--sigil-graphic "}\n"
@@ -981,9 +998,9 @@ Return string of new file contents."
         (no-header nil)
         (no-header-name nil)
         (no-header-preamble nil)
-        (no-pagestyle nil)
+        (empty-pagestyle nil)
         (no-toc-entry nil)
-        (pagestyle nil))
+        (pagestyle "headings"))
     (setq oletptceu--fm-found nil)
     (setq oletptceu--mm-found nil)
     (setq oletptceu--bm-found nil)
@@ -995,7 +1012,7 @@ Return string of new file contents."
       (insert "Temp Line\n")
       (goto-char (point-min))
       (while (not (org-next-visible-heading 1))
-        ;; If tags "no_header" or "no-pagestyle" were used in Chapter Index headings, then act appropriately with formatting.
+        ;; If tags "no_header" or "empty_pagestyle" etc were used in Chapter Index headings, then act appropriately with formatting.
         (when (nth 5 (org-heading-components))
           (when (member "no_header" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
             (setq no-header t))
@@ -1005,8 +1022,8 @@ Return string of new file contents."
             (setq no-header-preamble t))
           (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
             (setq no-toc-entry t))
-          (when (member "no_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
-            (setq no-pagestyle t))
+          (when (member "empty_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+            (setq empty-pagestyle t))
           (when (member "plain_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
             (setq pagestyle "plain")))
         (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
@@ -1092,7 +1109,7 @@ Return string of new file contents."
                      (insert "\\label{" curr-heading "}\n"))
                    (when curr-cust-id
                      (insert "\\label{" curr-cust-id "}\n"))))
-               (if no-pagestyle
+               (if empty-pagestyle
                    (insert "\\thispagestyle{empty}\n"
                            "\\pagestyle{empty}\n")
                  (cond ((string= "plain" pagestyle)
@@ -1234,7 +1251,7 @@ Return string of new file contents."
                         (insert "\\label{" curr-heading "}\n"))
                       (when curr-cust-id
                         (insert "\\label{" curr-cust-id "}\n"))))
-               (if no-pagestyle
+               (if empty-pagestyle
                    (insert "\\thispagestyle{empty}\n"
                            "\\pagestyle{empty}\n")
                  (cond ((string= "plain" pagestyle)
@@ -1327,7 +1344,7 @@ Return string of new file contents."
                      (insert "\\label{" curr-heading "}\n"))
                    (when curr-cust-id
                      (insert "\\label{" curr-cust-id "}\n"))))
-               (if no-pagestyle
+               (if empty-pagestyle
                    (insert "\\thispagestyle{empty}\n"
                            "\\pagestyle{empty}\n")
                  (cond ((string= "plain" pagestyle)
@@ -1476,7 +1493,7 @@ Return string of new file contents."
                         (insert "\\label{" curr-heading "}\n"))
                       (when curr-cust-id
                         (insert "\\label{" curr-cust-id "}\n"))))
-               (if no-pagestyle
+               (if empty-pagestyle
                    (insert "\\thispagestyle{empty}\n"
                            "\\pagestyle{empty}\n")
                  (cond ((string= "plain" pagestyle)
@@ -1492,7 +1509,8 @@ Return string of new file contents."
         (setq no-header nil)
         (setq no-header-name nil)
         (setq no-header-preamble nil)
-        (setq no-pagestyle nil)
+        (setq empty-pagestyle nil)
+        (setq pagestyle "headings")
         (setq no-toc-entry nil)
         (setq toc-head-string ""))
       (goto-char (point-min))
@@ -1567,41 +1585,40 @@ Return string of new file contents."
 
 (defun org-novelist--export-template (org-input-file output-file)
   "Given an ORG-INPUT-FILE from Org Novelist, export to OUTPUT-FILE."
-  (oletptceu--set-book-configuration-overrides org-input-file output-file)  ; Override default template values using configuration values from book
-  (let* ((temp-org (concat (file-name-sans-extension output-file) ".org"))
-         (org-export-with-toc-orig nil)
-         (org-export-with-date-orig nil)
-         (org-export-with-tags-orig nil)
-         (org-export-with-email-orig nil)
-         (org-export-with-latex-orig nil)
-         (org-export-with-tasks-orig nil)
-         (org-export-with-title-orig nil)
-         (org-export-with-author-orig nil)
-         (org-export-with-clocks-orig nil)
-         (org-export-with-tables-orig nil)
-         (org-export-with-creator-orig nil)
-         (org-export-with-drawers-orig nil)
-         (org-export-with-entities-orig nil)
-         (org-export-with-planning-orig nil)
-         (org-export-with-priority-orig nil)
-         (org-export-with-emphasize-orig nil)
-         (org-export-with-footnotes-orig nil)
-         (org-export-with-properties-orig nil)
-         (org-export-with-timestamps-orig nil)
-         (org-export-with-fixed-width-orig nil)
-         (org-export-with-inlinetasks-orig nil)
-         (org-export-with-broken-links-orig nil)
-         (org-export-with-smart-quotes-orig nil)
-         (org-export-with-todo-keywords-orig nil)
-         (org-export-with-archived-trees-orig nil)
-         (org-export-with-section-numbers-orig nil)
-         (org-export-with-special-strings-orig nil)
-         (org-export-with-sub-superscripts-orig nil)
-         (org-use-sub-superscripts-orig nil)
-         (org-export-with-statistics-cookies-orig nil)
-         (undo-tree-auto-save-history-orig nil)
-         (org-export-backends-orig nil)
-         (file-contents ""))
+  (let ((temp-org (concat (file-name-sans-extension output-file) ".org"))
+        (org-export-with-toc-orig nil)
+        (org-export-with-date-orig nil)
+        (org-export-with-tags-orig nil)
+        (org-export-with-email-orig nil)
+        (org-export-with-latex-orig nil)
+        (org-export-with-tasks-orig nil)
+        (org-export-with-title-orig nil)
+        (org-export-with-author-orig nil)
+        (org-export-with-clocks-orig nil)
+        (org-export-with-tables-orig nil)
+        (org-export-with-creator-orig nil)
+        (org-export-with-drawers-orig nil)
+        (org-export-with-entities-orig nil)
+        (org-export-with-planning-orig nil)
+        (org-export-with-priority-orig nil)
+        (org-export-with-emphasize-orig nil)
+        (org-export-with-footnotes-orig nil)
+        (org-export-with-properties-orig nil)
+        (org-export-with-timestamps-orig nil)
+        (org-export-with-fixed-width-orig nil)
+        (org-export-with-inlinetasks-orig nil)
+        (org-export-with-broken-links-orig nil)
+        (org-export-with-smart-quotes-orig nil)
+        (org-export-with-todo-keywords-orig nil)
+        (org-export-with-archived-trees-orig nil)
+        (org-export-with-section-numbers-orig nil)
+        (org-export-with-special-strings-orig nil)
+        (org-export-with-sub-superscripts-orig nil)
+        (org-use-sub-superscripts-orig nil)
+        (org-export-with-statistics-cookies-orig nil)
+        (undo-tree-auto-save-history-orig nil)
+        (org-export-backends-orig nil)
+        (file-contents ""))
     ;;  Store original user-set Org export settings.
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
@@ -1718,6 +1735,7 @@ Return string of new file contents."
                      backend))
            ((not (memq backend new-list)) (push backend new-list))))
         (set-default 'org-export-backends new-list)))
+    (oletptceu--set-book-configuration-overrides org-input-file output-file)  ; Override default template values using configuration values from book
     ;; Construct new file to pass to Org export dispatcher, based on input file.
     (when (file-exists-p org-input-file)
       (when (file-readable-p org-input-file)
