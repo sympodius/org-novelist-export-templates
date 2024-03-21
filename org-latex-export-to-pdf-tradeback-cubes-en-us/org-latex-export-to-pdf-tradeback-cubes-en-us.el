@@ -126,6 +126,9 @@
 ;; any page headers (the chapter name will not be shown at the top of
 ;; each page).
 ;;
+;; :part:
+;; Treat heading as a "Part" of the story (the level above chapter).
+;;
 ;;
 ;; The following optional configuration overrides are supported and can
 ;; be applied using the org-novelist-config.org file of the story:
@@ -137,6 +140,10 @@
 ;; #+MONOFONT_TYPEFACE_SIZE_ADJUSTMENT:
 ;; The size of monospaced fonts as a fraction of TYPEFACE_SIZE.
 ;; eg: 1.000
+;;
+;; #+TYPEFACE_SIZE_PART:
+;; The size (in pt) of the part heading text.
+;; eg: 20
 ;;
 ;; #+TYPEFACE_SIZE_CHAPTER:
 ;; The size (in pt) of the chapter heading text.
@@ -276,6 +283,7 @@
 
 (defvar oletptceu--typeface-size-default 0.795 "Typeface size (fraction of normal) for the document text.")
 (defvar oletptceu--monofont-typeface-size-adjustment-default 1.000 "Typeface size (fraction of oletptceu--typeface-size) for the document text.")
+(defvar oletptceu--typeface-size-part-default 20 "Typeface size (pt) for the part heading text.")
 (defvar oletptceu--typeface-size-chapter-default 20 "Typeface size (pt) for the chapter heading text.")
 (defvar oletptceu--typeface-size-section-default 15 "Typeface size (pt) for the section heading text.")
 (defvar oletptceu--typeface-size-subsection-default 11 "Typeface size (pt) for the subsection heading text.")
@@ -310,6 +318,7 @@
 (defvar oletptceu--bm-found nil "Temporary variable to show at least one back matter chapter found.")
 (defvar oletptceu--typeface-size nil "Typeface size (fraction of normal) for the document text.")
 (defvar oletptceu--monofont-typeface-size-adjustment nil "Typeface size (fraction of oletptceu--typeface-size) for the document text.")
+(defvar oletptceu--typeface-size-part nil "Typeface size (pt) for the part heading text.")
 (defvar oletptceu--typeface-size-chapter nil "Typeface size (pt) for the chapter heading text.")
 (defvar oletptceu--typeface-size-section nil "Typeface size (pt) for the section heading text.")
 (defvar oletptceu--typeface-size-subsection nil "Typeface size (pt) for the subsection heading text.")
@@ -349,6 +358,7 @@
 (defvar oletptceu--title-page-graphic-license-cc-by-nc-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial.")
 (defvar oletptceu--title-page-graphic-license-cc-by-nc-sa-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-ShareAlike 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-sa/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial-ShareAlike.")
 (defvar oletptceu--title-page-graphic-license-cc-by-nc-nd-4.0 "Licensed under the Creative Commons Attribution-Non\\-\\\\Commercial-NoDerivs 4.0 International License. To view a copy of this license, visit:\\\\\n\\makebox[\\textwidth]{\\url{https://creativecommons.org/licenses/by-nc-nd/4.0/}}\\\\\nOr, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "The license instructions for CC Attribution-NonCommercial-NoDerivs.")
+(defvar oletptceu--part-format nil "LaTeX format string for part headings.")
 (defvar oletptceu--chap-format nil "LaTeX format string for chapter headings.")
 (defvar oletptceu--sec-format nil "LaTeX format string for section headings.")
 (defvar oletptceu--subsec-format nil "LaTeX format string for sub-section headings.")
@@ -512,6 +522,10 @@ Any relative file names will be relative to OUTPUT-FILE."
     (if (string= "" prop-val)
         (setq oletptceu--monofont-typeface-size-adjustment oletptceu--monofont-typeface-size-adjustment-default)
       (setq oletptceu--monofont-typeface-size-adjustment (string-to-number prop-val)))
+    (setq prop-val (oletptceu--get-file-property-value "TYPEFACE_SIZE_PART" org-input-file))
+    (if (string= "" prop-val)
+        (setq oletptceu--typeface-size-part oletptceu--typeface-size-part-default)
+      (setq oletptceu--typeface-size-part (string-to-number prop-val)))
     (setq prop-val (oletptceu--get-file-property-value "TYPEFACE_SIZE_CHAPTER" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--typeface-size-chapter oletptceu--typeface-size-chapter-default)
@@ -754,6 +768,7 @@ Return string of new file contents."
 (defun oletptceu--set-latex-configuration (file-contents)
   "Given a string FILE-CONTENTS, add required Org mode overrides for LaTeX export.
 Return string of new file contents."
+  (setq oletptceu--part-format (concat "\\titleformat{\\part}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont\\partname\\,\\thepart}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
   (setq oletptceu--chap-format (concat "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
   (setq oletptceu--sec-format (concat "\\titleformat{\\section}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\thesection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-section) "}{" (number-to-string oletptceu--typeface-size-section) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
   (setq oletptceu--subsec-format (concat "\\titleformat{\\subsection}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\thesubsection}{0pt}{\\,\\,\\,~\\,\\,\\,\\fontsize{" (number-to-string oletptceu--typeface-size-subsection) "}{" (number-to-string oletptceu--typeface-size-subsection) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]"))
@@ -1000,6 +1015,7 @@ Return string of new file contents."
         (no-header-preamble nil)
         (empty-pagestyle nil)
         (no-toc-entry nil)
+        (part nil)
         (pagestyle "headings"))
     (setq oletptceu--fm-found nil)
     (setq oletptceu--mm-found nil)
@@ -1025,7 +1041,9 @@ Return string of new file contents."
           (when (member "empty_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
             (setq empty-pagestyle t))
           (when (member "plain_pagestyle" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
-            (setq pagestyle "plain")))
+            (setq pagestyle "plain"))
+          (when (member "part" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+            (setq part t)))
         (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
         (unless curr-cust-id
           (when (string= "" curr-cust-id)
@@ -1052,7 +1070,10 @@ Return string of new file contents."
                (when (and no-header-name no-header-preamble)
                  (setq no-header t))
                (if (or no-header no-header-name)
-                   (cond ((= 1 curr-level)
+                   (cond (part
+                          (insert "\\titleformat{\\part}[runin]{}{}{0pt}{}\n")
+                          (insert "\\part*{}\n"))
+                         ((= 1 curr-level)
                           (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
                           (insert "\\chapter*{}\n"))
                          ((= 2 curr-level)
@@ -1073,7 +1094,12 @@ Return string of new file contents."
                          (t
                           (insert "\\subparagraph*{}\n")))
                  (progn
-                   (cond ((= 1 curr-level)
+                   (cond (part
+                          (insert oletptceu--part-format "\n")
+                          (insert "\\part*{" curr-heading "}\n")
+                          (unless no-toc-entry
+                            (insert "\\addcontentsline{toc}{part}{" curr-heading "}\n")))
+                         ((= 1 curr-level)
                           (insert oletptceu--chap-format "\n")
                           (insert "\\chapter*{" curr-heading "}\n")
                           (unless no-toc-entry
@@ -1160,7 +1186,10 @@ Return string of new file contents."
                (when no-toc-entry
                  (setq toc-head-string "*"))
                (cond (no-header
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert "\\titleformat{\\part}[runin]{}{}{0pt}{}\n")
+                             (insert "\\part" toc-head-string "{}\n"))
+                            ((= 1 curr-level)
                              (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
                              (insert "\\chapter" toc-head-string "{}\n"))
                             ((= 2 curr-level)
@@ -1181,7 +1210,10 @@ Return string of new file contents."
                             (t
                              (insert "\\subparagraph" toc-head-string "{}\n"))))
                      (no-header-preamble
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert "\\titleformat{\\part}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                             (insert "\\part" toc-head-string "{" curr-heading "}\n"))
+                            ((= 1 curr-level)
                              (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
                              (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
                             ((= 2 curr-level)
@@ -1206,7 +1238,10 @@ Return string of new file contents."
                       (when curr-cust-id
                         (insert "\\label{" curr-cust-id "}\n")))
                      (no-header-name
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert "\\titleformat{\\part}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont\\partname\\,\\thepart}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                             (insert "\\part" toc-head-string "{}\n"))
+                            ((= 1 curr-level)
                              (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
                              (insert "\\chapter" toc-head-string "{}\n"))
                             ((= 2 curr-level)
@@ -1227,7 +1262,10 @@ Return string of new file contents."
                             (t
                              (insert "\\subparagraph" toc-head-string "{}\n"))))
                      (t
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert oletptceu--part-format "\n")
+                             (insert "\\part" toc-head-string "{" curr-heading "}\n"))
+                            ((= 1 curr-level)
                              (insert oletptceu--chap-format "\n")
                              (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
                             ((= 2 curr-level)
@@ -1287,7 +1325,10 @@ Return string of new file contents."
                (when (and no-header-name no-header-preamble)
                  (setq no-header t))
                (if (or no-header no-header-name)
-                   (cond ((= 1 curr-level)
+                   (cond (part
+                          (insert "\\titleformat{\\part}[runin]{}{}{0pt}{}\n")
+                          (insert "\\part*{}\n"))
+                         ((= 1 curr-level)
                           (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
                           (insert "\\chapter*{}\n"))
                          ((= 2 curr-level)
@@ -1308,7 +1349,12 @@ Return string of new file contents."
                          (t
                           (insert "\\subparagraph*{}\n")))
                  (progn
-                   (cond ((= 1 curr-level)
+                   (cond (part
+                          (insert oletptceu--part-format "\n")
+                          (insert "\\part*{" curr-heading "}\n")
+                          (unless no-toc-entry
+                            (insert "\\addcontentsline{toc}{part}{" curr-heading "}\n")))
+                         ((= 1 curr-level)
                           (insert oletptceu--chap-format "\n")
                           (insert "\\chapter*{" curr-heading "}\n")
                           (unless no-toc-entry
@@ -1402,7 +1448,10 @@ Return string of new file contents."
                (when no-toc-entry
                  (setq toc-head-string "*"))
                (cond (no-header
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert "\\titleformat{\\part}[runin]{}{}{0pt}{}\n")
+                             (insert "\\part" toc-head-string "{}\n"))
+                            ((= 1 curr-level)
                              (insert "\\titleformat{\\chapter}[runin]{}{}{0pt}{}\n")
                              (insert "\\chapter" toc-head-string "{}\n"))
                             ((= 2 curr-level)
@@ -1423,7 +1472,10 @@ Return string of new file contents."
                             (t
                              (insert "\\subparagraph" toc-head-string "{}\n"))))
                      (no-header-preamble
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert "\\titleformat{\\part}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
+                             (insert "\\part" toc-head-string "{" curr-heading "}\n"))
+                            ((= 1 curr-level)
                              (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont}{0pt}{~\\linebreak\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]")
                              (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
                             ((= 2 curr-level)
@@ -1448,7 +1500,10 @@ Return string of new file contents."
                       (when curr-cust-id
                         (insert "\\label{" curr-cust-id "}\n")))
                      (no-header-name
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert "\\titleformat{\\part}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-part) "}{" (number-to-string oletptceu--typeface-size-part) "}\\selectfont\\partname\\,\\thepart}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
+                             (insert "\\part" toc-head-string "{}\n"))
+                            ((= 1 curr-level)
                              (insert "\\titleformat{\\chapter}[hang]{\\sffamily\\bfseries}{\\fontsize{" (number-to-string oletptceu--typeface-size-chapter) "}{" (number-to-string oletptceu--typeface-size-chapter) "}\\selectfont\\chaptername\\,\\thechapter}{0pt}{\\selectfont\\raggedleft}[{\\titlerule[0.5pt]}]\n")
                              (insert "\\chapter" toc-head-string "{}\n"))
                             ((= 2 curr-level)
@@ -1469,7 +1524,10 @@ Return string of new file contents."
                             (t
                              (insert "\\subparagraph" toc-head-string "{}\n"))))
                      (t
-                      (cond ((= 1 curr-level)
+                      (cond (part
+                             (insert oletptceu--part-format "\n")
+                             (insert "\\part" toc-head-string "{" curr-heading "}\n"))
+                            ((= 1 curr-level)
                              (insert oletptceu--chap-format "\n")
                              (insert "\\chapter" toc-head-string "{" curr-heading "}\n"))
                             ((= 2 curr-level)
@@ -1511,6 +1569,7 @@ Return string of new file contents."
         (setq no-header-preamble nil)
         (setq empty-pagestyle nil)
         (setq pagestyle "headings")
+        (setq part nil)
         (setq no-toc-entry nil)
         (setq toc-head-string ""))
       (goto-char (point-min))

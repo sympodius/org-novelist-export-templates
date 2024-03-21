@@ -99,6 +99,9 @@
 ;; calculate the numbering of main matter chapters. However, if user
 ;; actively generates a table of contents in post, then this chapter
 ;; will likely still be included.
+;;
+;; :part:
+;; Treat heading as a "Part" of the story (the level above chapter).
 
 ;;; Code:
 
@@ -245,11 +248,13 @@ Return string of new file contents."
         (curr-heading-construct "")
         curr-level
         (chap-num 0)
+        (part-num 0)
         curr-cust-id
         (no-header nil)
         (no-header-name nil)
         (no-header-preamble nil)
         (no-toc-entry nil)
+        (part nil)
         beg)
     (with-temp-buffer
       (insert file-contents)
@@ -307,7 +312,9 @@ Return string of new file contents."
           (when (member "no_header_preamble" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
             (setq no-header-preamble t))
           (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
-            (setq no-toc-entry t)))
+            (setq no-toc-entry t))
+          (when (member "part" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+            (setq part t)))
         (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
         (unless curr-cust-id
           (when (string= "" curr-cust-id)
@@ -316,6 +323,9 @@ Return string of new file contents."
         (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
+	       (if part
+		   (setq curr-level "1")
+		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (when (or no-header no-header-name)
@@ -346,6 +356,9 @@ Return string of new file contents."
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
+	       (if part
+		   (setq curr-level "1")
+		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
@@ -356,7 +369,9 @@ Return string of new file contents."
                (ooetmeu--delete-line)
                (when no-toc-entry
                  (setq no-header-preamble t))
-               (when (and (string= curr-level "1") (not no-header) (not no-toc-entry))
+               (when (and part (not no-header) (not no-toc-entry))
+                 (setq part-num (+ part-num 1)))
+               (when (and (string= curr-level "2") (not no-header) (not no-toc-entry))
                  (setq chap-num (+ chap-num 1)))
                (insert "\n#+BEGIN_EXPORT odt\n"
                        "<text:h text:style-name=\"Heading_20_1\" text:outline-level=\""
@@ -369,7 +384,9 @@ Return string of new file contents."
                  (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
                          "<text:bookmark text:name=\"" curr-heading "\"/>"))
                (unless no-header-preamble
-                 (setq curr-heading-construct (concat "Chapter " (number-to-string chap-num))))
+                 (if part
+                     (setq curr-heading-construct (concat "Part " (number-to-string part-num)))
+                   (setq curr-heading-construct (concat "Chapter " (number-to-string chap-num)))))
                (unless (or no-header-preamble no-header-name)
                  (setq curr-heading-construct (concat curr-heading-construct " - ")))
                (unless no-header-name
@@ -384,6 +401,9 @@ Return string of new file contents."
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
+	       (if part
+		   (setq curr-level "1")
+		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (when (or no-header no-header-name)
@@ -412,13 +432,18 @@ Return string of new file contents."
               (t
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
+	       (if part
+		   (setq curr-level "1")
+		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
                (ooetmeu--delete-line)
                (when no-toc-entry
                  (setq no-header-preamble t))
-               (when (and (string= curr-level "1") (not no-header) (not no-toc-entry))
+               (when (and part (not no-header) (not no-toc-entry))
+                 (setq part-num (+ part-num 1)))
+               (when (and (string= curr-level "2") (not no-header) (not no-toc-entry))
                  (setq chap-num (+ chap-num 1)))
                (insert "\n#+BEGIN_EXPORT odt\n"
                        "<text:h text:style-name=\"Heading_20_1\" text:outline-level=\""
@@ -431,10 +456,12 @@ Return string of new file contents."
                  (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
                          "<text:bookmark text:name=\"" curr-heading "\"/>"))
                (unless no-header-preamble
-                 (when (string= curr-level "1")
-                   (setq curr-heading-construct (concat "Chapter " (number-to-string chap-num)))))
+                 (if part
+                     (setq curr-heading-construct (concat "Part " (number-to-string part-num)))
+                   (when (string= curr-level "2")
+                     (setq curr-heading-construct (concat "Chapter " (number-to-string chap-num))))))
                (unless (or no-header-preamble no-header-name)
-                 (when (string= curr-level "1")
+                 (when (string= curr-level "2")
                    (setq curr-heading-construct (concat curr-heading-construct " - "))))
                (unless no-header-name
                  (setq curr-heading-construct (concat curr-heading-construct curr-heading)))
@@ -449,7 +476,8 @@ Return string of new file contents."
         (setq no-header nil)
         (setq no-header-name nil)
         (setq no-header-preamble nil)
-        (setq no-toc-entry nil))
+        (setq no-toc-entry nil)
+        (setq part nil))
       (goto-char (point-min))
       (ooetmeu--delete-line)
       (setq out-str (buffer-string)))

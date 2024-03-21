@@ -107,6 +107,9 @@
 ;; no "Chapter X" text, and will not be used to calculate the numbering
 ;; of main matter chapters.
 ;;
+;; :part:
+;; Treat heading as a "Part" of the story (the level above chapter).
+;;
 ;;
 ;; The following optional configuration overrides are supported and can
 ;; be applied using the org-novelist-config.org file of the story:
@@ -985,6 +988,8 @@ Return string of new file contents."
         curr-level
         (toc-head-string "")
         (chap-num 0)
+        (part-num 0)
+	(part nil)
         beg)
     (with-temp-buffer
       (insert file-contents)
@@ -1003,7 +1008,9 @@ Return string of new file contents."
           (when (member "no_header_preamble" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
             (setq no-header-preamble t))
           (when (member "no_toc_entry" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
-            (setq no-toc-entry t)))
+            (setq no-toc-entry t))
+          (when (member "part" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
+            (setq part t)))
         (setq curr-cust-id (org-entry-get (point) "CUSTOM_ID"))
         (unless curr-cust-id
           (when (string= "" curr-cust-id)
@@ -1011,7 +1018,9 @@ Return string of new file contents."
         ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
         (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
-               (setq curr-level (org-current-level))
+	       (if part
+		   (setq curr-level 1)
+		 (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
@@ -1044,7 +1053,9 @@ Return string of new file contents."
                (forward-char -1))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
-               (setq curr-level (org-current-level))
+	       (if part
+		   (setq curr-level 1)
+		 (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
@@ -1063,8 +1074,10 @@ Return string of new file contents."
                (when no-toc-entry
                  (setq no-header-preamble t)
                  (setq toc-head-string "{.unnumbered .unlisted}"))
-               (when (and (= curr-level 1) (not no-header) (not no-toc-entry))
+               (when (and (= curr-level 1) (not no-header) (not no-toc-entry) (not part))
                  (setq chap-num (+ chap-num 1)))
+	       (when part
+		 (setq part-num (+ part-num 1)))
                (while (> curr-level 0)
                  (setq curr-level (- curr-level 1))
                  (insert "#"))
@@ -1076,11 +1089,17 @@ Return string of new file contents."
                               "\n"
                               "---\n"))
                      (no-header-name
-                      (insert " Chapter " (number-to-string chap-num) " " toc-head-string "\n"
+		      (if part
+			  (insert " Part " (number-to-string part-num))
+			(insert " Chapter " (number-to-string chap-num)))
+		      (insert " " toc-head-string "\n"
                               "\n"
                               "---\n"))
                      (t
-                      (insert " Chapter " (number-to-string chap-num) " --- " curr-heading " " toc-head-string "\n"
+                      (if part
+			  (insert " Part " (number-to-string part-num))
+			(insert " Chapter " (number-to-string chap-num)))
+		      (insert " --- " curr-heading " " toc-head-string "\n"
                               "\n"
                               "---\n")))
                (when curr-cust-id
@@ -1091,7 +1110,9 @@ Return string of new file contents."
                (forward-char -1))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
-               (setq curr-level (org-current-level))
+	       (if part
+		   (setq curr-level 1)
+		 (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
@@ -1124,7 +1145,9 @@ Return string of new file contents."
                (forward-char -1))
               (t
                (setq curr-heading (nth 4 (org-heading-components)))
-               (setq curr-level (org-current-level))
+	       (if part
+		   (setq curr-level 1)
+		 (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
@@ -1139,7 +1162,7 @@ Return string of new file contents."
                (when no-toc-entry
                  (setq no-header-preamble t)
                  (setq toc-head-string "{.unnumbered .unlisted}"))
-               (when (and (= curr-level 1) (not no-header) (not no-toc-entry))
+               (when (and (= curr-level 1) (not no-header) (not no-toc-entry) (not part))
                  (setq chap-num (+ chap-num 1)))
                (while (> curr-level 0)
                  (setq curr-level (- curr-level 1))
@@ -1152,11 +1175,17 @@ Return string of new file contents."
                               "\n"
                               "---\n"))
                      (no-header-name
-                      (insert " Chapter " (number-to-string chap-num) " " toc-head-string "\n"
+		      (if part
+			  (insert " Part " (number-to-string part-num))
+			(insert " Chapter " (number-to-string chap-num)))
+		      (insert " " toc-head-string "\n"
                               "\n"
                               "---\n"))
                      (t
-                      (insert " Chapter " (number-to-string chap-num) " --- " curr-heading " " toc-head-string "\n"
+		      (if part
+			  (insert " Part " (number-to-string part-num))
+			(insert " Chapter " (number-to-string chap-num)))
+		      (insert " --- " curr-heading " " toc-head-string "\n"
                               "\n"
                               "---\n")))
                (when curr-cust-id
@@ -1169,6 +1198,7 @@ Return string of new file contents."
         (setq no-header-name nil)
         (setq no-header-preamble nil)
         (setq no-toc-entry nil)
+	(setq part nil)
         (setq toc-head-string ""))
       (goto-char (point-min))
       (opeteceu--delete-line)
