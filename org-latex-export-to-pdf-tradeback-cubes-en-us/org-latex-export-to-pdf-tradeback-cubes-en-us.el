@@ -313,9 +313,9 @@
 
 ;;;; Global Variables
 
-(defvar oletptceu--fm-found nil "Temporary variable to show at least one front matter chapter found.")
-(defvar oletptceu--mm-found nil "Temporary variable to show at least one main matter chapter found.")
-(defvar oletptceu--bm-found nil "Temporary variable to show at least one back matter chapter found.")
+(defvar oletptceu--fm-found-p nil "Temporary variable to show at least one front matter chapter found.")
+(defvar oletptceu--mm-found-p nil "Temporary variable to show at least one main matter chapter found.")
+(defvar oletptceu--bm-found-p nil "Temporary variable to show at least one back matter chapter found.")
 (defvar oletptceu--typeface-size nil "Typeface size (fraction of normal) for the document text.")
 (defvar oletptceu--monofont-typeface-size-adjustment nil "Typeface size (fraction of oletptceu--typeface-size) for the document text.")
 (defvar oletptceu--typeface-size-part nil "Typeface size (pt) for the part heading text.")
@@ -590,16 +590,14 @@ Any relative file names will be relative to OUTPUT-FILE."
         (if (find-font (font-spec :name oletptceu--signaturefont-default))
             (setq oletptceu--signaturefont oletptceu--signaturefont-default)
           (setq oletptceu--signaturefont "cmss"))))
-    (setq prop-val (expand-file-name
-                    (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC" org-input-file)
-                    (expand-file-name (file-name-directory output-file))))
+    (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-graphic (expand-file-name
                                              oletptceu--title-page-graphic-default
                                              (expand-file-name
                                               (file-name-directory
                                                (symbol-file 'org-latex-export-to-pdf-tradeback-cubes-en-us--fold-show-all)))))
-      (setq oletptceu--title-page-graphic (expand-file-name prop-val)))
+      (setq oletptceu--title-page-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-graphic-scale oletptceu--title-page-graphic-scale-default)
@@ -631,7 +629,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-replacement-graphic oletptceu--title-page-replacement-graphic-default)
-      (setq oletptceu--title-page-replacement-graphic (expand-file-name prop-val)))
+      (setq oletptceu--title-page-replacement-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-replacement-graphic-scale oletptceu--title-page-replacement-graphic-scale-default)
@@ -668,16 +666,10 @@ Any relative file names will be relative to OUTPUT-FILE."
         (setq oletptceu--license oletptceu--license-cc-by-nc-nd-4.0))
        (t
         (setq oletptceu--license (org-export-string-as prop-val 'latex t)))))
-    (setq prop-val (expand-file-name
-                    (oletptceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file)
-                    (expand-file-name (file-name-directory output-file))))
+    (setq prop-val (oletptceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file))
     (if (string= "" prop-val)
-        (setq oletptceu--sigil-graphic (expand-file-name
-                                        oletptceu--sigil-graphic-default
-                                        (expand-file-name
-                                         (file-name-directory
-                                          (symbol-file 'org-latex-export-to-pdf-tradeback-cubes-en-us--fold-show-all)))))
-      (setq oletptceu--sigil-graphic (expand-file-name prop-val)))
+        (setq oletptceu--sigil-graphic oletptceu--sigil-graphic-default)
+      (setq oletptceu--sigil-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
     (setq prop-val (oletptceu--get-file-property-value "SIGIL_GRAPHIC_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--sigil-graphic-scale oletptceu--sigil-graphic-scale-default)
@@ -735,6 +727,7 @@ Return string of new file contents."
                       ;; Don't include heading appearances of term in the index.
                       (beginning-of-line)
                       (forward-char -1)
+                      (insert "\n")  ; Make sure bounds don't include any of the content text by adding a newline.
                       (setq search-bound-pos (point)))
                   (setq search-bound-pos (point-max)))
                 (goto-char pos)
@@ -856,12 +849,12 @@ Return string of new file contents."
                 "\\begin{titlepage}\n"
                 "\\begin{center}\n")
         ;; If replacement graphic was supplied by story config, put it here instead of generating one.
-        (if (and oletptceu--title-page-replacement-graphic (file-readable-p oletptceu--title-page-replacement-graphic))
+        (if (and oletptceu--title-page-replacement-graphic (file-readable-p oletptceu--title-page-replacement-graphic) (not (string= "" oletptceu--title-page-replacement-graphic)))
             (if oletptceu--title-page-replacement-graphic-scale
                 (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-replacement-graphic-scale) "]{" oletptceu--title-page-replacement-graphic  "}\n")
               (insert "\\includegraphics[width=0.999\\textwidth,height=0.999\\textheight,keepaspectratio]{" oletptceu--title-page-replacement-graphic  "}\n"))
           (progn
-            (if (file-readable-p oletptceu--title-page-graphic)
+            (if (and (file-readable-p oletptceu--title-page-graphic) (not (string= "" oletptceu--title-page-graphic)))
                 (insert "\\includegraphics[scale=" (number-to-string oletptceu--title-page-graphic-scale) "]{" oletptceu--title-page-graphic "}\\\\[3cm]\n")
               (insert "~\\\\[8.5cm]\n"
                       "\n"))
@@ -949,7 +942,7 @@ Return string of new file contents."
                   (org-time-string-to-absolute
                    (oletptceu--get-file-property-value "DATE")))) "\n"
                 "\n")
-        (when (file-readable-p oletptceu--sigil-graphic)
+        (when (and (file-readable-p oletptceu--sigil-graphic) (not (string= "" oletptceu--sigil-graphic)))
           (insert "\\vspace{0.5cm}\n"
                   "\n"
                   "\\begin{center}\n"
@@ -1017,9 +1010,9 @@ Return string of new file contents."
         (no-toc-entry nil)
         (part nil)
         (pagestyle "headings"))
-    (setq oletptceu--fm-found nil)
-    (setq oletptceu--mm-found nil)
-    (setq oletptceu--bm-found nil)
+    (setq oletptceu--fm-found-p nil)
+    (setq oletptceu--mm-found-p nil)
+    (setq oletptceu--bm-found-p nil)
     (with-temp-buffer
       (insert file-contents)
       (org-mode)
@@ -1062,9 +1055,9 @@ Return string of new file contents."
                (delete-region beg (point))
                (oletptceu--delete-line)
                (insert "#+BEGIN_EXPORT latex\n")
-               (unless oletptceu--fm-found
+               (unless oletptceu--fm-found-p
                  (insert "\\frontmatter{}\n")
-                 (setq oletptceu--fm-found t))
+                 (setq oletptceu--fm-found-p t))
                (when (string= curr-heading "")
                  (setq no-header-name t))
                (when (and no-header-name no-header-preamble)
@@ -1162,7 +1155,7 @@ Return string of new file contents."
                (delete-region beg (point))
                (oletptceu--delete-line)
                (insert "#+BEGIN_EXPORT latex\n")
-               (unless oletptceu--mm-found
+               (unless oletptceu--mm-found-p
                  (insert "\\tocParindent\n"
                          "\\tocParskip\n"
                          "\\setcounter{tocdepth}{4}\n"
@@ -1172,7 +1165,7 @@ Return string of new file contents."
                          "\\newpage\n"
                          "\\thispagestyle{empty}\n"
                          "\\mainmatter{}\n")
-                 (setq oletptceu--mm-found t))
+                 (setq oletptceu--mm-found-p t))
                ;; blank title => equivalent to no-header
                ;; no-header => Chapter X NOT used, other title NOT used, entry still appears (blank) in toc
                ;; no-header-name => Chapter X used, other title NOT used, entry still apears (blank) in toc
@@ -1315,11 +1308,11 @@ Return string of new file contents."
                (delete-region beg (point))
                (oletptceu--delete-line)
                (insert "#+BEGIN_EXPORT latex\n")
-               (unless oletptceu--bm-found
+               (unless oletptceu--bm-found-p
                  (insert "\\newpage\n"
                          "\\thispagestyle{empty}\n"
                          "\\backmatter{}\n")
-                 (setq oletptceu--bm-found t))
+                 (setq oletptceu--bm-found-p t))
                (when (string= curr-heading "")
                  (setq no-header-name t))
                (when (and no-header-name no-header-preamble)
@@ -1412,12 +1405,12 @@ Return string of new file contents."
                (oletptceu--delete-line)
                (insert "#+BEGIN_EXPORT latex\n")
                (cond ((string= curr-matter "FRONT MATTER")
-                      (unless oletptceu--fm-found
+                      (unless oletptceu--fm-found-p
                         (insert "\\frontmatter{}\n")
-                        (setq oletptceu--fm-found t))
+                        (setq oletptceu--fm-found-p t))
                       (setq no-toc-entry t))
                      ((string= curr-matter "MAIN MATTER")
-                      (unless oletptceu--mm-found
+                      (unless oletptceu--mm-found-p
                         (insert "\\tocParindent\n"
                                 "\\tocParskip\n"
                                 "\\setcounter{tocdepth}{4}\n"
@@ -1427,13 +1420,13 @@ Return string of new file contents."
                                 "\\newpage\n"
                                 "\\thispagestyle{empty}\n"
                                 "\\mainmatter{}\n")
-                        (setq oletptceu--mm-found t)))
+                        (setq oletptceu--mm-found-p t)))
                      ((string= curr-matter "BACK MATTER")
-                      (unless oletptceu--bm-found
+                      (unless oletptceu--bm-found-p
                         (insert "\\newpage\n"
                                 "\\thispagestyle{empty}\n"
                                 "\\backmatter{}\n")
-                        (setq oletptceu--bm-found t))
+                        (setq oletptceu--bm-found-p t))
                       (setq no-toc-entry t)))
                ;; blank title => equivalent to no-header
                ;; no-header => Chapter X NOT used, other title NOT used, entry still appears (blank) in toc
@@ -1575,9 +1568,9 @@ Return string of new file contents."
       (goto-char (point-min))
       (oletptceu--delete-line)
       (setq out-str (buffer-string)))
-    (setq oletptceu--fm-found nil)
-    (setq oletptceu--mm-found nil)
-    (setq oletptceu--bm-found nil)
+    (setq oletptceu--fm-found-p nil)
+    (setq oletptceu--mm-found-p nil)
+    (setq oletptceu--bm-found-p nil)
     out-str))
 
 (defun oletptceu--remap-image-links (file-contents)
@@ -1678,6 +1671,34 @@ Return string of new file contents."
         (undo-tree-auto-save-history-orig nil)
         (org-export-backends-orig nil)
         (file-contents ""))
+    (setq oletptceu--typeface-size nil)
+    (setq oletptceu--monofont-typeface-size-adjustment nil)
+    (setq oletptceu--typeface-size-part nil)
+    (setq oletptceu--typeface-size-chapter nil)
+    (setq oletptceu--typeface-size-section nil)
+    (setq oletptceu--typeface-size-subsection nil)
+    (setq oletptceu--typeface-size-subsubsection nil)
+    (setq oletptceu--typeface-size-paragraph nil)
+    (setq oletptceu--typeface-size-subparagraph nil)
+    (setq oletptceu--mainfont nil)
+    (setq oletptceu--headfont nil)
+    (setq oletptceu--monofont nil)
+    (setq oletptceu--signaturefont nil)
+    (setq oletptceu--title-page-graphic nil)
+    (setq oletptceu--title-page-graphic-scale nil)
+    (setq oletptceu--title-page-graphic-copyright nil)
+    (setq oletptceu--title-page-graphic-license nil)
+    (setq oletptceu--title-page-replacement-graphic nil)
+    (setq oletptceu--title-page-replacement-graphic-scale nil)
+    (setq oletptceu--publisher nil)
+    (setq oletptceu--isbn nil)
+    (setq oletptceu--edition nil)
+    (setq oletptceu--license nil)
+    (setq oletptceu--sigil-graphic nil)
+    (setq oletptceu--sigil-graphic-scale nil)
+    (setq oletptceu--make-booklet nil)
+    (setq oletptceu--booklet-signature-size nil)
+    (setq oletptceu--booklet-buffer-pages nil)
     ;;  Store original user-set Org export settings.
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
@@ -1879,6 +1900,34 @@ Return string of new file contents."
     (delete-file (concat (file-name-sans-extension temp-org) ".ilg"))
     (delete-file (concat (file-name-sans-extension temp-org) ".ind"))
     (oletptceu--make-booklet output-file)  ; Creates an imposed booklet for bookbinding if required
+    (setq oletptceu--typeface-size nil)
+    (setq oletptceu--monofont-typeface-size-adjustment nil)
+    (setq oletptceu--typeface-size-part nil)
+    (setq oletptceu--typeface-size-chapter nil)
+    (setq oletptceu--typeface-size-section nil)
+    (setq oletptceu--typeface-size-subsection nil)
+    (setq oletptceu--typeface-size-subsubsection nil)
+    (setq oletptceu--typeface-size-paragraph nil)
+    (setq oletptceu--typeface-size-subparagraph nil)
+    (setq oletptceu--mainfont nil)
+    (setq oletptceu--headfont nil)
+    (setq oletptceu--monofont nil)
+    (setq oletptceu--signaturefont nil)
+    (setq oletptceu--title-page-graphic nil)
+    (setq oletptceu--title-page-graphic-scale nil)
+    (setq oletptceu--title-page-graphic-copyright nil)
+    (setq oletptceu--title-page-graphic-license nil)
+    (setq oletptceu--title-page-replacement-graphic nil)
+    (setq oletptceu--title-page-replacement-graphic-scale nil)
+    (setq oletptceu--publisher nil)
+    (setq oletptceu--isbn nil)
+    (setq oletptceu--edition nil)
+    (setq oletptceu--license nil)
+    (setq oletptceu--sigil-graphic nil)
+    (setq oletptceu--sigil-graphic-scale nil)
+    (setq oletptceu--make-booklet nil)
+    (setq oletptceu--booklet-signature-size nil)
+    (setq oletptceu--booklet-buffer-pages nil)
     (when (boundp 'undo-tree-auto-save-history)
       (setq undo-tree-auto-save-history undo-tree-auto-save-history-orig))))
 
