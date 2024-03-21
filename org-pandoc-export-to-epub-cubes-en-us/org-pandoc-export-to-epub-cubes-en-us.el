@@ -217,6 +217,7 @@
 
 ;;;; Global Variables
 
+(defvar opeteceu--index-entries-exist-in-text-p nil "Temporary variable to show at least one index entry found in text.")
 (defvar opeteceu--headfont nil "Heading text font, must be installed on system already.")
 (defvar opeteceu--signaturefont nil "Author signature text font, must be installed on system already.")
 (defvar opeteceu--title-page-graphic nil "Location of image file to use in title page.")
@@ -393,16 +394,14 @@ Any relative file names will be relative to OUTPUT-FILE."
         (if (find-font (font-spec :name opeteceu--signaturefont-default))
             (setq opeteceu--signaturefont opeteceu--signaturefont-default)
           (setq opeteceu--signaturefont "Garamond"))))
-    (setq prop-val (expand-file-name
-                    (opeteceu--get-file-property-value "TITLE_PAGE_GRAPHIC" org-input-file)
-                    (expand-file-name (file-name-directory output-file))))
+    (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_GRAPHIC" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-graphic (expand-file-name
                                             opeteceu--title-page-graphic-default
                                             (expand-file-name
                                              (file-name-directory
                                               (symbol-file 'org-pandoc-export-to-epub-cubes-en-us--fold-show-all)))))
-      (setq opeteceu--title-page-graphic (expand-file-name prop-val)))
+      (setq opeteceu--title-page-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
     (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_GRAPHIC_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-graphic-scale opeteceu--title-page-graphic-scale-default)
@@ -442,7 +441,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-replacement-graphic opeteceu--title-page-replacement-graphic-default)
-      (setq opeteceu--title-page-replacement-graphic (expand-file-name prop-val)))
+      (setq opeteceu--title-page-replacement-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
     (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-replacement-graphic-scale opeteceu--title-page-replacement-graphic-scale-default)
@@ -495,23 +494,16 @@ Any relative file names will be relative to OUTPUT-FILE."
     (if (string= "" prop-val)
         (setq opeteceu--sigil-graphic-scale opeteceu--sigil-graphic-scale-default)
       (setq opeteceu--sigil-graphic-scale (string-to-number prop-val)))
-    (setq prop-val (expand-file-name
-                    (opeteceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file)
-                    (expand-file-name (file-name-directory output-file))))
+    (setq prop-val (opeteceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file))
     (if (string= "" prop-val)
-        (setq opeteceu--sigil-graphic (expand-file-name
-                                       opeteceu--sigil-graphic-default
-                                       (expand-file-name
-                                        (file-name-directory
-                                         (symbol-file 'org-pandoc-export-to-epub-cubes-en-us--fold-show-all)))))
-      (if (string= (file-name-extension prop-val) "png")
-          (setq opeteceu--sigil-graphic (expand-file-name prop-val))
+        (setq opeteceu--sigil-graphic opeteceu--sigil-graphic-default)
+      (if (string= (file-name-extension (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))) "png")
+          (setq opeteceu--sigil-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file))))
         (when (and (executable-find "convert") (file-readable-p prop-val))
           (let ((resize-args ""))
-            (when opeteceu--sigil-graphic-scale
-              (setq resize-args " -density 600 -quality 10 "))
-            (shell-command (concat "convert " resize-args "\"" (expand-file-name prop-val) "\" \"" (file-name-directory output-file) (file-name-base (expand-file-name prop-val)) ".png\""))
-            (setq opeteceu--sigil-graphic (expand-file-name (concat (file-name-directory output-file) (file-name-base (expand-file-name prop-val)) ".png")))))))))
+            (setq resize-args " -density 600 -quality 10 ")
+            (shell-command (concat "convert " resize-args "\"" (expand-file-name prop-val (expand-file-name (file-name-directory output-file))) "\" \"" (expand-file-name (file-name-directory output-file)) (file-name-base (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))) ".png\""))
+            (setq opeteceu--sigil-graphic (expand-file-name (concat (expand-file-name (file-name-directory output-file)) (file-name-base (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))) ".png")))))))))
 
 (defun opeteceu--generate-css-style-string ()
   "Generate the stylesheet using ORG-INPUT-FILE."
@@ -620,6 +612,7 @@ etc aren't included in the index."
                       ;; Don't include heading appearances of term in the index.
                       (beginning-of-line)
                       (forward-char -1)
+                      (insert "\n")  ; Make sure bounds don't include any of the content text by adding a newline.
                       (setq search-bound-pos (point)))
                   (setq search-bound-pos (point-max)))
                 (goto-char pos)
@@ -651,6 +644,7 @@ etc aren't included in the index."
                       ;; Make lists of the known page positions of terms in the story, based on word count.
                       (puthash (cdr curr-property) (cons word-count (gethash (cdr curr-property) index-entries-hash-table)) index-entries-hash-table)
                       (setq word-count 0)
+                      (setq opeteceu--index-entries-exist-in-text-p t)
                       (insert curr-term-insert-str)
                       ;; Increase search-bound-pos by the number of characters we've added.
                       (setq search-bound-pos (+ search-bound-pos (length curr-term-insert-str))))))))))
@@ -738,17 +732,18 @@ to generate the virtual page numbers in the index."
       (insert file-contents)
       (org-mode)
       (opeteceu--fold-show-all)
-      ;; After the Index string has been constructed, we can place it anywhere in the code it is required.
-      (when (member "index" (split-string (opeteceu--get-file-property-value "GENERATE") "[,\f\t\n\r\v]+" t " "))
-        ;; Add index to end of story.
-        (goto-char (point-max))
-        (insert (concat "* Index                  :no_header_preamble:no_toc_entry:plain_pagestyle:\n"))  ; Don't add as backmatter as this will add the index to TOC. LaTeX doesn't add it to TOC, so I'm just making it match.
-        (insert index-string))
-      ;; Replace "#+latex: \printindex" with an actual index﻿. A little broad as a solution, but works for me most of the time.
-      (goto-char (point-min))
-      (let ((case-fold-search t))
-        (while (re-search-forward "^[ \t]*#\\+latex: \\\\printindex" nil t)
-          (replace-match (concat "* Index                  :no_header_preamble:no_toc_entry:plain_pagestyle:\n" index-string) nil t)))
+      (when opeteceu--index-entries-exist-in-text-p
+        ;; After the Index string has been constructed, we can place it anywhere in the code it is required.
+        (when (member "index" (split-string (opeteceu--get-file-property-value "GENERATE") "[,\f\t\n\r\v]+" t " "))
+          ;; Add index to end of story.
+          (goto-char (point-max))
+          (insert (concat "* Index                  :no_header_preamble:no_toc_entry:plain_pagestyle:\n"))  ; Don't add as backmatter as this will add the index to TOC. LaTeX doesn't add it to TOC, so I'm just making it match.
+          (insert index-string))
+        ;; Replace "#+latex: \printindex" with an actual index﻿. A little broad as a solution, but works for me most of the time.
+        (goto-char (point-min))
+        (let ((case-fold-search t))
+          (while (re-search-forward "^[ \t]*#\\+latex: \\\\printindex" nil t)
+            (replace-match (concat "* Index                  :no_header_preamble:no_toc_entry:plain_pagestyle:\n" index-string) nil t))))
       (setq out-str (buffer-string)))
     out-str))
 
@@ -785,7 +780,7 @@ The final cover image location will also be stored in
             (author-graphic-arg "")
             (curr-author-pos 800))
         ;; If graphic available, it will be used in generating cover. Start with argument that will need to be passed to Imagemagick.
-        (when (file-readable-p opeteceu--title-page-graphic)
+        (when (and (file-readable-p opeteceu--title-page-graphic) (not (string= "" opeteceu--title-page-graphic)))
           (setq cover-graphic-arg (concat " -draw \"image over 0,-800 0,0 \'" opeteceu--title-page-graphic "\'\"")))
         ;; If title longer than x, split into lines. Else, return title.
         (if (> (length (opeteceu--get-file-property-value "TITLE"  org-input-file)) 22)
@@ -922,7 +917,7 @@ Return string of new file contents."
                 "date: " (opeteceu--format-time-string "%Y" (org-time-from-absolute (org-time-string-to-absolute (opeteceu--get-file-property-value "DATE")))) "\n"
                 "lang: " opeteceu--language "\n"
                 "toc-title: Contents\n")
-        (when (file-readable-p opeteceu--title-page)
+        (when (and (file-readable-p opeteceu--title-page) (not (string= "" opeteceu--title-page)))
           (insert "cover-image: " opeteceu--title-page "\n"))
         (insert "...\n"
                 "\n"
@@ -962,7 +957,7 @@ Return string of new file contents."
                 "\\\n"
                 "\\\n"
                 "\\\n")
-        (when (file-readable-p opeteceu--sigil-graphic)
+        (when (and (file-readable-p opeteceu--sigil-graphic) (not (string= "" opeteceu--sigil-graphic)))
           (insert "<div class=\"center\">\n"
                   "![Sigil](" opeteceu--sigil-graphic " \"Sigil\"){ width=")
           (if opeteceu--sigil-graphic-scale
@@ -1333,6 +1328,21 @@ When images have no given name, remove the img name tags."
         (cubes-css (opeteceu--generate-css-style-string))
         (index-entries (make-hash-table :test 'equal))
         (index-str ""))
+    (setq opeteceu--index-entries-exist-in-text-p nil)
+    (setq opeteceu--headfont nil)
+    (setq opeteceu--signaturefont nil)
+    (setq opeteceu--title-page-graphic nil)
+    (setq opeteceu--title-page-graphic-scale nil)
+    (setq opeteceu--title-page-graphic-copyright nil)
+    (setq opeteceu--title-page-graphic-license nil)
+    (setq opeteceu--title-page-replacement-graphic nil)
+    (setq opeteceu--title-page-replacement-graphic-scale nil)
+    (setq opeteceu--publisher nil)
+    (setq opeteceu--isbn nil)
+    (setq opeteceu--edition nil)
+    (setq opeteceu--license nil)
+    (setq opeteceu--sigil-graphic nil)
+    (setq opeteceu--sigil-graphic-scale nil)
     ;;  Store original user-set Org export settings.
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
@@ -1460,7 +1470,7 @@ When images have no given name, remove the img name tags."
         ;; Add index entry anchors to story before other processing to ensure title pages, copyright pages etc aren't included in the index.
         (setq file-contents (opeteceu--add-index-anchors file-contents index-entries))  ; Not sure this will work. Is actual variable being passed, or just value?
         ;; At this point, we should have the story full tagged with anchors for the index, as well as have a hash map containing all the index terms, and a way to link to every appearance in the text.
-        (setq index-str (concat index-str (opeteceu--make-index-string index-entries)))
+        (setq index-str (opeteceu--make-index-string index-entries))
         ;; Add the constructed index string anywhere it is needed.
         (setq file-contents (opeteceu--add-indices file-contents index-str))
         ;; Make a cover image for the story.
@@ -1553,6 +1563,21 @@ When images have no given name, remove the img name tags."
       (rename-file (concat (file-name-sans-extension temp-org) ".md") (concat (file-name-sans-extension output-file) ".md") t))
     (find-file (concat (file-name-directory output-file) "stylesheet.css"))
     (opeteceu--delete-current-file t)
+    (setq opeteceu--index-entries-exist-in-text-p nil)
+    (setq opeteceu--headfont nil)
+    (setq opeteceu--signaturefont nil)
+    (setq opeteceu--title-page-graphic nil)
+    (setq opeteceu--title-page-graphic-scale nil)
+    (setq opeteceu--title-page-graphic-copyright nil)
+    (setq opeteceu--title-page-graphic-license nil)
+    (setq opeteceu--title-page-replacement-graphic nil)
+    (setq opeteceu--title-page-replacement-graphic-scale nil)
+    (setq opeteceu--publisher nil)
+    (setq opeteceu--isbn nil)
+    (setq opeteceu--edition nil)
+    (setq opeteceu--license nil)
+    (setq opeteceu--sigil-graphic nil)
+    (setq opeteceu--sigil-graphic-scale nil)
     (when (boundp 'undo-tree-auto-save-history)
       (setq undo-tree-auto-save-history undo-tree-auto-save-history-orig))))
 
