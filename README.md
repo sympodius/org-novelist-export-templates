@@ -12,6 +12,9 @@
 ### Table of Contents
 - [Introduction](#introduction)
 - [Template Descriptions](#template-descriptions)
+  - [Basic](#basic)
+  - [Cubes](#cubes)
+  - [Manuscript](#manuscript)
 
 
 # Introduction
