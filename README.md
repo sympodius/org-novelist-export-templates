@@ -29,7 +29,7 @@ The templates in this folder demonstrate simple wrapper templates for Org Mode's
 
 + **org-latex-export-to-pdf** - Export Org file to PDF via [LaTeX](https://www.latex-project.org/)
 + **org-odt-export-to-odt** - Export Org file to [ODT](https://en.wikipedia.org/wiki/OpenDocument)
-+ **org-org-export-to-org** - Export Org file to [Org}(https://orgmode.org/) (removing export directives for other systems)
++ **org-org-export-to-org** - Export Org file to [Org](https://orgmode.org/) (removing export directives for other systems)
 
 ## Cubes
 These are the 'flagship' templates for Org Novelist, containing a high degree of customisation, and the most polished output for publishing your final novel.
