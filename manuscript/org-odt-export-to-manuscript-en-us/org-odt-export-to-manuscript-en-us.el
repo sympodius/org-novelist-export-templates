@@ -102,6 +102,30 @@
 ;;
 ;; :part:
 ;; Treat heading as a "Part" of the story (the level above chapter).
+;;
+;;
+;; The following optional configuration overrides are supported and can
+;; be applied using the org-novelist-config.org file of the story:
+;;
+;; #+TITLE:
+;; The title of the book.
+;; eg: Book Title
+;;
+;; #+SUBTITLE:
+;; The secondary title of the book.
+;; eg: Book Subtitle
+;;
+;; #+AUTHOR:
+;; The author of the book.
+;; eg: Book Author
+;;
+;; #+EMAIL:
+;; The email address of the book author.
+;; eg: mail@author-email.org
+;;
+;; #+DATE:
+;; The publication date of the book as an inactive Org timestamp.
+;; eg: [2013-02-08 Fri 09:29]
 
 ;;; Code:
 
@@ -323,9 +347,9 @@ Return string of new file contents."
         (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
-	       (if part
-		   (setq curr-level "1")
-		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
+               (if part
+                   (setq curr-level "1")
+                 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (when (or no-header no-header-name)
@@ -356,9 +380,9 @@ Return string of new file contents."
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
-	       (if part
-		   (setq curr-level "1")
-		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
+               (if part
+                   (setq curr-level "1")
+                 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
@@ -401,9 +425,9 @@ Return string of new file contents."
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
-	       (if part
-		   (setq curr-level "1")
-		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
+               (if part
+                   (setq curr-level "1")
+                 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (when (or no-header no-header-name)
@@ -432,9 +456,9 @@ Return string of new file contents."
               (t
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
-	       (if part
-		   (setq curr-level "1")
-		 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
+               (if part
+                   (setq curr-level "1")
+                 (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
