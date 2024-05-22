@@ -2,9 +2,13 @@
 
 # Org Novelist Export Templates :: Cubes
 
-![Cubes ePub Cover](ePub-cover.png)![Cubes PDF Cover](PDF-cover.png)![Cubes ePub Legal Page](ePub-legal.png)![Cubes PDF Legal Page](PDF-legal.png)![Cubes ePub Style](ePub-style.png)![Cubes PDF Style](PDF-style.png)
-
 </div>
+
+| Page    | ePub                                     | PDF                                    |
+|---------|------------------------------------------|----------------------------------------|
+| Cover   | ![Cubes ePub Cover](ePub-cover.png)      | ![Cubes PDF Cover](PDF-cover.png)      |
+| Legal   | ![Cubes ePub Legal Page](ePub-legal.png) | ![Cubes PDF Legal Page](PDF-legal.png) |
+| General | ![Cubes ePub Style](ePub-style.png)      | ![Cubes PDF Style](PDF-style.png)      |
 
 
 # Introduction
@@ -64,13 +68,17 @@ The :part: tag marks an empty chapter as a new 'Part' in the novel. While Org No
 
 ![Header Diagram](Headers.png)
 
-![Normal Pagestyle](PDF-normal-pagestyle.png)![Plain Pagestyle](PDF-plain-pagestyle.png)
+| Normal Pagestyle                              | Plain Pagestyle                             |
+|-----------------------------------------------|---------------------------------------------|
+| ![Normal Pagestyle](PDF-normal-pagestyle.png) | ![Plain Pagestyle](PDF-plain-pagestyle.png) |
 
 
 # Index Generators
 Both the Cubes ePub and PDF Export Templates have support for Org Novelist's Index generator system. The PDF version will use accurate page numbers and links according to those displayed within the text. The ePub version, however, will use virtual page numbers to give an indication of where and how often index items appear within a novel. This also means that the page numbers given in the ePub and PDF versions of the index will likely not match each other exactly.
 
-![ePub Index](ePub-index.png)![PDF Index](PDF-index.png)
+| ePub Index                    | PDF Index                   |
+|-------------------------------|-----------------------------|
+| ![ePub Index](ePub-index.png) | ![PDF Index](PDF-index.png) |
 
 
 # Configuration Overrides
