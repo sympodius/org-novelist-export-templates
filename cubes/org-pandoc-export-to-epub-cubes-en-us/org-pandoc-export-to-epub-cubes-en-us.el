@@ -209,13 +209,13 @@
 (defvar opeteceu--title-page-graphic-copyright-default "*Cube Family* is copyright &copy; 2012 Martin Anderson (2012--?)\\\nMade with Blender 3D --- <code><https://www.blender.org></code>" "Copyright credit for title page image.")
 (defvar opeteceu--title-page-graphic-license-default "Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. To view a copy of this license, visit: <div class=\"center-legal\"><code><https://creativecommons.org/licenses/by-nc-sa/4.0/></code></div> Or, send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA." "Title page image license statement.")
 (defvar opeteceu--title-page-replacement-graphic-default nil "Location of image file to use as a replacement for the generated title page.")
-(defvar opeteceu--title-page-replacement-graphic-scale-default nil "Display scale of the title page replacement image.")
+(defvar opeteceu--title-page-replacement-graphic-scale-default 1.000 "Display scale of the title page replacement image.")
 (defvar opeteceu--publisher-default "" "The publisher of the story.")
 (defvar opeteceu--isbn-default "" "ISBN number of book, if there is one.")
 (defvar opeteceu--edition-default "Early Draft Edition (not for publication)" "Text describing this edition.")
 (defvar opeteceu--license-default "All rights reserved." "License statement.")
 (defvar opeteceu--sigil-graphic-default "" "Location of image file to use as sigil in legal page.")
-(defvar opeteceu--sigil-graphic-scale-default nil "Display scale of the sigil image.")
+(defvar opeteceu--sigil-graphic-scale-default 1.000 "Display scale of the sigil image.")
 
 
 ;;;; Global Variables
