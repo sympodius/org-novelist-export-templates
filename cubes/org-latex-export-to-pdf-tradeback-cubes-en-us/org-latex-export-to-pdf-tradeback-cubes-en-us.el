@@ -59,8 +59,7 @@
 ;;   https://johnurquhartferguson.info
 ;;
 ;; This package requires LaTeX to be installed and accessible on the
-;; the system (and XeLaTeX specifically if generating a booklet
-;; suitable for bookbinding).
+;; the system (XeLaTeX, to be specific).
 ;;
 ;;
 ;; You should also have the following typefaces installed and
@@ -124,7 +123,8 @@
 ;; :plain_pagestyle:
 ;; Display page numbers, centered in the page footer. Do not display
 ;; any page headers (the chapter name will not be shown at the top of
-;; each page).
+;; each page). Line gap between paragraphs, but no indent on first
+;; line.
 ;;
 ;; :part:
 ;; Treat heading as a "Part" of the story (the level above chapter).
@@ -132,6 +132,26 @@
 ;;
 ;; The following optional configuration overrides are supported and can
 ;; be applied using the org-novelist-config.org file of the story:
+;;
+;; #+TITLE:
+;; The title of the book.
+;; eg: Book Title
+;;
+;; #+SUBTITLE:
+;; The secondary title of the book.
+;; eg: Book Subtitle
+;;
+;; #+AUTHOR:
+;; The author of the book.
+;; eg: Book Author
+;;
+;; #+EMAIL:
+;; The email address of the book author.
+;; eg: mail@author-email.org
+;;
+;; #+DATE:
+;; The publication date of the book as an inactive Org timestamp.
+;; eg: [2013-02-08 Fri 09:29]
 ;;
 ;; #+TYPEFACE_SIZE:
 ;; The size of the main text (fraction of normal) for the document.
