@@ -4,11 +4,11 @@
 
 </div>
 
-| Page    | ePub                                     | PDF                                    |
-|---------|------------------------------------------|----------------------------------------|
-| Cover   | ![Cubes ePub Cover](ePub-cover.png)      | ![Cubes PDF Cover](PDF-cover.png)      |
-| Legal   | ![Cubes ePub Legal Page](ePub-legal.png) | ![Cubes PDF Legal Page](PDF-legal.png) |
-| General | ![Cubes ePub Style](ePub-style.png)      | ![Cubes PDF Style](PDF-style.png)      |
+| Page Type | ePub                                     | PDF                                    |
+|-----------|------------------------------------------|----------------------------------------|
+| Cover     | ![Cubes ePub Cover](ePub-cover.png)      | ![Cubes PDF Cover](PDF-cover.png)      |
+| Legal     | ![Cubes ePub Legal Page](ePub-legal.png) | ![Cubes PDF Legal Page](PDF-legal.png) |
+| General   | ![Cubes ePub Style](ePub-style.png)      | ![Cubes PDF Style](PDF-style.png)      |
 
 
 # Introduction
@@ -82,7 +82,7 @@ Both the Cubes ePub and PDF Export Templates have support for Org Novelist's Ind
 
 
 # Configuration Overrides
-You can override features of the Cubes Export Templates by adding file properties to your novel's `org-novelist-config.org` file. This works the same way as overriding the novel's author, etc.
+You can override features of the Cubes Export Templates by adding file properties to your novel's `org-novelist-config.org` file. Org Novelist's main documentation demonstrated this by showing how to override the novel's author, etc.
 
 The accepted configuration properties are listed here. Some will only affect the Cubes PDF Export Template, and some will only affect the Cubes ePub Export Template. Others will work for both. When an Export Template does not support a given property, it will ignore it.
 
