@@ -397,22 +397,18 @@
 (defun oletptceu--fold-show-all ()
   "Run the deprecated `org-show-all' when Org version is less than 9.6.
 Otherwise, run `org-fold-show-all'."
-  (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-          (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-               (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
-      (org-fold-show-all)
-    (org-show-all)))
+  (if (string-version-lessp (org-version) "9.6")
+      (org-show-all)
+    (org-fold-show-all)))
 
 (defun oletptceu--format-time-string (format-string &optional time-zone)
   "Run the deprecated `org-format-time-string' when Org version is less than 9.6.
 Otherwise, run `format-time-string'.
 FORMAT-STRING is the output format.
 TIME-ZONE is the given time. If omitted or nil, use local time."
-  (if (or (> (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-          (and (= (string-to-number (nth 0 (split-string (org-version) "\\."))) 9)
-               (>= (string-to-number (nth 1 (split-string (org-version) "\\."))) 6)))
-      (format-time-string format-string time-zone)
-    (org-format-time-string format-string time-zone)))
+  (if (string-version-lessp (org-version) "9.6")
+      (org-format-time-string format-string time-zone)
+    (format-time-string format-string time-zone)))
 
 (defun oletptceu--delete-line ()
   "If Emacs version is less than 29, delete line the old fashioned way."
