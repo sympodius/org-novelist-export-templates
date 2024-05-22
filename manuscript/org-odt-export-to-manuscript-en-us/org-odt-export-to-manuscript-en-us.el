@@ -553,9 +553,9 @@ Return string of new file contents."
   "Given a string FILE-CONTENTS, remap the Org mode internal links correctly.
 This is necessary when original Org headings have been replaced by ODT code.
 Return string of new file contents."
-  (let ((out-str "")
+  (let ((out-str file-contents)
         (case-fold-search t)
-        beg
+        (beg nil)
         link-val
         link-text
         (blind-link-num 0))
@@ -565,6 +565,8 @@ Return string of new file contents."
       (ooetmeu--fold-show-all)
       (goto-char (point-min))
       (while (re-search-forward "\\[\\[[^:/\.\n\r]+?]]" nil t)
+        (unless beg
+          (setq out-str ""))
         (setq link-text nil)
         (setq beg (point))
         (when (re-search-backward "\\[\\[" nil t)
