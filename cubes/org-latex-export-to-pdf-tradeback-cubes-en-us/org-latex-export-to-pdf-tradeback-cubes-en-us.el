@@ -613,7 +613,7 @@ Any relative file names will be relative to OUTPUT-FILE."
                                              (expand-file-name
                                               (file-name-directory
                                                (symbol-file 'org-latex-export-to-pdf-tradeback-cubes-en-us--fold-show-all)))))
-      (setq oletptceu--title-page-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
+      (setq oletptceu--title-page-graphic (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))))
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_GRAPHIC_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-graphic-scale oletptceu--title-page-graphic-scale-default)
@@ -645,7 +645,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-replacement-graphic oletptceu--title-page-replacement-graphic-default)
-      (setq oletptceu--title-page-replacement-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
+      (setq oletptceu--title-page-replacement-graphic (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))))
     (setq prop-val (oletptceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OLETPTCEU_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--title-page-replacement-graphic-scale oletptceu--title-page-replacement-graphic-scale-default)
@@ -685,7 +685,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (oletptceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--sigil-graphic oletptceu--sigil-graphic-default)
-      (setq oletptceu--sigil-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
+      (setq oletptceu--sigil-graphic (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))))
     (setq prop-val (oletptceu--get-file-property-value "SIGIL_GRAPHIC_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq oletptceu--sigil-graphic-scale oletptceu--sigil-graphic-scale-default)

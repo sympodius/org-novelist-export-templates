@@ -440,7 +440,7 @@ Any relative file names will be relative to OUTPUT-FILE."
                                             (expand-file-name
                                              (file-name-directory
                                               (symbol-file 'org-pandoc-export-to-epub-cubes-en-us--fold-show-all)))))
-      (setq opeteceu--title-page-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
+      (setq opeteceu--title-page-graphic (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))))
     (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_GRAPHIC_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-graphic-scale opeteceu--title-page-graphic-scale-default)
@@ -480,7 +480,7 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-replacement-graphic opeteceu--title-page-replacement-graphic-default)
-      (setq opeteceu--title-page-replacement-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))))
+      (setq opeteceu--title-page-replacement-graphic (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))))
     (setq prop-val (opeteceu--get-file-property-value "TITLE_PAGE_REPLACEMENT_GRAPHIC_OPETECEU_SCALE" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--title-page-replacement-graphic-scale opeteceu--title-page-replacement-graphic-scale-default)
@@ -536,13 +536,13 @@ Any relative file names will be relative to OUTPUT-FILE."
     (setq prop-val (opeteceu--get-file-property-value "SIGIL_GRAPHIC" org-input-file))
     (if (string= "" prop-val)
         (setq opeteceu--sigil-graphic opeteceu--sigil-graphic-default)
-      (if (string= (file-name-extension (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))) "png")
-          (setq opeteceu--sigil-graphic (expand-file-name prop-val (expand-file-name (file-name-directory output-file))))
+      (if (string= (file-name-extension (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))) "png")
+          (setq opeteceu--sigil-graphic (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file))))
         (when (and (executable-find "convert") (file-readable-p prop-val))
           (let ((resize-args ""))
             (setq resize-args " -density 600 -quality 10 ")
-            (shell-command (concat "convert " resize-args "\"" (expand-file-name prop-val (expand-file-name (file-name-directory output-file))) "\" \"" (expand-file-name (file-name-directory output-file)) (file-name-base (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))) ".png\""))
-            (setq opeteceu--sigil-graphic (expand-file-name (concat (expand-file-name (file-name-directory output-file)) (file-name-base (expand-file-name prop-val (expand-file-name (file-name-directory output-file)))) ".png")))))))))
+            (shell-command (concat "convert " resize-args "\"" (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file))) "\" \"" (expand-file-name (file-name-directory org-input-file)) (file-name-base (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))) ".png\""))
+            (setq opeteceu--sigil-graphic (expand-file-name (concat (expand-file-name (file-name-directory org-input-file)) (file-name-base (expand-file-name prop-val (expand-file-name (file-name-directory org-input-file)))) ".png")))))))))
 
 (defun opeteceu--generate-css-style-string ()
   "Generate the stylesheet using ORG-INPUT-FILE."
