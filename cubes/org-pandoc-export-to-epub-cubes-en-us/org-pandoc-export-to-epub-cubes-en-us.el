@@ -114,6 +114,26 @@
 ;; The following optional configuration overrides are supported and can
 ;; be applied using the org-novelist-config.org file of the story:
 ;;
+;; #+TITLE:
+;; The title of the book.
+;; eg: Book Title
+;;
+;; #+SUBTITLE:
+;; The secondary title of the book.
+;; eg: Book Subtitle
+;;
+;; #+AUTHOR:
+;; The author of the book.
+;; eg: Book Author
+;;
+;; #+EMAIL:
+;; The email address of the book author.
+;; eg: mail@author-email.org
+;;
+;; #+DATE:
+;; The publication date of the book as an inactive Org timestamp.
+;; eg: [2013-02-08 Fri 09:29]
+;;
 ;; #+HEADFONT:
 ;; The typeface to use as the headings font.
 ;; Must be installed on the system.
