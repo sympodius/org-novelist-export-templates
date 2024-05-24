@@ -35,7 +35,9 @@
 ;; accessed while writing the main text of a story. Org Novelist's
 ;; secondary function is the ability to use this known structure to
 ;; easily export and publish stories to other formats. This package
-;; supplies an example export to the standard Org mode PDF format.
+;; supplies an example export to the standard Org mode clean Org
+;; format (removing export directives for other systems, plus other
+;; light processing).
 ;;
 ;; Creating, linking, and laying out files in the Org Novelist
 ;; methodology can be done without the use of Emacs or the Org Novelist
