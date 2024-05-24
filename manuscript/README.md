@@ -29,7 +29,7 @@ While the Org Novelist export system is built on top of [Org mode's](https://org
 
 | Template                               | Required Programs                                      |
 |----------------------------------------|--------------------------------------------------------|
-| **org-odt-export-to-manuscript-en-us** | [zip](https://en.wikipedia.org/wiki/ZIP_(file_format)) |
+| **org-odt-export-to-manuscript-en-us** | [zip](https://en.wikipedia.org/wiki/Info-ZIP) |
 
 The Manuscript Export Template requires the following typefaces to be installed:
 
