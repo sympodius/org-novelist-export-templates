@@ -9,7 +9,3 @@
 
 # Undo-tree save-files
 *.~undo-tree
-
-# Specific files
-juf-sigil.pdf
-juf-sigil.png
