@@ -9,6 +9,13 @@
 | ![Manuscript ODT Cover](ODT-Cover.png) | ![Manuscript ODT Style](ODT-style.png) |
 
 
+### Table of Contents
+- [Introduction](#introduction)
+- [Required Programs and Typefaces](#required-programs-and-typefaces)
+- [Chapter Tags](#chapter-tags)
+- [Configuration Overrides](#configuration-overrides)
+
+
 # Introduction
 Manuscript templates are intended to create an industry '[standard manuscript format](https://en.wikipedia.org/wiki/Standard_manuscript_format)' file for submitting to editors, agents, and publishers.
 

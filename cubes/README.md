@@ -11,6 +11,14 @@
 | General   | ![Cubes ePub Style](ePub-style.png)      | ![Cubes PDF Style](PDF-style.png)      |
 
 
+### Table of Contents
+- [Introduction](#introduction)
+- [Required Programs and Typefaces](#required-programs-and-typefaces)
+- [Chapter Tags](#chapter-tags)
+- [Index Generators](#index-generators)
+- [Configuration Overrides](#configuration-overrides)
+
+
 # Introduction
 These are the 'flagship' templates for the [Org Novelist](https://github.com/sympodius/org-novelist/) writing system, containing a high degree of customisation, and the most polished output for publishing your final novel. I call this look 'Cubes' because the templates automatically generate a cover featuring cubes. Both Cubes Export Templates (PDF and ePub) will produce output files that match each other stylistically. These templates can also produce PDF files suitable for home bookbinders, as well as [Kindle](https://en.wikipedia.org/wiki/Amazon_Kindle) compatible files. The base PDF and ePub files should be suitable for print-on-demand 'US Tradeback' style physical books, or digitally publishing to most eReaders.
 
