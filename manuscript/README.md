@@ -69,7 +69,7 @@ However, the Manuscript Export Templates also support overriding some of these d
 
 
 # Configuration Overrides
-You can override features of the Manuscript Export Templates by adding file properties to your novel's `org-novelist-config.org` file. Org Novelist's main documentation demonstrated this by showing how to override the novel's author, etc.
+You can override features of the Manuscript Export Templates by adding file properties to your novel's `org-novelist-config.org` file. Org Novelist's main documentation demonstrated this by showing [how to override the novel's author](https://github.com/sympodius/org-novelist#exporting), etc.
 
 The accepted configuration properties are listed here:
 
