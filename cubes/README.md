@@ -48,7 +48,7 @@ The Cubes Export Templates will try to match Front Matter, Main Matter, and Back
 
 For Front Matter, this means that chapters will not have "Chapter X" in the title, but will have the chapter name. If the file format supports printed page numbers, it will try to use a separate page numbering system for this section. Whenever possible, Front Matter chapters will appear before the table of contents and will use a plain pagestyle.
 
-For Main Matter, chapter titles will include both the chapter name, and "Chapter X." Main Matter chapters will use the main page count for the book if the file format supports printed page numbers, and will be printed after the table of contents. These chapters will use a headings pagestyle.
+For Main Matter, chapter titles will include both the chapter name, and "Chapter X." Main Matter chapters will use the main page count for the book if the file format supports printed page numbers, and will be printed after the table of contents. These chapters will use a *headings*/*normal* pagestyle.
 
 For Back Matter, chapters will not have "Chapter X" in the title, but will have the chapter name. When the file format supports printed page numbers, the main page count for the book will be used. Back Matter chapters are always printed after the end of the Main Matter chapters, and will use a plain pagestyle.
 
