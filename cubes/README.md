@@ -62,17 +62,17 @@ These defaults are summarised in this table:
 
 However, the Cubes Export Templates also support overriding some of these defaults by adding [Org mode tags](https://orgmode.org/manual/Tags.html) to the chapter headings in your novel's Chapter Index file. The following table shows the supported tags, and their effects on the Cubes Export Templates (when not supported by a template, the template will ignore the tag):
 
-| Tag                    | Effect                                                                                                                                                                                         | Export Templates Supported |
-|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
-| :no\_header:           | Do not include any sort of header at the start of the chapter.                                                                                                                                 | PDF, ePub                  |
-| :no\_header\_name:     | Do not include the chapter name at the start of the chapter. The text "Chapter X" will still be shown if Chapter is part of the Main Matter.                                                   | PDF, ePub                  |
-| :no\_header\_preamble: | Do not include the text "Chapter X" at the start of the chapter. The chapter name will still be shown. Chapter will still be used to calculate the numbering of other main matter chapters.    | PDF, ePub                  |
-| :no\_toc\_entry:       | Do not include chapter in the table of contents. Chapter will have no "Chapter X" text, and will not be used to calculate the numbering of main matter chapters.                               | PDF, ePub                  |
-| :empty\_pagestyle:     | Do not display page footers or page headers. In practical terms, this means no page numbers will be dispayed for this chapter, and the chapter name will not be shown at the top of each page. | PDF                        |
-| :plain\_pagestyle:     | Display page numbers, centered in the page footer. Do not display any page headers (the chapter name will not be shown at the top of each page). Line gap between paragraphs, but no indent on first line.                                              | PDF                        |
-| :part:                 | Treat heading as a "Part" of the story (the level above chapter).                                                                                                                              | PDF, ePub                  |
+| Tag                    | Effect                                                                                                                                                                                                     | Export Templates Supported |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| :no\_header:           | Do not include any sort of header at the start of the chapter.                                                                                                                                             | PDF, ePub                  |
+| :no\_header\_name:     | Do not include the chapter name at the start of the chapter. The text "Chapter X" will still be shown if Chapter is part of the Main Matter.                                                               | PDF, ePub                  |
+| :no\_header\_preamble: | Do not include the text "Chapter X" at the start of the chapter. The chapter name will still be shown. Chapter will still be used to calculate the numbering of other main matter chapters.                | PDF, ePub                  |
+| :no\_toc\_entry:       | Do not include chapter in the table of contents. Chapter will have no "Chapter X" text, and will not be used to calculate the numbering of main matter chapters.                                           | PDF, ePub                  |
+| :empty\_pagestyle:     | Do not display page footers or page headers. In practical terms, this means no page numbers will be dispayed for this chapter, and the chapter name will not be shown at the top of each page.             | PDF                        |
+| :plain\_pagestyle:     | Display page numbers, centered in the page footer. Do not display any page headers (the chapter name will not be shown at the top of each page). Line gap between paragraphs, but no indent on first line. | PDF                        |
+| :part:                 | Treat heading as a "Part" of the story (the level above chapter).*                                                                                                                                         | PDF, ePub                  |
 
-The :part: tag marks an empty chapter as a new 'Part' in the novel. While Org Novelist won't stop you from also including text within such a chapter, it is not the intended use and the formatting in the Cubes Export Templates assumes that a 'Part' chapter will be empty of content text. It will try to do the right thing if you include content, but the results may not be satisfactory.
+*The :part: tag marks an empty chapter as a new 'Part' in the novel. While Org Novelist won't stop you from also including text within such a chapter, it is not the intended use and the formatting in the Cubes Export Templates assumes that a 'Part' chapter will be empty of content text. It will try to do the right thing if you include content, but the results may not be satisfactory.
 
 ![Header Diagram](Headers.png)
 
@@ -90,7 +90,7 @@ Both the Cubes ePub and PDF Export Templates have support for Org Novelist's Ind
 
 
 # Configuration Overrides
-You can override features of the Cubes Export Templates by adding file properties to your novel's `org-novelist-config.org` file. Org Novelist's main documentation demonstrated this by showing how to override the novel's author, etc.
+You can override features of the Cubes Export Templates by adding file properties to your novel's `org-novelist-config.org` file. Org Novelist's main documentation demonstrated this by showing [how to override the novel's author](https://github.com/sympodius/org-novelist#exporting), etc.
 
 The accepted configuration properties are listed here. Some will only affect the Cubes PDF Export Template, and some will only affect the Cubes ePub Export Template. Others will work for both. When an Export Template does not support a given property, it will ignore it.
 
