@@ -63,9 +63,9 @@ However, the Manuscript Export Templates also support overriding some of these d
 | :no\_header\_name:     | Do not include the chapter name at the start of the chapter. The text "Chapter X" will still be shown if Chapter is part of the Main Matter.                                                |
 | :no\_header\_preamble: | Do not include the text "Chapter X" at the start of the chapter. The chapter name will still be shown. Chapter will still be used to calculate the numbering of other main matter chapters. |
 | :no\_toc\_entry:       | Chapter will have no "Chapter X" text, and will not be used to calculate the numbering of main matter chapters. However, if user actively generates a table of contents in post, then this chapter will likely still be included.                            |
-| :part:                 | Treat heading as a "Part" of the story (the level above chapter).                                                                                                                           |
+| :part:                 | Treat heading as a "Part" of the story (the level above chapter).*                                                                                                                           |
 
-The :part: tag marks an empty chapter as a new 'Part' in the novel. While Org Novelist won't stop you from also including text within such a chapter, it is not the intended use and the formatting in the Manuscript Export Templates assumes that a 'Part' chapter will be empty of content text. It will try to do the right thing if you include content, but the results may not be satisfactory.
+*The :part: tag marks an empty chapter as a new 'Part' in the novel. While Org Novelist won't stop you from also including text within such a chapter, it is not the intended use and the formatting in the Manuscript Export Templates assumes that a 'Part' chapter will be empty of content text. It will try to do the right thing if you include content, but the results may not be satisfactory.
 
 
 # Configuration Overrides
