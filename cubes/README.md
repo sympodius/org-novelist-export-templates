@@ -82,7 +82,7 @@ However, the Cubes Export Templates also support overriding some of these defaul
 
 
 # Index Generators
-Both the Cubes ePub and PDF Export Templates have support for Org Novelist's Index generator system. The PDF version will use accurate page numbers and links according to those displayed within the text. The ePub version, however, will use virtual page numbers to give an indication of where and how often index items appear within a novel. This also means that the page numbers given in the ePub and PDF versions of the index will likely not match each other exactly.
+Both the Cubes ePub and PDF Export Templates have support for Org Novelist's index generator system. The PDF version will use accurate page numbers and links according to those displayed within the text. The ePub version, however, will use virtual page numbers to give an indication of where and how often index items appear within a novel. This also means that the page numbers given in the ePub and PDF versions of the index will likely not match each other exactly.
 
 | ePub Index                    | PDF Index                   |
 |-------------------------------|-----------------------------|
