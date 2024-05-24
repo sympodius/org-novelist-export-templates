@@ -46,18 +46,18 @@ As for typefaces, the Cubes ePub Export Template uses your eReader's standard fo
 # Chapter Tags
 The Cubes Export Templates will try to match Front Matter, Main Matter, and Back Matter styles across all generated file types. 
 
-For Front Matter, this means that chapters will not have "Chapter X" in the title, but will have the chapter name. If the file format supports printed page numbers, it will try to use a separate page numbering system for this section. Whenever possible, Front Matter chapters will appear before the table of contents and will use a plain pagestyle.
+For Front Matter, this means that chapters will not have "Chapter X" in the title, but will have the chapter name. If the file format supports printed page numbers, it will try to use a separate page numbering system for this section. Whenever possible, Front Matter chapters will appear before the table of contents and will use a *plain* pagestyle.
 
 For Main Matter, chapter titles will include both the chapter name, and "Chapter X." Main Matter chapters will use the main page count for the book if the file format supports printed page numbers, and will be printed after the table of contents. These chapters will use a *headings*/*normal* pagestyle.
 
-For Back Matter, chapters will not have "Chapter X" in the title, but will have the chapter name. When the file format supports printed page numbers, the main page count for the book will be used. Back Matter chapters are always printed after the end of the Main Matter chapters, and will use a plain pagestyle.
+For Back Matter, chapters will not have "Chapter X" in the title, but will have the chapter name. When the file format supports printed page numbers, the main page count for the book will be used. Back Matter chapters are always printed after the end of the Main Matter chapters, and will use a *plain* pagestyle.
 
 These defaults are summarised in this table:
 
 | Matter Type  | "Chapter X" Shown? | Chapter Name Shown? | Main Page Count Used? | Printed Before Table of Contents?     | Pagestyle? |
 |--------------|--------------------|---------------------|-----------------------|---------------------------------------|------------|
 | Front Matter | No                 | Yes                 | No                    | Yes                                   | Plain      |
-| Main Matter  | Yes                | Yes                 | Yes                   | No                                    | Headings   |
+| Main Matter  | Yes                | Yes                 | Yes                   | No                                    | Headings/Normal   |
 | Back Matter  | No                 | Yes                 | Yes                   | No (always printed after Main Matter) | Plain      |
 
 However, the Cubes Export Templates also support overriding some of these defaults by adding [Org mode tags](https://orgmode.org/manual/Tags.html) to the chapter headings in your novel's Chapter Index file. The following table shows the supported tags, and their effects on the Cubes Export Templates (when not supported by a template, the template will ignore the tag):
