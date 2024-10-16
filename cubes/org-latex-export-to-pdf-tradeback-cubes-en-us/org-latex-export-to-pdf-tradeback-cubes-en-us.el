@@ -755,7 +755,7 @@ Return string of new file contents."
                     ;; Don't match Document or Section properties.
                     (unless (or (looking-at-p "^[ \t]*#\\+") (looking-at-p "^[ \t]*:+?[^\s]+?:+?"))
                       (goto-char pos)
-                      ;; The next few lines deal with a minor issue with Org markup not liking an embeded LaTeX code right after certain markup symbols (causing Org to ignore those symbols).
+                      ;; The next few lines deal with a minor issue with Org markup not liking an embedded LaTeX code right after certain markup symbols (causing Org to ignore those symbols).
                       (forward-char -1)
                       (if (or (looking-at-p "*") (looking-at-p"/") (looking-at-p "_") (looking-at-p "=") (looking-at-p "~") (looking-at-p "+"))
                           (forward-char 2)
