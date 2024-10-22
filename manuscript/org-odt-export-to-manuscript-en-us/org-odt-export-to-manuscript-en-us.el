@@ -144,6 +144,20 @@ Otherwise, run `org-fold-show-all'."
       (org-show-all)
     (org-fold-show-all)))
 
+(defun ooetmeu--move-to-next-visible-heading ()
+  "Move to start of next visible heading line.
+Return buffer position of heading line if found, and nil otherwise."
+  (let ((regexp (concat "^" (org-get-limited-outline-regexp))))
+    (end-of-line)
+    (if (re-search-forward regexp nil t 1)
+	(progn
+	  (beginning-of-line)
+	  (point))
+      (progn
+	(goto-char (point-max))
+	(beginning-of-line)
+	nil))))
+
 (defun ooetmeu--delete-line ()
   "If Emacs version is less than 29, delete line the old fashioned way."
   (let ((inhibit-field-text-motion t))
@@ -324,7 +338,7 @@ Return string of new file contents."
       (goto-char (point-min))
       (insert "Temp Line\n")
       (goto-char (point-min))
-      (while (not (org-next-visible-heading 1))
+      (while (ooetmeu--move-to-next-visible-heading)
         ;; If tags "no_header" was used in Chapter Index headings, then act appropriately with formatting.
         (when (nth 5 (org-heading-components))
           (when (member "no_header" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))

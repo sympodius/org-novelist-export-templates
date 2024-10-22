@@ -299,6 +299,20 @@ Otherwise, run `org-fold-show-all'."
       (org-show-all)
     (org-fold-show-all)))
 
+(defun opeteceu--move-to-next-visible-heading ()
+  "Move to start of next visible heading line.
+Return buffer position of heading line if found, and nil otherwise."
+  (let ((regexp (concat "^" (org-get-limited-outline-regexp))))
+    (end-of-line)
+    (if (re-search-forward regexp nil t 1)
+	(progn
+	  (beginning-of-line)
+	  (point))
+      (progn
+	(goto-char (point-max))
+	(beginning-of-line)
+	nil))))
+
 (defun opeteceu--format-time-string (format-string &optional time-zone)
   "Run the deprecated `org-format-time-string' when Org version is less than 9.6.
 Otherwise, run `format-time-string'.
@@ -639,14 +653,14 @@ etc aren't included in the index."
                 (word-count 0))
             (when (> (length (split-string curr-term "!" t " ")) 1)
               (setq curr-term (car (last (split-string curr-term "!" t " ")))))
-            (while (not (org-next-visible-heading 1))
+            (while (opeteceu--move-to-next-visible-heading)
               ;; Don't include glossary entries in the index (keep in mind that this template is intended for en-US language).
               (unless (string= (downcase (nth 4 (org-heading-components))) "glossary")
                 ;; Don't include heading appearances of term in the index.
                 (forward-line)
                 (beginning-of-line)
                 (setq pos (point))
-                (if (not (org-next-visible-heading 1))
+                (if (opeteceu--move-to-next-visible-heading)
                     (progn
                       ;; Don't include heading appearances of term in the index.
                       (beginning-of-line)
@@ -1109,7 +1123,7 @@ Return string of new file contents."
       (goto-char (point-min))
       (insert "Temp Line\n")
       (goto-char (point-min))
-      (while (not (org-next-visible-heading 1))
+      (while (opeteceu--move-to-next-visible-heading)
         ;; If tags "no_header" or "no-pagestyle" were used in Chapter Index headings, then act appropriately with formatting.
         (when (nth 5 (org-heading-components))
           (when (member "no_header" (split-string (downcase (nth 5 (org-heading-components))) ":" t ":"))
