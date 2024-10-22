@@ -357,6 +357,7 @@ Return string of new file contents."
             (setq curr-cust-id nil)))
         ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
         (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
+	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -367,10 +368,6 @@ Return string of new file contents."
                (when (or no-header no-header-name)
                  (setq curr-heading ""))
                (beginning-of-line)
-               (ooetmeu--delete-line)
-               (setq beg (point))
-               (re-search-forward ":END:" nil t)
-               (delete-region beg (point))
                (ooetmeu--delete-line)
                (when no-toc-entry
                  (setq no-header-preamble t))
@@ -390,6 +387,7 @@ Return string of new file contents."
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
+	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -398,10 +396,6 @@ Return string of new file contents."
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
                (beginning-of-line)
-               (ooetmeu--delete-line)
-               (setq beg (point))
-               (re-search-forward ":END:" nil t)
-               (delete-region beg (point))
                (ooetmeu--delete-line)
                (when no-toc-entry
                  (setq no-header-preamble t))
@@ -435,6 +429,7 @@ Return string of new file contents."
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
+	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -445,10 +440,6 @@ Return string of new file contents."
                (when (or no-header no-header-name)
                  (setq curr-heading ""))
                (beginning-of-line)
-               (ooetmeu--delete-line)
-               (setq beg (point))
-               (re-search-forward ":END:" nil t)
-               (delete-region beg (point))
                (ooetmeu--delete-line)
                (when no-toc-entry
                  (setq no-header-preamble t))
@@ -466,6 +457,7 @@ Return string of new file contents."
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               (t
+	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
