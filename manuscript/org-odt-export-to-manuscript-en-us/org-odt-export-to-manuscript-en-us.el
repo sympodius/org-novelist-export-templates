@@ -286,6 +286,7 @@ Return string of new file contents."
         (chap-num 0)
         (part-num 0)
         curr-cust-id
+	curr-def-id
         (no-header nil)
         (no-header-name nil)
         (no-header-preamble nil)
@@ -365,6 +366,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (when (or no-header no-header-name)
                  (setq curr-heading ""))
                (beginning-of-line)
@@ -379,11 +381,11 @@ Return string of new file contents."
                          "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
                          "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
-                         "<text:bookmark text:name=\"" curr-heading "\"/>"))
+                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-def-id "\"/>\n"
+                         "<text:bookmark text:name=\"" curr-def-id "\"/>"))
                (insert curr-heading "\n")
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                 (insert "<text:bookmark-end text:name=\"OrgXref." curr-def-id "\"/>"))
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
@@ -395,6 +397,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (beginning-of-line)
                (ooetmeu--delete-line)
                (when no-toc-entry
@@ -411,8 +414,8 @@ Return string of new file contents."
                          "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
                          "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
-                         "<text:bookmark text:name=\"" curr-heading "\"/>"))
+                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-def-id "\"/>\n"
+                         "<text:bookmark text:name=\"" curr-def-id "\"/>"))
                (unless no-header-preamble
                  (if part
                      (setq curr-heading-construct (concat "Part " (number-to-string part-num)))
@@ -425,7 +428,7 @@ Return string of new file contents."
                  (setq curr-heading-construct ""))
                (insert curr-heading-construct "\n")
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                 (insert "<text:bookmark-end text:name=\"OrgXref." curr-def-id "\"/>"))
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
@@ -437,6 +440,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (when (or no-header no-header-name)
                  (setq curr-heading ""))
                (beginning-of-line)
@@ -451,9 +455,9 @@ Return string of new file contents."
                          "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
                          "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
                (unless (string= curr-heading "")
-                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
-                         "<text:bookmark text:name=\"" curr-heading "\"/>" curr-heading "\n"
-                         "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-def-id "\"/>\n"
+                         "<text:bookmark text:name=\"" curr-heading "\"/>" curr-def-id "\n"
+                         "<text:bookmark-end text:name=\"OrgXref." curr-def-id "\"/>"))
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               (t
@@ -465,6 +469,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (beginning-of-line)
                (ooetmeu--delete-line)
                (when no-toc-entry
@@ -481,8 +486,8 @@ Return string of new file contents."
                          "<text:bookmark text:name=\"" curr-cust-id "\"/>\n"
                          "<text:bookmark-end text:name=\"OrgXref." curr-cust-id "\"/>"))
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-heading "\"/>\n"
-                         "<text:bookmark text:name=\"" curr-heading "\"/>"))
+                 (insert "<text:bookmark-start text:name=\"OrgXref." curr-def-id "\"/>\n"
+                         "<text:bookmark text:name=\"" curr-def-id "\"/>"))
                (unless no-header-preamble
                  (if part
                      (setq curr-heading-construct (concat "Part " (number-to-string part-num)))
@@ -497,7 +502,7 @@ Return string of new file contents."
                  (setq curr-heading-construct ""))
                (insert curr-heading-construct "\n")
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "<text:bookmark-end text:name=\"OrgXref." curr-heading "\"/>"))
+                 (insert "<text:bookmark-end text:name=\"OrgXref." curr-def-id "\"/>"))
                (insert "</text:h>\n"
                        "#+END_EXPORT\n")))
         (setq curr-heading-construct "")
@@ -574,7 +579,7 @@ Return string of new file contents."
       (org-mode)
       (ooetmeu--fold-show-all)
       (goto-char (point-min))
-      (while (re-search-forward "\\[\\[[^:/\.\n\r]+?]]" nil t)
+      (while (re-search-forward "\\[\\[[^/\.\n\r]+?]]" nil t)
         (unless beg
           (setq out-str ""))
         (setq link-text nil)
@@ -598,7 +603,10 @@ Return string of new file contents."
               (delete-char -2)
               (setq link-text (buffer-substring (point) (point-max)))
               (delete-region (point) (point-max)))
-            (setq link-val (buffer-string)))
+            (setq link-val (buffer-string))
+	    (setq link-val (replace-regexp-in-string (regexp-quote "&") "&amp;" link-val nil t))
+            (setq link-val (replace-regexp-in-string "\\\\thinsp" "" link-val nil t))
+	    (setq link-val (replace-regexp-in-string (regexp-quote "\"") "" link-val nil t)))
           (if link-text
               (insert "@@odt:<text:a xlink:type=\"simple\" xlink:href=\"#" link-val "\">" link-text "</text:a>@@")
             (progn

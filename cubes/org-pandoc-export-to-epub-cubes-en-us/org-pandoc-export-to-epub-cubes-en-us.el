@@ -1109,6 +1109,7 @@ Return string of new file contents."
         (no-header-preamble nil)
         (no-toc-entry nil)
         curr-cust-id
+	curr-def-id
         curr-heading
         curr-level
         (toc-head-string "")
@@ -1149,6 +1150,13 @@ Return string of new file contents."
                  (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote " ") "-" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "?") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote ":") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "&amp;") "" curr-def-id nil t))
+	       (when (string-match "^[[:digit:]]" curr-def-id)
+		 (setq curr-def-id (concat "D" curr-def-id)))  ; Pandoc doesn't seem to like internal links starting with a digit
                (beginning-of-line)
                (opeteceu--delete-line)
                (insert "#+BEGIN_EXPORT md\n")
@@ -1170,7 +1178,7 @@ Return string of new file contents."
                (when curr-cust-id
                  (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "\n<a id=\"" curr-heading "\"></a>\n"))
+                 (insert "\n<a id=\"" curr-def-id "\"></a>\n"))
                (insert "#+END_EXPORT\n")
                (forward-char -1))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
@@ -1181,6 +1189,13 @@ Return string of new file contents."
                  (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote " ") "-" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "?") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote ":") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "&amp;") "" curr-def-id nil t))
+	       (when (string-match "^[[:digit:]]" curr-def-id)
+		 (setq curr-def-id (concat "D" curr-def-id)))  ; Pandoc doesn't seem to like internal links starting with a digit
                (beginning-of-line)
                (opeteceu--delete-line)
                (insert "#+BEGIN_EXPORT md\n")
@@ -1224,7 +1239,7 @@ Return string of new file contents."
                (when curr-cust-id
                  (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "\n<a id=\"" curr-heading "\"></a>\n"))
+                 (insert "\n<a id=\"" curr-def-id "\"></a>\n"))
                (insert "#+END_EXPORT\n")
                (forward-char -1))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
@@ -1235,6 +1250,13 @@ Return string of new file contents."
                  (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote " ") "-" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "?") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote ":") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "&amp;") "" curr-def-id nil t))
+	       (when (string-match "^[[:digit:]]" curr-def-id)
+		 (setq curr-def-id (concat "D" curr-def-id)))  ; Pandoc doesn't seem to like internal links starting with a digit
                (beginning-of-line)
                (opeteceu--delete-line)
                (insert "#+BEGIN_EXPORT md\n")
@@ -1256,7 +1278,7 @@ Return string of new file contents."
                (when curr-cust-id
                  (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
                (unless (string= curr-heading "")
-                 (insert "\n<a id=\"" curr-heading "\"></a>\n"))
+                 (insert "\n<a id=\"" curr-def-id "\"></a>\n"))
                (insert "#+END_EXPORT\n")
                (forward-char -1))
               (t
@@ -1267,6 +1289,13 @@ Return string of new file contents."
                  (setq curr-level (org-current-level)))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote " ") "-" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "?") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote ":") "" curr-def-id nil t))
+	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "&amp;") "" curr-def-id nil t))
+	       (when (string-match "^[[:digit:]]" curr-def-id)
+		 (setq curr-def-id (concat "D" curr-def-id)))  ; Pandoc doesn't seem to like internal links starting with a digit
                (beginning-of-line)
                (opeteceu--delete-line)
                (insert "#+BEGIN_EXPORT md\n")
@@ -1308,7 +1337,7 @@ Return string of new file contents."
                (when curr-cust-id
                  (insert "\n<a id=\"" curr-cust-id "\"></a>\n"))
                (unless (or (string= curr-heading "") (string= curr-heading "Glossary") (string= curr-heading "Index"))
-                 (insert "\n<a id=\"" curr-heading "\"></a>\n"))
+                 (insert "\n<a id=\"" curr-def-id "\"></a>\n"))
                (insert "#+END_EXPORT\n")
                (forward-char -1)))
         (setq no-header nil)
@@ -1390,7 +1419,7 @@ Return string of new file contents."
       (org-mode)
       (opeteceu--fold-show-all)
       (goto-char (point-min))
-      (while (re-search-forward "\\[\\[[^:/\.\n\r]+?]]" nil t)
+      (while (re-search-forward "\\[\\[[^/\.\n\r]+?]]" nil t)
         (setq link-text nil)
         (setq beg (point))
         (when (re-search-backward "\\[\\[" nil t)
@@ -1412,7 +1441,16 @@ Return string of new file contents."
               (delete-char -2)
               (setq link-text (buffer-substring (point) (point-max)))
               (delete-region (point) (point-max)))
-            (setq link-val (buffer-string)))
+            (setq link-val (buffer-string))
+	    (setq link-val (replace-regexp-in-string (regexp-quote "&") "&amp;" link-val nil t))
+	    (setq link-val (replace-regexp-in-string "\\\\thinsp" "" link-val nil t))
+	    (setq link-val (replace-regexp-in-string (regexp-quote "\"") "" link-val nil t))
+	    (setq link-val (replace-regexp-in-string (regexp-quote " ") "-" link-val nil t))
+	    (setq link-val (replace-regexp-in-string (regexp-quote "?") "" link-val nil t))
+	    (setq link-val (replace-regexp-in-string (regexp-quote ":") "" link-val nil t))
+	    (setq link-val (replace-regexp-in-string (regexp-quote "&amp;") "" link-val nil t))
+	    (when (string-match "^[[:digit:]]" link-val)
+	      (setq link-val (concat "D" link-val))))  ; Pandoc doesn't seem to like internal links starting with a digit
           (if link-text
               (insert "@@html:[" link-text "](#" link-val ")@@")
             (progn
@@ -1432,6 +1470,13 @@ When images have no given name, remove the img name tags."
       (insert "](../Images/"))
     (save-buffer)
     (kill-buffer)))
+
+;; (defun opeteceu--remap-quotes-in-headers (file)
+;;   "Given a markdown FILE, change quote symbols to &quot;."
+;;   (find-file file)
+;;   (let ((case-fold-search t))
+;;     (goto-char (point-min))
+;;     (while (re-search-forward (format "
 
 
 ;;;; Required Entry Point Function for Org Novelist Export
