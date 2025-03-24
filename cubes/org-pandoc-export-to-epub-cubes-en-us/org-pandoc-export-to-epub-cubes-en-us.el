@@ -1634,6 +1634,8 @@ When images have no given name, remove the img name tags."
         (setq file-contents (opeteceu--remap-latex-index-anchors file-contents))
         ;; Remap the internal document links to point to replacement heading labels.
         (setq file-contents (opeteceu--remap-internal-links file-contents))
+	;; Correctly remap image links trying to point to ../Images.
+	;; (setq file-contents (opeteceu--remap-image-links file-contents))
         (with-temp-buffer
           (insert file-contents)
           (org-mode)
