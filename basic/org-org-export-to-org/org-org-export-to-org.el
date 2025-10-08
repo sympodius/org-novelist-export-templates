@@ -91,7 +91,8 @@
         (org-export-with-email-orig nil)
         (org-export-with-date-orig nil)
         (org-export-with-latex-orig nil)
-        (org-export-backends-orig nil))
+        (org-export-backends-orig nil)
+	(org-export-registered-backends-orig nil))
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
     (when (boundp 'org-export-with-title)
@@ -106,6 +107,8 @@
       (setq org-export-with-latex-orig org-export-with-latex))
     (when (boundp 'org-export-backends)
       (setq org-export-backends-orig org-export-backends))
+    (when (boundp 'org-export-registered-backends)
+      (setq org-export-registered-backends-orig org-export-registered-backends))
     (setq org-export-with-toc t)
     (setq org-export-with-title t)
     (setq org-export-with-author t)
@@ -131,7 +134,7 @@
             (message "Problems while trying to load export back-end `%s'"
                      backend))
            ((not (memq backend new-list)) (push backend new-list))))
-        (set-default 'org-export-backends new-list)))
+        (set-default 'org-export-backends (reverse new-list))))
     (find-file org-input-file)
     (ooeto--string-to-file (org-export-as 'org) (concat (file-name-sans-extension org-input-file) "_temp.org"))
     (setq org-export-with-toc org-export-with-toc-orig)
@@ -141,16 +144,7 @@
     (setq org-export-with-date org-export-with-date-orig)
     (setq org-export-with-latex org-export-with-latex-orig)
     (progn
-      (setq org-export-registered-backends
-            (cl-remove-if-not
-             (lambda (backend)
-               (let ((name (org-export-backend-name backend)))
-                 (or (memq name org-export-backends-orig)
-                     (catch 'parentp
-                       (dolist (b org-export-backends-orig)
-                         (and (org-export-derived-backend-p b name)
-                              (throw 'parentp t)))))))
-             org-export-registered-backends))
+      (setq org-export-registered-backends org-export-registered-backends-orig)
       (let ((new-list (mapcar #'org-export-backend-name
                               org-export-registered-backends)))
         (dolist (backend org-export-backends-orig)
@@ -159,7 +153,7 @@
             (message "Problems while trying to load export back-end `%s'"
                      backend))
            ((not (memq backend new-list)) (push backend new-list))))
-        (set-default 'org-export-backends new-list)))
+        (set-default 'org-export-backends (reverse new-list))))
     (make-directory (file-name-directory output-file) t)
     (rename-file (concat (file-name-sans-extension org-input-file) "_temp.org") output-file t)))
 

@@ -704,6 +704,7 @@ Return string of new file contents."
         (org-odt-styles-file-orig nil)
         (undo-tree-auto-save-history-orig nil)
         (org-export-backends-orig nil)
+	(org-export-registered-backends-orig nil)
         (file-contents "")
         (odt-manuscript-styles-xml (ooetmeu--generate-odt-style-string org-input-file)))
     ;;  Store original user-set Org export settings.
@@ -773,6 +774,8 @@ Return string of new file contents."
       (setq undo-tree-auto-save-history-orig undo-tree-auto-save-history))
     (when (boundp 'org-export-backends)
       (setq org-export-backends-orig org-export-backends))
+    (when (boundp 'org-export-registered-backends)
+      (setq org-export-registered-backends-orig org-export-registered-backends))
     (setq org-export-with-toc nil)
     (setq org-export-with-date nil)
     (setq org-export-with-tags t)
@@ -822,7 +825,7 @@ Return string of new file contents."
             (message "Problems while trying to load export back-end `%s'"
                      backend))
            ((not (memq backend new-list)) (push backend new-list))))
-        (set-default 'org-export-backends new-list)))
+        (set-default 'org-export-backends (reverse new-list))))
     ;; Construct new file to pass to Org export dispatcher, based on input file.
     (when (file-exists-p org-input-file)
       (when (file-readable-p org-input-file)
@@ -889,16 +892,7 @@ Return string of new file contents."
         (setq org-use-sub-superscripts org-use-sub-superscripts-orig)
         (setq org-export-with-statistics-cookies org-export-with-statistics-cookies-orig)
         (progn
-          (setq org-export-registered-backends
-                (cl-remove-if-not
-                 (lambda (backend)
-                   (let ((name (org-export-backend-name backend)))
-                     (or (memq name org-export-backends-orig)
-                         (catch 'parentp
-                           (dolist (b org-export-backends-orig)
-                             (and (org-export-derived-backend-p b name)
-                                  (throw 'parentp t)))))))
-                 org-export-registered-backends))
+          (setq org-export-registered-backends org-export-registered-backends-orig)
           (let ((new-list (mapcar #'org-export-backend-name
                                   org-export-registered-backends)))
             (dolist (backend org-export-backends-orig)
@@ -907,7 +901,7 @@ Return string of new file contents."
                 (message "Problems while trying to load export back-end `%s'"
                          backend))
                ((not (memq backend new-list)) (push backend new-list))))
-            (set-default 'org-export-backends new-list)))
+            (set-default 'org-export-backends (reverse new-list))))
         (rename-file (concat (file-name-sans-extension temp-org) ".odt") output-file t)
         (find-file (concat (file-name-directory output-file) "styles.xml"))
         (ooetmeu--delete-current-file t)
