@@ -276,6 +276,39 @@ Override the default TYPEFACE (Courier Prime) if required."
 "))
     out-xml))
 
+(defun ooetmeu--delete-noexport-subtrees (file-contents)
+  "Given a string FILE-CONTENTS, remove any Org subtrees that are tagged with
+a noexport (or similarly valid) tag.
+Return string of new file contents."
+  (let ((out-str ""))
+    (with-temp-buffer
+      (insert file-contents)
+      (org-mode)
+      (ooetmeu--fold-show-all)
+      (let ((beg (point-min))
+            (end (point-max))
+            (temp-point (point)))
+        (goto-char beg)
+        (while (< (point) end)
+          (cond
+           ;; Remove subtrees marked for no export.
+           ((org-at-heading-p)
+            (setq temp-point (point))
+            (let ((element (org-element-at-point)))
+              (when (org-element-type-p element 'headline)
+                (let ((org-heading-comps (org-heading-components)))
+                  (when (seq-intersection (org-get-tags) org-export-exclude-tags)
+                    (org-back-to-heading t)
+                    (org-mark-subtree)
+                    (delete-region (point) (mark))))))
+            (goto-char temp-point)))
+          (setq end (point-max))
+          (unless (= (point) end)
+            (forward-char)))
+        (goto-char beg))
+      (setq out-str (buffer-string)))
+    out-str))
+
 (defun ooetmeu--restyle-headings (file-contents)
   "Given a string FILE-CONTENTS, add Org mode ODT exports to restyle headings.
 Return string of new file contents."
@@ -834,6 +867,8 @@ Return string of new file contents."
         (ooetmeu--string-to-file odt-manuscript-styles-xml (concat (file-name-directory output-file) "styles.xml"))
         (setq org-odt-styles-file (concat (file-name-directory output-file) "styles.xml"))
         (setq file-contents (org-file-contents org-input-file))
+        ;; Remove any subtrees that are marked for noexport.
+        (setq file-contents (ooetmeu--delete-noexport-subtrees file-contents))
         ;; Add ODT export codes to restyle the headings.
         (setq file-contents (ooetmeu--restyle-headings file-contents))
         ;; Add ODT export codes to restyle the verse blocks.

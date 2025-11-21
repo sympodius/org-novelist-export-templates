@@ -1023,6 +1023,39 @@ This function will not do anything if xelatex is not in the system path."
     (delete-file (concat (file-name-sans-extension output-file) "Booklet.aux"))
     (delete-file (concat (file-name-sans-extension output-file) "Booklet.log"))))
 
+(defun oletptceu--delete-noexport-subtrees (file-contents)
+  "Given a string FILE-CONTENTS, remove any Org subtrees that are tagged with
+a noexport (or similarly valid) tag.
+Return string of new file contents."
+  (let ((out-str ""))
+    (with-temp-buffer
+      (insert file-contents)
+      (org-mode)
+      (oletptceu--fold-show-all)
+      (let ((beg (point-min))
+            (end (point-max))
+            (temp-point (point)))
+        (goto-char beg)
+        (while (< (point) end)
+          (cond
+           ;; Remove subtrees marked for no export.
+           ((org-at-heading-p)
+            (setq temp-point (point))
+            (let ((element (org-element-at-point)))
+              (when (org-element-type-p element 'headline)
+                (let ((org-heading-comps (org-heading-components)))
+                  (when (seq-intersection (org-get-tags) org-export-exclude-tags)
+                    (org-back-to-heading t)
+                    (org-mark-subtree)
+                    (delete-region (point) (mark))))))
+            (goto-char temp-point)))
+          (setq end (point-max))
+          (unless (= (point) end)
+            (forward-char)))
+        (goto-char beg))
+      (setq out-str (buffer-string)))
+    out-str))
+
 (defun oletptceu--restyle-headings (file-contents)
   "Given a string FILE-CONTENTS, add Org mode LaTeX exports to restyle headings.
 Return string of new file contents."
@@ -1849,6 +1882,8 @@ Return string of new file contents."
     (when (file-exists-p org-input-file)
       (when (file-readable-p org-input-file)
         (setq file-contents (org-file-contents org-input-file))
+        ;; Remove any subtrees that are marked for noexport.
+        (setq file-contents (oletptceu--delete-noexport-subtrees file-contents))
         ;; Add index flags to the story. Doing this here, before any other processing, ensures we won't include things like title pages and copyright pages in the index.
         (setq file-contents (oletptceu--add-indices file-contents))
         ;; Setup LaTeX settings for Org mode export.

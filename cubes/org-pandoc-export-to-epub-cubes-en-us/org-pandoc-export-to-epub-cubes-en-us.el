@@ -1100,6 +1100,39 @@ Return string of new file contents."
         (setq out-str (buffer-string))))
     out-str))
 
+(defun opeteceu--delete-noexport-subtrees (file-contents)
+  "Given a string FILE-CONTENTS, remove any Org subtrees that are tagged with
+a noexport (or similarly valid) tag.
+Return string of new file contents."
+  (let ((out-str ""))
+    (with-temp-buffer
+      (insert file-contents)
+      (org-mode)
+      (opeteceu--fold-show-all)
+      (let ((beg (point-min))
+            (end (point-max))
+            (temp-point (point)))
+        (goto-char beg)
+        (while (< (point) end)
+          (cond
+           ;; Remove subtrees marked for no export.
+           ((org-at-heading-p)
+            (setq temp-point (point))
+            (let ((element (org-element-at-point)))
+              (when (org-element-type-p element 'headline)
+                (let ((org-heading-comps (org-heading-components)))
+                  (when (seq-intersection (org-get-tags) org-export-exclude-tags)
+                    (org-back-to-heading t)
+                    (org-mark-subtree)
+                    (delete-region (point) (mark))))))
+            (goto-char temp-point)))
+          (setq end (point-max))
+          (unless (= (point) end)
+            (forward-char)))
+        (goto-char beg))
+      (setq out-str (buffer-string)))
+    out-str))
+
 (defun opeteceu--restyle-headings (file-contents)
   "Given a string FILE-CONTENTS, add Org mode md exports to restyle headings.
 Return string of new file contents."
@@ -1662,6 +1695,8 @@ When images have no given name, remove the img name tags."
         ;; The next two lines setup the stylesheet file for the document.
         (opeteceu--string-to-file cubes-css (concat (file-name-directory output-file) "stylesheet.css"))
         (setq file-contents (org-file-contents org-input-file))
+        ;; Remove any subtrees that are marked for noexport.
+        (setq file-contents (opeteceu--delete-noexport-subtrees file-contents))
         ;; Add index entry anchors to story before other processing to ensure title pages, copyright pages etc aren't included in the index.
         (setq file-contents (opeteceu--add-index-anchors file-contents index-entries))  ; Not sure this will work. Is actual variable being passed, or just value?
         ;; At this point, we should have the story full tagged with anchors for the index, as well as have a hash map containing all the index terms, and a way to link to every appearance in the text.
