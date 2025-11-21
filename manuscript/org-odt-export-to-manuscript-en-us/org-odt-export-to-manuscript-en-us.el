@@ -150,13 +150,13 @@ Return buffer position of heading line if found, and nil otherwise."
   (let ((regexp (concat "^" (org-get-limited-outline-regexp))))
     (end-of-line)
     (if (re-search-forward regexp nil t 1)
-	(progn
-	  (beginning-of-line)
-	  (point))
+        (progn
+          (beginning-of-line)
+          (point))
       (progn
-	(goto-char (point-max))
-	(beginning-of-line)
-	nil))))
+        (goto-char (point-max))
+        (beginning-of-line)
+        nil))))
 
 (defun ooetmeu--delete-line ()
   "If Emacs version is less than 29, delete line the old fashioned way."
@@ -286,7 +286,7 @@ Return string of new file contents."
         (chap-num 0)
         (part-num 0)
         curr-cust-id
-	curr-def-id
+        curr-def-id
         (no-header nil)
         (no-header-name nil)
         (no-header-preamble nil)
@@ -358,7 +358,7 @@ Return string of new file contents."
             (setq curr-cust-id nil)))
         ;; Check matter type and replace appropriately, convert heading level to same output level. If no matter type, assume front matter.
         (cond ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "FRONT MATTER")
-	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
+               (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -366,7 +366,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
-	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+               (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (when (or no-header no-header-name)
                  (setq curr-heading ""))
                (beginning-of-line)
@@ -389,7 +389,7 @@ Return string of new file contents."
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "MAIN MATTER")
-	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
+               (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -397,7 +397,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
-	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+               (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (beginning-of-line)
                (ooetmeu--delete-line)
                (when no-toc-entry
@@ -432,7 +432,7 @@ Return string of new file contents."
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               ((string= (org-entry-get (point) "ORG-NOVELIST-MATTER-TYPE") "BACK MATTER")
-	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
+               (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -440,7 +440,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
-	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+               (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (when (or no-header no-header-name)
                  (setq curr-heading ""))
                (beginning-of-line)
@@ -461,7 +461,7 @@ Return string of new file contents."
                (insert "</text:h>\n"
                        "#+END_EXPORT\n"))
               (t
-	       (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
+               (org-entry-delete (point) "ORG-NOVELIST-MATTER-TYPE")
                (setq curr-heading (nth 4 (org-heading-components)))
                (setq curr-level (number-to-string (org-current-level)))
                (if part
@@ -469,7 +469,7 @@ Return string of new file contents."
                  (setq curr-level (number-to-string (+ (string-to-number curr-level) 1))))
                (setq curr-heading (replace-regexp-in-string (regexp-quote "&") "&amp;" curr-heading nil t))
                (setq curr-heading (replace-regexp-in-string "\\\\thinsp" "" curr-heading nil t))
-	       (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
+               (setq curr-def-id (replace-regexp-in-string (regexp-quote "\"") "" curr-heading nil t))
                (beginning-of-line)
                (ooetmeu--delete-line)
                (when no-toc-entry
@@ -525,11 +525,11 @@ Return string of new file contents."
       (org-mode)
       (ooetmeu--fold-show-all)
       (let ((case-fold-search t))
-	(goto-char (point-min))
+        (goto-char (point-min))
         (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[file:../Images/")) nil t)
           (delete-char -7)
           (insert "../Images/"))
-	(goto-char (point-min))
+        (goto-char (point-min))
         (while (re-search-forward (format "^[ \t]*%s" (regexp-quote "[[../Images/")) nil t)
           (delete-char -7)
           (insert "../Images/")))
@@ -604,9 +604,9 @@ Return string of new file contents."
               (setq link-text (buffer-substring (point) (point-max)))
               (delete-region (point) (point-max)))
             (setq link-val (buffer-string))
-	    (setq link-val (replace-regexp-in-string (regexp-quote "&") "&amp;" link-val nil t))
+            (setq link-val (replace-regexp-in-string (regexp-quote "&") "&amp;" link-val nil t))
             (setq link-val (replace-regexp-in-string "\\\\thinsp" "" link-val nil t))
-	    (setq link-val (replace-regexp-in-string (regexp-quote "\"") "" link-val nil t)))
+            (setq link-val (replace-regexp-in-string (regexp-quote "\"") "" link-val nil t)))
           (if link-text
               (insert "@@odt:<text:a xlink:type=\"simple\" xlink:href=\"#" link-val "\">" link-text "</text:a>@@")
             (progn
@@ -704,7 +704,7 @@ Return string of new file contents."
         (org-odt-styles-file-orig nil)
         (undo-tree-auto-save-history-orig nil)
         (org-export-backends-orig nil)
-	(org-export-registered-backends-orig nil)
+        (org-export-registered-backends-orig nil)
         (file-contents "")
         (odt-manuscript-styles-xml (ooetmeu--generate-odt-style-string org-input-file)))
     ;;  Store original user-set Org export settings.

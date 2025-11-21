@@ -92,7 +92,7 @@
         (org-export-with-date-orig nil)
         (org-export-with-latex-orig nil)
         (org-export-backends-orig nil)
-	(org-export-registered-backends-orig nil))
+        (org-export-registered-backends-orig nil))
     (when (boundp 'org-export-with-toc)
       (setq org-export-with-toc-orig org-export-with-toc))
     (when (boundp 'org-export-with-title)
